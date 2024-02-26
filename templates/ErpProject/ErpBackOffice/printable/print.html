@@ -1,0 +1,81 @@
+
+{% extends "ErpProject/ErpBackOffice/printable/baseprint.html" %} {% block content %}
+<div class="row">
+    
+    <div class="panel panel-default" style="border: none;">
+        <div class="panel panel-body" style="background-color:white;">
+            <div class="col-md-12">              
+
+                <div class="col-md-6" style="text-align: right;font-size:13px">
+
+                    <p><strong>Date de création :</strong> {{ model.date_creation }}<br>
+                    <strong>Date d'impression :</strong> {{ model.date_now }}
+                    {% if model.etat %}
+                    <br>
+                    <strong>Etat :</strong> {{ model.etat }}
+                    {% endif %}
+
+                    </p>
+
+                </div>
+
+                <div class="col-md-6" >
+
+                    <center><h2 style="font-size: 24px;">{{ model.title }}</h2></center>
+                    <center><h2 style="color: red; font-weight: bold;font-size: 17px; padding-top:-20px">{{ model.reference }}</h2></center>
+
+                </div>
+
+                <!-- Affichage des détails -->
+
+                {% if model.details %}
+                <div class="col-md-6">
+                    {% for detail in model.details %}
+                   <p style="font-size: 13px;"><strong>{{ detail.champ }}:</strong> {{ detail.valeur }}</p>
+                   {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- fin affichage détails -->
+                <br><br>
+
+                <!-- Affichage d'un tableau -->
+                {% if model.tabEntete %}
+                <div class="col-md-12" >
+                    <table class="display nowrap border bordered striped" cellspacing="0" style="width: 100%;" >
+                        <thead>
+                            <tr>
+                                <td class="head">#</td>
+                                {% for item in model.tabEntete %}
+                                <td class="head">{{ item }}</td>
+                                {% endfor %}
+                                
+                            </tr> 
+                        </thead>
+                        <tbody>
+                            
+                            {% for ligne in model.tabLignes %}
+                            <tr class="table bordered border">
+                                <td class="td"></td>
+                                {% for item in ligne %}
+                                    <td class="td">{{ item }}</td>
+                                {% endfor %}                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>                    
+                        
+                    </table>
+              </div>
+              {% endif %}
+
+              <!-- Fin affichage tableaux -->
+
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+
+{% endblock %}

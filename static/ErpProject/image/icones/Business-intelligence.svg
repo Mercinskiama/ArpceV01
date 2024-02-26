@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <g id="Business-intelligence" transform="translate(-399 289)">
+    <path id="路径" d="M0,28V5A5,5,0,0,1,5,0H31a5,5,0,0,1,5,5V31a5,5,0,0,1-5,5H4" transform="translate(401 -287)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <path id="直线" d="M.5,0V6" transform="translate(409.5 -267)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <path id="直线-2" data-name="直线" d="M.5,0V10" transform="translate(427.5 -271)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <path id="直线-3" data-name="直线" d="M.5,0V16" transform="translate(418.5 -277)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <circle id="椭圆形" cx="2" cy="2" r="2" transform="translate(426 -279)" fill="#fff"/>
+  </g>
+</svg>

@@ -1,0 +1,81 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Désignation :<br>
+                        <span class="sub-alt-header">{{ model.designation }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Séquence :<br>
+                        <span class="sub-alt-header">{{ model.sequence }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Dossier parent :<br>
+                        {% if model.parent is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.parent }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Description :<br>
+                        <span class="sub-alt-header">{{ model.description }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <label class="input-control checkbox small-check full-size">
+                        <input name="owner_read" id="owner_read"  {% if model.owner_read is True %}{{ "checked" }}{% endif %} type="checkbox" disabled="disabled">
+                        <span class="check"></span>
+                        <span class="caption">Lire Documents personnels seulement</span>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <label class="input-control checkbox small-check full-size">
+                        <input name="est_racine" id="est_racine"  {% if model.est_racine is True %}{{ "checked" }}{% endif %} type="checkbox" disabled="disabled">
+                        <span class="check"></span>
+                        <span class="caption">Est dossier racine</span>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <label class="input-control checkbox small-check full-size">
+                        <input name="est_archivage" id="est_archivage"  {% if model.est_archivage is True %}{{ "checked" }}{% endif %} type="checkbox" disabled="disabled">
+                        <span class="check"></span>
+                        <span class="caption">Est dossier archivage</span>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <label>Accès en écriture :</label><br>
+                        {% for item in model.write_groups.all %}
+                            <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                        {% endfor %}                     
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <label>Accès en lecture :</label><br>
+                        {% for item in model.read_groups.all %}
+                            <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                        {% endfor %}                     
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

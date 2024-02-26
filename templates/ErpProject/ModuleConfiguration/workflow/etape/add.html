@@ -1,0 +1,137 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+<div class="row">
+    <div class="col-xs-12">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_modules' %}">Module Configuration</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_modules' %}">Liste des modules</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Création d'une étape</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <div class="col-md-2">
+{% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit" class="button small-button rounded primary_color_{{module.name|lower}}" val="Valider"%}
+                    </div>
+                    <div class="col-md-2">
+                        <button style="width:100%;" onclick="javascript:window.location.assign('{% url 'module_configuration_list_workflow' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+
+                <div class="row" style="margin-top: 10px">
+                    <div class="col-md-6">
+                        <form id="form" method="POST" action="{% url 'module_configuration_post_add_etape' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <input name="workflow_id" type="hidden" value="{{ workflow.id }}">
+
+                            <div class="row">
+                                <label>Designation</label>
+                                <div class="input-control text full-size" data-role="input">
+                                    <input name="designation" type="text" data-validate-func="required" data-validate-hint="Entrez la designation svp !">
+                                    <span class="input-state-error mif-warning"></span>
+                                    <span class="input-state-success mif-checkmark"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label>Label</label>
+                                <div class="input-control text full-size" data-role="input">
+                                    <input name="label" type="text" data-validate-func="required" data-validate-hint="Entrez le label svp !">
+                                    <span class="input-state-error mif-warning"></span>
+                                    <span class="input-state-success mif-checkmark"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label>Workflow</label>
+                                <div class="input-control text full-size" data-role="input">
+                                    <input type="text" data-validate-func="required" disabled value="{{workflow.type_document}}">
+                                    <span class="input-state-error mif-warning"></span>
+                                    <span class="input-state-success mif-checkmark"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label>Est initiale</label>
+                                <div class="input-control" data-role="input"></div>
+                                    {% if initiale_exist == False %}    
+                                    <input onchange="change_presence(this)" class="actif" type="checkbox" value="{{ workflow.pk }}">  <input name="est_initiale" id="est_initiale" value="1" hidden="true">
+                                    {% else %}
+                                        <input onchange="change_presence(this)" class="actif" type="checkbox" value="{{ workflow.pk }}" disabled>  <input name="est_initiale" id="est_initiale" value="1" hidden="true">
+                                    {% endif %}
+
+                                    
+                                </div>
+                            <div class="row">
+                                <label>Est décisive</label>
+                                <div class="input-control" data-role="input"></div>
+                                    <input class="actif" onchange="change_decisive(this)" type="checkbox" value="{{ workflow.pk }}">  <input name="est_decisive" id="est_decisive" value="1" hidden="true">
+                                      
+                                </div>
+                            <div class="row">
+                                <label>Est finale</label>
+                                <div class="input-control" data-role="input"></div>
+                                    {% if final_exist == False %}    
+                                    <input onchange="change_final(this)" class="actif" type="checkbox" value="{{ workflow.pk }}">  <input name="est_final" id="est_final" value="1" hidden="true">
+                                    {% else %}
+                                        <input onchange="change_final(this)" class="actif" type="checkbox" value="{{ workflow.pk }}" disabled>  <input name="est_final" id="est_final" value="1" hidden="true">
+                                    {% endif %}
+
+                                    
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function change_presence(checkBox) {
+        var id_check = est_initiale.value;				
+        if(checkBox.checked == true) {
+            $("#est_initiale").val("2");
+        }else{
+            $("#est_initiale").val("1");
+        }
+    }
+
+    function change_final(checkBox) {
+        var id_check = est_final.value;				
+        if(checkBox.checked == true) {
+            $("#est_final").val("2");
+        }else{
+            $("#est_final").val("1");
+        }
+    }
+
+    function change_decisive(checkBox) {
+        var id_check = est_decisive.value;				
+        if(checkBox.checked == true) {
+            $("#est_decisive").val("2");
+        }else{
+            $("#est_decisive").val("1");
+        }
+    }
+</script>
+
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

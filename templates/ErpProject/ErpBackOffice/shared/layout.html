@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <title>{{ title }}</title>
+    {% load static %}
+
+    <link rel="shortcut icon" href="{% static organisation.icon %}">
+
+    <link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/metisMenu.min.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/metro.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/metro-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/metro-schemes.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/jquery-ui.theme.min.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/jquery-ui.structure.min.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/custom.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'ErpProject/css/fontawesome_5/css/all.css' %}" />
+
+
+    <script type="application/javascript" src="{% static 'ErpProject/js/jquery-2.1.3.min.js' %}"></script>
+    <script type="application/javascript" src="{% static 'ErpProject/js/chosen.jquery.js' %}"></script>
+    <script type="application/javascript" src="{% static 'ErpProject/js/jquery-ui.min.js' %}"></script>
+    <script type="application/javascript" src="{% static 'ErpProject/js/bootstrap.min.js' %}"></script>
+    <script type="application/javascript" src="{% static 'ErpProject/js/metisMenu.min.js' %}"></script>
+    <script type="application/javascript" src="{% static 'ErpProject/js/jquery.dataTables.min.js' %}"></script>
+    <script type="application/javascript" src="{% static 'ErpProject/js/metro.js' %}"></script>
+    <script type="application/javascript" src="{% static 'ErpProject/js/related-object-lookups.js' %}"></script>
+    <script type="application/javascript" src="{% static 'ErpProject/js/moment.min.js' %}"></script>
+    <!--<script type="application/javascript" src="{% static 'ErpProject/js/accounting.js' %}"></script>-->
+    <script type="application/javascript" src="{% static 'ErpProject/js/custom.js' %}"></script>
+</head>
+
+<body>
+    <div class="{{ module.name|lower }}">
+        {% if not isPopup %}
+        <!-- Navbar Menu horizontal -->
+        <header class="app-bar red" data-role="appbar" style="padding:0 10px">
+            <div class="app-bar-divider only-on-small-screen"></div>
+            <div class="app-bar-divider only-on-small-screen"></div>
+            <a href="/" class="app-bar-element branding only-on-large-screen chargement-au-click">
+                <img src="{% static organisation.image %}" style="height: 40px; display: inline-block; margin-right: 10px;">
+            </a>
+            <div class="app-bar-divider only-on-large-screen"></div>
+            <ul class="app-bar-menu">
+                <li><a href="javascript:void(0)" id="showbar" onclick="showbarr()"></a></li>
+                <li><a href="javascript:void(0)" id="hidebar" onclick="hidebarr()"></a></li>
+                {% for item in modules %}
+                <li class="active_{% if module.value == item.numero_ordre %}{{ module.name|lower }}{% endif %}  chargement-au-click" style="/*padding-bottom:11px;*/">
+                    <a class="{% if module.value == item.numero_ordre %}{{ " active " }}{% endif %}  chargement-au-click" href="/{{ item.url_vers }}">{{ item.nom_module }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="app-bar-element place-right">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-user fa-fw"></i> {{ utilisateur.nom_complet }}
+                    <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu d-menu place-right">
+                    <li><a href="{% url 'backoffice_profile' %}"><i class="fa fa-user fa-fw"></i> Profil d'utilisateur</a>
+                    </li>
+                    <li><a href="{% url 'backoffice_change_password' %}"><i class="fa fa-cog fa-fw"></i> Paramètres</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li><a href="{% url 'backoffice_deconnexion' %}"><i class="fa fa-sign-out-alt fa-fw"></i> Déconnexion</a>
+                    </li>
+                </ul>
+            </div>
+        </header>
+        <!-- /.Reste du menu -->
+        {% endif %}
+
+        <!-- Contenu personalisé   INFO: Le menu latéral et le corp de la page se trouve dans le layout de chaque module dans le dossier shared-->
+        {% block content %}{% endblock %}
+        <!-- /.Contenu personalisé -->
+
+        <div id="chargement" data-role="dialog" class="padding20 dialog fg-white" data-close-button="false" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" style="max-width: 300px; visibility: hidden; background-color: transparent;">
+            <div data-role="preloader" data-type="ring" style="margin: auto"></div>
+        </div>
+        <script>
+            function wrapper_resize() {
+                var screenHeight = window.screen.height;
+                var wrapperHeight = $("#page-wrapper").height();
+                //console.log("screenHeight: "+screenHeight);
+                //console.log("wrapperHeight: "+wrapperHeight);
+                if (wrapperHeight > screenHeight && wrapperHeight > 1200) {
+                    newHeight = wrapperHeight;
+                } else {
+                    newHeight = screenHeight + 500;
+                }
+                //console.log("height: "+newHeight);
+                $("#page-wrapper").height(newHeight);
+            }
+
+            $(document).ready(function() {
+                $('.ui.dropdown').dropdown();
+                //$('.multi_select2').multiSelect();
+                wrapper_resize();
+                $(".a-menu").click(function() {
+                    wrapper_resize();
+                });
+                $(window).resize(function() {
+                    wrapper_resize();
+                });
+                if ($(window).width() <= 769) {
+                    $('#navbar-collapse').collapse("toggle");
+                }
+            });
+        </script>
+
+        <script type="application/javascript">
+            function showDialog(id) {
+                var dialog = $("#" + id).data('dialog');
+                if (!dialog.element.data('opened')) dialog.open();
+                else dialog.close();
+            }
+
+            function notifyOnErrorInput(input) {
+                var message = input.data('validateHint');
+                $.Notify({
+                    caption: 'Error',
+                    content: message,
+                    type: 'alert'
+                });
+            }
+
+            /*function showCharm(id) {
+                var charm = $("#" + id).data("charm");
+                if (charm.element.data("opened") === true) {
+                    charm.close();
+                    $("#btn-menu").removeClass("active");
+                } else {
+                    charm.open();
+                    $("#btn-menu").addClass("active");
+                }
+            }
+
+            $(document).on("click", function(event) {
+                var element = event.target;
+
+                if (element.id.length == 0 || (element.id != "btn-menu" && element.id != "span-menu")) {
+                    var charm = $("#menu").data("charm");
+                    if (charm.element.data("opened") === true) {
+                        charm.close();
+                        $("#btn-menu").removeClass("active");
+                    }
+                }
+            });
+
+            $("#toggle-tiles-dropdown").on("click", function(event) {
+                var charm = $("#menu").data("charm");
+                if (charm.element.data("opened") === true) {
+                    charm.close();
+                    $("#btn-menu").removeClass("active");
+                }
+            });*/
+            window.addEventListener("hashchange", function(e) {
+                console.log(window.status);
+                console.log(e);
+            })
+        </script>
+        <script>
+            // Item menu lien vers autre pages
+            $(function() {
+                $('.item-menu-click').on('click', function(e) {
+                    location.assign(location.origin + '/' + $(e.currentTarget).attr('href'));
+                });
+            })
+        </script>
+
+        <script>
+            // elimination de enter pour eviter les erreurs
+            window.addEventListener("keydown", checkey, false);
+
+            function checkey(key) {
+                if (key.keyCode == "13") {
+                    key.preventDefault()
+                }
+            }
+        </script>
+
+        <script>
+            function setCookie(cname, cvalue, exdays) {
+                const d = new Date();
+                d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+                let expires = "expires="+d.toUTCString();
+                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            }     
+            function getCookie(cname) {
+                let name = cname + "=";
+                let ca = document.cookie.split(';');
+                for(let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+                }
+                return "";
+            }   
+            function hidebarr() {
+            
+                setCookie("collapse", "true", 365)
+                console.log("nouveau cookie : ", getCookie("collapse"))
+                
+                $('.sidebar').css({"left": "0", "transition": "0.5s"});
+                $('#page-wrapper').css({"margin-left": "250px", "width": "87%", "transition": "0.6s"});
+                
+                $('#hidebar').css({"display": "none"});
+                $('#showbar').css({"display": "block"});
+                
+            }
+
+            function showbarr() {           
+                setCookie("collapse", "false", 365)
+                console.log("nouveau cookie : ", getCookie("collapse"))
+                
+                $('.sidebar').css({"left": "-250px", "transition": "0.5s"});
+                $('#page-wrapper').css({"margin-left": "0px", "width": "100%", "transition": "0.5s"});
+                
+                $('#hidebar').css({"display": "block"});
+                $('#showbar').css({"display": "none"});
+            }
+          
+            {% if not isPopup %}
+            $(document).ready(function(){
+                $('#showbar').prepend('<span style="color: black; margin: 0 10px"><i class="fa fa-arrow-left"></i></span>');
+                $('#hidebar').prepend('<span style="color: black; margin: 0 10px"><i class="fa fa-arrow-right"></i></span>');
+                var cook = getCookie("collapse");
+                console.log("cookie start: ", cook);
+                if(cook == "true"){
+                    $('#hidebar').css({"display": "none"});
+                    $('#showbar').css({"display": "block"});
+            
+                    $('.sidebar').css({"left": "0", "transition": "0.6s"});
+                    $('#page-wrapper').css({"margin-left": "250px", "width": "87%", "transition": "0.6s"});
+                }else{
+                    $('#hidebar').css({"display": "block"});
+                    $('#showbar').css({"display": "none"});
+            
+                    $('.sidebar').css({"left": "-250px", "transition": "0.6s"});
+                    $('#page-wrapper').css({"margin-left": "0px", "width": "100%", "transition": "0.6s"});
+                }            
+            });
+            {% endif %}
+        </script>
+
+</body>
+
+</html>

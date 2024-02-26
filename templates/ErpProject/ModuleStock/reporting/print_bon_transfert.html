@@ -1,0 +1,84 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Code transfert :<br>
+                        <span class="sub-alt-header">{{ model.code }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Société :<br>
+                        {% if model.societe is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.societe }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Emplacement Origine :<br>
+                        {% if model.emplacement_origine is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.emplacement_origine }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Emplacement Destination :<br>
+                        {% if model.emplacement_destination is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.emplacement_destination }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Statut :<br>
+                        {% if model.status is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.status }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Opération Stock :<br>
+                        {% if model.operation_stock is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.operation_stock }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Description :<br>
+                        <span class="sub-alt-header">{{ model.description }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Responsable Transfert :<br>
+                        {% if model.responsable_transfert is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.responsable_transfert }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

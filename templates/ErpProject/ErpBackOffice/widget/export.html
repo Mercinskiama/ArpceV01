@@ -1,0 +1,18 @@
+<script src="{% static 'ErpProject/js/FileSaver.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/xlsx.full.min.js' %}"></script> 
+<script>
+    //Exporter en Excel
+    var wb = XLSX.utils.table_to_book(document.getElementById('{{rapport}}'), {sheet:"Sheet JS"});
+    var wopts = { bookType:'xlsx', bookSST:true, type: 'binary' };
+    var wbout = XLSX.write(wb, wopts);
+    function s2ab(s) {
+        var buf = new ArrayBuffer(s.length);
+        var view = new Uint8Array(buf);
+        for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
+    }
+    $("#{{btn_id}}").click(function(){
+        console.log("btn_export cliquee");
+        saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), '{{ title }}.xlsx');
+    });
+</script>

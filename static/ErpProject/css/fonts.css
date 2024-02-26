@@ -1,0 +1,59 @@
+@font-face {
+    font-family: 'Circular Std Book';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Circular Std Book"), url(/static/ErpProject/fonts/CircularStd-Book.woff) format("woff"); }
+  
+  @font-face {
+    font-family: 'Circular Std Book Italic';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Circular Std Book Italic"), url(/static/ErpProject/fonts/CircularStd-BookItalic.woff) format("woff"); }
+  
+  @font-face {
+    font-family: 'Circular Std Medium';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Circular Std Medium"), url(/static/ErpProject/fonts/CircularStd-Medium.woff) format("woff"); }
+  
+  @font-face {
+    font-family: 'Circular Std Bold';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Circular Std Bold"), url(/static/ErpProject/fonts/CircularStd-Bold.woff) format("woff"); }
+
+    @font-face {
+      font-family: 'Poppins';
+      font-style: normal;
+      font-weight: normal;
+      src: local("Poppins"), url(/static/ErpProject/fonts/Poppins-Regular.ttf) format("ttf"); }
+
+      @font-face {
+        font-family: 'Poppins Thin';
+        font-style: normal;
+        font-weight: normal;
+        src: local("Poppins Thin"), url(/static/ErpProject/fonts/Poppins-Thin.ttf) format("ttf"); }
+    
+    @font-face {
+      font-family: 'Poppins Italic';
+      font-style: normal;
+      font-weight: normal;
+      src: local("Poppins Italic"), url(/static/ErpProject/fonts/Poppins-Italic.ttf) format("ttf"); }
+    
+    @font-face {
+      font-family: 'Poppins Medium';
+      font-style: normal;
+      font-weight: normal;
+      src: local("Poppins Medium"), url(/static/ErpProject/fonts/Poppins-Medium.ttf) format("ttf"); }
+    
+    @font-face {
+      font-family: 'Poppins Bold';
+      font-style: normal;
+      font-weight: normal;
+      src: local("Poppins Bold"), url(/static/ErpProject/fonts/Poppins-Bold.ttf) format("ttf"); }
+
+      @font-face {
+        font-family: 'Poppins Black';
+        font-style: normal;
+        font-weight: normal;
+        src: local("Poppins Black"), url(/static/ErpProject/fonts/Poppins-Black.ttf) format("ttf"); }

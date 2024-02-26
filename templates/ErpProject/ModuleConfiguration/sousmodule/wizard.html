@@ -1,0 +1,443 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+{% load static %}
+
+<style>
+.stepwizard-step p {
+    margin-top: 0px;
+    color:#666;
+}
+.stepwizard-row {
+    display: table-row;
+}
+.stepwizard {
+    display: table;
+    width: 100%;
+    position: relative;
+}
+.stepwizard-step button[disabled] {
+    /*opacity: 1 !important;
+    filter: alpha(opacity=100) !important;*/
+}
+.stepwizard .btn.disabled, .stepwizard .btn[disabled], .stepwizard fieldset[disabled] .btn {
+    opacity:1 !important;
+    color:#bbb;
+}
+.stepwizard-row:before {
+    top: 14px;
+    bottom: 0;
+    position: absolute;
+    content:" ";
+    width: 100%;
+    height: 1px;
+    background-color: #ccc;
+    z-index: 0;
+}
+.stepwizard-step {
+    display: table-cell;
+    text-align: center;
+    position: relative;
+}
+
+
+</style>
+
+<link href="{% static 'ErpProject/wizard/style.min.css' %}" rel="stylesheet">
+<script src="{% static 'ErpProject/wizard/jstree.min.js' %}"></script>
+
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_dashboard' %}">Accueil</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_Configuration_list_sousmodule' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong class="hidden-xs" style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+   <!-- Debut Wizzard -->     
+<div class="container">
+    <div class="stepwizard">
+        <div class="stepwizard-row setup-panel">
+            <div class="stepwizard-step col-xs-3"> 
+                <a href="#step-1" type="button" class="btn btn-success btn-circle">1</a>
+                <p><small>Module</small></p>
+            </div>
+            <div class="stepwizard-step col-xs-3"> 
+                <a href="#step-2" type="button" class="btn btn-default btn-circle" disabled="disabled">2</a>
+                <p><small>Permission et Action</small></p>
+            </div>
+            <div class="stepwizard-step col-xs-3"> 
+                <a href="#step-3" type="button" class="btn btn-default btn-circle" disabled="disabled">3</a>
+                <p><small>Informations complémentaires</small></p>
+            </div>
+            <div class="stepwizard-step col-xs-3"> 
+                <a href="#step-4" type="button" class="btn btn-default btn-circle" disabled="disabled">4</a>
+                <p><small>Configuration</small></p>
+            </div>
+        </div>
+    </div>
+    
+    <form role="form" method="POST" action="{% url 'module_Configuration_post_add_wizard_menu' %}">
+        {% csrf_token %}
+        <div class="panel panel-primary setup-content" id="step-1">
+            <div class="panel-heading">
+                 <h3 class="panel-title">Module</h3>
+            </div>
+
+
+            <div class="panel-body">
+                <div class="form-group">
+                    <label class="control-label">Module</label>
+                    <select name="module_id" id="module_id" class="form-control" required onchange="load_sous_module()">
+                            <option value="">Selectionnez un module</option>
+                            {% for item in lesmodules %}
+                                <option value="{{ item.id }}"> {{ item.nom_module }} </option>
+                            {% endfor %}
+                        </select>
+                </div>
+                <input type="hidden" name="groupe_menu_id" id="showGroupeMenuID" />
+                <input type="hidden" name="menu_id" id="showMenuID"/>
+
+                <br><br>
+
+                <div id="sous_module_view">
+                   
+                  </div>
+
+                <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+            </div>
+        </div>
+        
+        <div class="panel panel-primary setup-content" id="step-2">
+            <div class="panel-heading">
+                 <h3 class="panel-title">Permission et Action</h3>
+            </div>
+            <div class="panel-body">
+                    <div class="row margin20 no-margin-left no-margin-right">
+                        <table class="table no-margin">
+                            <thead class="no-border">
+                                <tr>
+                                    <th class="no-padding-top no-padding-left no-padding-bottom" width="50%">Permission</th>
+                                    <th width="45%">Action</th>
+                                    <th width="5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="items">
+                                <tr id="ligne1">
+                                    <td class="no-padding-top no-padding-left no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                            <input maxlength="200" type="text" required="required" name="permission" id="action1" class="form-control" placeholder="Saisissez une permission" />
+                                        </div>
+                                    </td>
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="input-control text full-size">
+                                        <input maxlength="200" type="text" required="required" name="action" id="action1" class="form-control" placeholder="Saisissez une action" />
+                                        </div>
+                                    </td>
+                                    <td class="no-padding-top no-padding-bottom">
+                                        <div class="pagination no-border">
+                                            <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row margin10 no-margin-left no-margin-right">
+                        <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                    </div>
+               
+                <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+            </div>
+        </div>
+        
+        <div class="panel panel-primary setup-content" id="step-3">
+            <div class="panel-heading">
+                 <h3 class="panel-title">Informations complémentaires</h3>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <label class="control-label">Nom du Menu (ou sous-module)</label>
+                    <input maxlength="200" type="text" name="nom_sous_module" id="nom_sous_module" required="required" class="form-control" placeholder="Saisissez le nom du menu (ou sous module)" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Numéro d'ordre</label>
+                    <input maxlength="200" type="text" name="numero_ordre" id="numero_ordre" class="form-control" placeholder="Saisissez une description" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Description</label>
+                    <input maxlength="200" type="text" name="description" id="description" class="form-control" placeholder="Saisissez une description" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Menu Icon</label>
+                    <input maxlength="200" type="text" name="icon_menu" id="icon_menu" class="form-control" placeholder="Saisissez un menu icon" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Url vers</label>
+                    <input maxlength="200" type="text" name="url_vers" id="url_vers" required="required" class="form-control" placeholder="Saisissez une url" />
+                </div>
+                
+                <button class="btn btn-primary nextBtn pull-right" type="button">Next</button>
+            </div>
+        </div>
+        
+        <div class="panel panel-primary setup-content" id="step-4">
+            <div class="panel-heading">
+                 <h3 class="panel-title">Configuration</h3>
+            </div>
+            <div class="panel-body">
+
+                <div class="form-group">
+                    <label class="control-label">Model Principal</label>
+                    <select name="model_principal_id" id="model_principal_id" class="form-control">
+                        <option value="">Selectionnez un model </option>
+                        {% for item in contents %}
+                            <option value="{{ item.id }}"> {{ item }} </option>
+                        {% endfor %}
+                        </select>
+                </div>
+                <div class="form-group">
+                    <label class="input-control checkbox small-check full-size">
+                                        <input value="1" name="est_model" id="est_model"  type="checkbox">
+                                        <span class="check"></span>
+                                        <span class="caption">Est model</span>
+                                    </label>
+                    <label class="input-control checkbox small-check full-size">
+                                        <input value="1" name="est_dashboard" id="est_dashboard" type="checkbox">
+                                        <span class="check"></span>
+                                        <span class="caption">Est dashboard</span>
+                                    </label>
+                    <label class="input-control checkbox small-check full-size">
+                                        <input value="1" name="est_actif" id="est_actif" checked  type="checkbox">
+                                        <span class="check"></span>
+                                        <span class="caption">Est actif</span>
+                                    </label>
+                
+                </div>
+                <button class="btn btn-success pull-right" type="submit">Soumettre!</button>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- Fin wizzard -->
+
+
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+
+        var navListItems = $('div.setup-panel div a'),
+        allWells = $('.setup-content'),
+        allNextBtn = $('.nextBtn');
+
+        allWells.hide();
+
+        navListItems.click(function (e) {
+        e.preventDefault();
+        var $target = $($(this).attr('href')),
+            $item = $(this);
+
+        if (!$item.hasClass('disabled')) {
+            navListItems.removeClass('btn-success').addClass('btn-default');
+            $item.addClass('btn-success');
+            allWells.hide();
+            $target.show();
+            $target.find('input:eq(0)').focus();
+        }
+        });
+
+        allNextBtn.click(function () {
+        var curStep = $(this).closest(".setup-content"),
+            curStepBtn = curStep.attr("id"),
+            nextStepWizard = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next().children("a"),
+            curInputs = curStep.find("input[type='text'],input[type='url'],select"),
+            isValid = true;
+
+        $(".form-group").removeClass("has-error");
+        for (var i = 0; i < curInputs.length; i++) {
+            if (!curInputs[i].validity.valid) {
+                isValid = false;
+                $(curInputs[i]).closest(".form-group").addClass("has-error");
+            }
+        }
+
+        if (isValid) nextStepWizard.removeAttr('disabled').trigger('click');
+        });
+
+        $('div.setup-panel div a.btn-success').trigger('click');
+
+        });
+</script>
+
+
+
+<script>
+    function load_sous_module() {
+        var choixModule = $("#module_id").val();
+        //var textChoixService = $( "#module_id option:selected" ).text();
+        console.log(choixModule)
+        if(choixModule !== ""){
+            showDialog("chargement");
+            console.log(choixModule);
+            $.get(
+                "{% url 'module_configuration_get_json_sous_modules' %}",
+                {ref:choixModule}
+                ,
+                function (response) {
+                    //console.log(response);
+
+                    const groups = response.reduce((groups, item) => {
+                    const group = (groups[item.groupe_menu_designation] || []);
+                    group.push(item);
+                    groups[item.groupe_menu_designation] = group;
+                    return groups;
+                    }, {});
+
+                    console.log(groups);
+                    const propOwn = Object.getOwnPropertyNames(groups);
+                    console.log(propOwn); // liste des propriètes
+                    console.log(propOwn.length); // length 
+                    // Clear container DIV to avoid adding tree div multiple times on multiple clicks
+                    //document.getElementById('container').innerHTML = "<div id="jstree"><ul>";
+                    // Creating new DIV element
+                    $("#sous_module_view").children().remove();
+                    var newdiv = document.createElement('div');
+                    var contenu = ' <label class="control-label">Sélectionnez un sous Module</label><div id="jstree"><ul>';
+                    
+                    var kid = 1;
+                    for (var i = 0; i < propOwn.length; i++) {
+                    var propertyGroupeMenu = propOwn[i];
+                    if (propertyGroupeMenu == "null") {
+                        contenu += `<li id='0'>${"Tableau de bord"}`;
+                    }else{
+                        contenu += `<li id='${kid}' groupe-menu="${groups[propertyGroupeMenu][0].groupe_menu_id}">${propertyGroupeMenu}`;  
+                        kid ++;
+                    }
+                        if (groups[propertyGroupeMenu]){
+                            contenu += '<ul>';
+                                for (var j = 0; j < groups[propertyGroupeMenu].length; j++) {
+                                    contenu += `
+                                        <li id="${kid}" menu="${groups[propertyGroupeMenu][j].sous_module_id}">${groups[propertyGroupeMenu][j].nom_sous_module}</li>`;  
+                                        kid ++;
+                                }
+                                contenu += `
+                                    </ul>
+                                </li>`;
+                        }
+                        
+
+                }
+                    //Très important de réecrire la fonction là because of reload
+               
+                   newdiv.innerHTML = contenu;
+                    var script = document.createElement('script');
+                    script.innerHTML = `$(function () {
+                        // 6 create an instance when the DOM is ready
+                        $('#jstree').jstree();
+                        // 7 bind to events triggered on the tree
+                        $('#jstree').on("changed.jstree", function (e, data) {
+                            var node_id   = (data.node.id); // element id
+                            var groupe_menu_id = $("#"+node_id).attr("groupe-menu");
+                            $("#showGroupeMenuID").val(groupe_menu_id);
+                            var menu_id = $("#"+node_id).attr("menu");
+                            $("#showMenuID").val(menu_id);
+                            
+                        });
+                        // 8 interact with the tree - either way is OK
+                        $('button').on('click', function () {
+                            console.log("something is clicked");
+                            $('#jstree').jstree(true).select_node('child_node_1');
+                            $('#jstree').jstree('select_node', 'child_node_1');
+                            $.jstree.reference('#jstree').select_node('child_node_1');
+                        });
+                        });`;
+
+                    //https://stackoverflow.com/questions/41328341/dynamic-load-of-whole-jstree
+                    newdiv.appendChild(script);
+                    document.getElementById('sous_module_view').appendChild(newdiv);
+                    showDialog("chargement");
+                },
+                "json"
+            );
+
+        }         
+
+
+
+        }
+    </script>
+
+
+<script>
+    $(function () {
+      // 6 create an instance when the DOM is ready
+      $('#jstree').jstree();
+      // 7 bind to events triggered on the tree
+      $('#jstree').on("changed.jstree", function (e, data) {
+        console.log(data.selected);
+      });
+      // 8 interact with the tree - either way is OK
+      $('button').on('click', function () {
+        $('#jstree').jstree(true).select_node('child_node_1');
+        $('#jstree').jstree('select_node', 'child_node_1');
+        $.jstree.reference('#jstree').select_node('child_node_1');
+      });
+    });
+    </script>
+
+
+<script>
+     var nombreLignes = 1;
+     var compteur = 1;
+    
+    $("#btnAjouterLigne").on("click", function () {
+        nombreLignes++;
+        compteur++;
+        var nouvelleLigne =`
+            <tr id="ligne${compteur}">
+                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                            <div class="input-control text full-size">
+                                <input maxlength="200" type="text" required="required" name="permission" id="permission${compteur}" class="form-control" placeholder="Saisissez une permission" />
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="input-control text full-size">
+                                <input maxlength="200" type="text" required="required" name="action" id="action${compteur}" class="form-control" placeholder="Saisissez une action" />
+                            </div>
+                        </td>
+                        <td class="no-padding-top no-padding-bottom">
+                            <div class="pagination no-border">
+                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(${compteur})"><span class="mif-cross fg-red"></span></span>
+                            </div>
+                        </td>
+                    </tr>
+        `; 
+        
+
+        $("#items").append(nouvelleLigne);
+    });
+
+
+function supprimerLigne(indice) {
+    nombreLignes--;
+    $("#ligne" + indice).remove();    
+}
+
+
+
+</script>
+
+
+
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

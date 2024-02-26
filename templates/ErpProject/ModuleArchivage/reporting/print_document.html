@@ -1,0 +1,155 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Désignation :<br>
+                        <span class="sub-alt-header">{{ model.designation }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Type :<br>
+                        <span class="sub-alt-header">{{ model.value_type }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Taille de Fichier :<br>
+                        <span class="sub-alt-header">{{ model.taille }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Type Mime :<br>
+                        <span class="sub-alt-header">{{ model.value_type_mime }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Mime :<br>
+                        <span class="sub-alt-header">{{ model.mime }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Dossier :<br>
+                        {% if model.dossier is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.dossier }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Modèle Ressource :<br>
+                        {% if model.res_model is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.res_model }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Champs Ressource :<br>
+                        <span class="sub-alt-header">{{ model.res_field }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Id Ressource :<br>
+                        <span class="sub-alt-header">{{ model.res_id }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <label class="input-control checkbox small-check full-size">
+                        <input name="est_public" id="est_public"  {% if model.est_public is True %}{{ "checked" }}{% endif %} type="checkbox" disabled="disabled">
+                        <span class="check"></span>
+                        <span class="caption">Est public</span>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <label class="input-control checkbox small-check full-size">
+                        <input name="est_archive" id="est_archive"  {% if model.est_archive is True %}{{ "checked" }}{% endif %} type="checkbox" disabled="disabled">
+                        <span class="check"></span>
+                        <span class="caption">Est archivé</span>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <label class="input-control checkbox small-check full-size">
+                        <input name="est_bloque" id="est_bloque"  {% if model.est_bloque is True %}{{ "checked" }}{% endif %} type="checkbox" disabled="disabled">
+                        <span class="check"></span>
+                        <span class="caption">Est bloqué </span>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <p>Bloqué par :<br>
+                        {% if model.auteur_blocage is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.auteur_blocage }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Token accès :<br>
+                        <span class="sub-alt-header">{{ model.access_token }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>URL :<br>
+                        <span class="sub-alt-header">{{ model.url }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Description :<br>
+                        <span class="sub-alt-header">{{ model.description }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Contenu indexé :<br>
+                        <span class="sub-alt-header">{{ model.indexation }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Fichier :<br>
+                        {% if model.fichier %}
+                        <a href="{% static model.fichier.url %}"><img src="{% static 'ErpProject/image/document.png' %}" style="height: 70px; width: 70px;"></a>
+                        <br><span style=" color: #000; font-size: 9px;">{{model.fichier.name|truncatechars:25}}</span>                          
+                        {% else %}<span class="sub-alt-header">Aucun document attaché</span>{% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Miniature :<br>
+                        {% if model.miniature %}
+                        <a href="{% static model.miniature.url %}"><img src="{% static 'ErpProject/image/document.png' %}" style="height: 70px; width: 70px;"></a>
+                        <br><span style=" color: #000; font-size: 9px;">{{model.miniature.name|truncatechars:25}}</span>                          
+                        {% else %}<span class="sub-alt-header">Aucun document attaché</span>{% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <label>Etiquettes :</label><br>
+                        {% for item in model.tags.all %}
+                            <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                        {% endfor %}                     
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <label>Favoris :</label><br>
+                        {% for item in model.favoris.all %}
+                            <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                        {% endfor %}                     
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

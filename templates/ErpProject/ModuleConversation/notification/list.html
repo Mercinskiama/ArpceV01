@@ -1,0 +1,125 @@
+{% extends "ErpProject/ModuleConversation/shared/layout.html" %}
+{% block page %}{% load static %}{% load account_filters %}
+
+<style type="text/css">
+    body { background-color: grey!important; }
+    .btSh { border-radius: 0px;margin-right: 10px;margin-bottom: 0px;margin-bottom: 3%; }
+    .f { margin:2%; }
+    .block_f { margin-left: 0%; }
+    .fond { background-color: rgba(240, 240, 240, 0.3);border-radius: 50px;height: 50px;width: 50px;opacity:3.5;float: right;display: flex;justify-content: center;align-items: center;}
+
+    .table > tbody > tr > td{
+        padding: 10px 2px 1px 1px !important;
+    }
+    .table > tbody > tr:hover{
+        box-shadow: 2px 1px 3px;
+    }
+    .fa-large{
+        font-size:14.5px;
+    }
+</style>
+
+<div style="padding-top: 20px; ">
+    <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: space-around; padding: 20px 5px;">
+        <div class="mail-body-header">
+            <button type="button" class="btn btn-danger btn-xs waves-effect waves-light">
+                <img src="/static/ErpProject/image/icones/alarm--v1.png" style="margin-right: 10px;width:22px; height: 22px;"> NOTIFICATION
+            </button>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; flex-direction: row; justify-content: space-between; margin-top: 20px; width: 100%;">
+            <div style="width: 20%; display: flex; flex-direction: column; margin-top: 20px; ">
+                <a class="nav-link waves-effect d-block active" id="all_notif" href="#" style="text-decoration: none;height: 50px; width: 100%; margin-bottom: 10px; background-color: #D9EBFF; padding: 10px 5px 0 15px;">
+                    {% comment %} <i class="icofont icofont-inbox" style="font-size: 25px;"></i>  {% endcomment %}
+                    {% comment %} <span class="label label-success"></span>  {% endcomment %}
+                    <i class="fa fa-inbox fa-large"></i>
+                   <span style="font-size: 18px; margin-left: 20px;">
+                        Principal  &emsp;&emsp;<span class="label label-success">{{message_no_open}} nouveau</span>
+                    </span>
+                </a>
+                <a class="nav-link waves-effect d-block" id="notif_unread" href="#" style="text-decoration: none;height: 50px; width: 100%; margin-bottom: 10px; padding: 10px 5px 0 15px">
+                    <i class="fa fa-eye-slash fa-large"></i> 
+                    <span style="font-size: 18px; margin-left: 20px;">Non lues</span>
+                </a>
+                <a class="nav-link waves-effect d-block" id="notif_read" href="#" style="text-decoration: none;height: 50px; width: 100%; margin-bottom: 10px; padding: 10px 5px 0 15px">
+                    <i class="fa fa-eye fa-large"></i> 
+                    <span style="font-size: 18px; margin-left: 20px;">Lues</span>
+                </a>
+            </div>
+            <div class="table-responsive" style="width: 80%;border-left: 1px solid #d2d2d2;">
+                <table class="table">
+                    <thead>
+                        <tr style="background-color:#A5A5A7;">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td style="text-align: center;">
+                                <i class="fa fa-bars"></i>&emsp;
+                                OPTION
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in model %}
+                            <tr {% if item.est_lu == False %}class="unread"{% else %}class="read"{% endif %}>
+                                <td style="vertical-align: middle;" onclick="">
+                                    <img src="{% static 'ErpProject/image/icones/select.png' %}"/>
+                                </td>
+                                <td style="vertical-align: middle;position: relative;top: -0.5em;" onclick="">
+                                    <a class="email-name waves-effect" {% if item.est_lu == False %} style="color: #000;font-weight: 800;font-size: 15px;text-decoration:none;"{% else %} style="color: #000;font-weight: 400;font-size: 15px;text-decoration:none;" {% endif %}>
+                                        {{item.notification.text|truncatechars:21}}
+                                    </a>
+                                    &emsp;&emsp;&emsp;
+                                    <span class="label label-default" style="color:#444">Notification</span>
+                                </td>
+                                <td style="vertical-align: middle;" onclick="">
+                                    <span class="email-name waves-effect" style="font-size:13px;">{{item.notification.text|truncatechars:60}}</span>
+                                </td>
+                                <td class="email-time" style="vertical-align: middle;text-align: center;"> 
+                                        <i class="fa fa-trash" onclick="" style="color:#C64332;z-index:100;"></i>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+            $('#all_notif').click(function() {
+                $('.read').css({"visibility":"visible"});
+                $('.unread').css({"visibility":"visible"});
+
+                $('#notif_unread').css({"background-color" : "#F9F9F9"});
+                
+                $('#notif_read').css({"background-color" : "#F9F9F9"});
+                $('#all_notif').css({"background-color" : "#D9EBFF"});
+            })
+
+            $('#notif_unread').click(function() {
+                $('.read').css({"visibility":"visible"});
+                $('.unread').css({"visibility":"visible"});
+                $('.read').css({"visibility":"collapse"});
+
+                $('#notif_unread').css({"background-color" : "#D9EBFF"});
+
+                $('#notif_read').css({"background-color" : "#F9F9F9"});
+                $('#all_notif').css({"background-color" : "#F9F9F9"});
+            })
+
+            $('#notif_read').click(function() {
+                $('.read').css({"visibility":"visible"});
+                $('.unread').css({"visibility":"visible"});
+                $('.unread').css({"visibility":"collapse"});
+
+                $('#notif_unread').css({"background-color" : "#F9F9F9"});
+                
+                $('#notif_read').css({"background-color" : "#D9EBFF"});
+                $('#all_notif').css({"background-color" : "#F9F9F9"});
+            })
+        })
+</script>
+
+{% endblock %}

@@ -1,0 +1,402 @@
+{% load humanize %} 
+{% load stakeholdertags %}
+
+    <ul class="breadcrumbs2 small">
+        {% for item in historique %}
+            <li>
+                <a title="Employé : {{item.employe}} 
+Date : {{ item.timestamp|date:'M d, Y H:i'}} {% if item.commentaire %} - Commentaire:  {{ item.notes }} {% endif %}" href="#" style="{% if item.etape.designation == model.etat %}background: #9c28b1; {% endif %} hover: ba">{{item.etape.designation}}</a>
+            </li>
+        {% endfor %}
+    </ul>              
+    <div>
+        {% for item in etapes_suivantes %}
+            <!-- Ici on gère les différentes conditions de transition -->
+            {% transition_stakeholders item.id content_type_id model.id as stakeholders %}
+            {% if stakeholders %}                     
+                {% include 'ErpProject/ErpBackOffice/widget/stakeholder.html' with utilisateur=utilisateur model=model content_type_id=content_type_id  roles=roles stakeholders=stakeholders url_add=url_add url_detail=url_detail module=module csrf_token=csrf_token only %}            
+            {% elif model.statut.designation == "Envoyé au CGMP" %}
+                {% include 'ErpProject/ErpBackOffice/widget/wkf_cgmp.html' with utilisateur=utilisateur model=model content_type_id=content_type_id  roles=roles stakeholders=stakeholders url_add=url_add url_detail=url_detail module=module csrf_token=csrf_token only %}
+            {% else %}            
+                {% for role in roles %}
+                    {% if role.id == item.groupe_permission.id or item.groupe_permission == None %}
+                    
+                        {% if item.condition.designation == "Link" %}
+                            <!-- Si Link, On rédige vers le lien rattaché   
+                            <script>
+                                window.location.assign("{{ item.condition.url }}")
+                            </script>
+                            -->
+                            <form method="POST" action="{% url item.url %}" enctype="multipart/form-data" data-role="validator">
+                                {% csrf_token %}                        
+                                <!-- Si Upload, On affiche le bouton  -->                                 
+                                <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                <input type="hidden" name="doc_id" value="{{model.id}}">
+                                <input type="hidden" name="service_referent_id" value="{{ service_referent_id }}">
+                                {% for ligne in lignes %}
+                                <input type="hidden" name="quantite_fournie" value="{{ ligne.quantite_fournie }}">
+                                <input type="hidden" name="ligne_id" value="{{ ligne.id }}">
+                                {% endfor %}
+                                <!--button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button--> 
+                                <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">{{item.etape_destination.label}}</button>         
+                            </form>
+                            
+                        {% elif item.condition.designation == "LinkParam" %}
+                            <!-- Si Link, On rédige vers le lien rattaché
+                            <script>
+                                window.location.assign("{{ item.condition.url }}")
+                            </script>
+                            -->
+                            <form method="POST" action="{% url item.url model.id %}" enctype="multipart/form-data" data-role="validator">
+                                {% csrf_token %}                        
+                                <!-- Si Upload, On affiche le bouton  -->                                 
+                                <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                <input type="hidden" name="doc_id" value="{{model.id}}">
+                                <input type="hidden" name="url_detail" value="{{ url_detail }}">
+                                <input type="hidden" name="url_add" value="{{ url_add }}">
+                                <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">{{item.etape_destination.label}}</button>     
+                            </form>
+                            {% elif item.condition.designation == "Transition" %}
+                        
+                        {% else %}
+                            <form method="POST" action="{% url 'backoffice_workflow_post' %}" enctype="multipart/form-data" data-role="validator">
+                                {% csrf_token %}                        
+                            
+                                {% if item.condition.designation == "Upload" %} 
+                                        <!-- Si Upload, On affiche le bouton  -->                                 
+                                        <input style="margin-bottom: 5px" type="file" name="file_upload" required="required" multiple>
+                                        <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                        <input type="hidden" name="doc_id" value="{{model.id}}">
+                                        <input type="hidden" name="content_id" value="{{content_type_id}}">
+                                        <input type="hidden" name="url_detail" value="{{ url_detail }}">
+                                        <input type="hidden" name="url_add" value="{{ url_add }}">
+                                        <div>
+                                            <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">{{item.etape_destination.label}}</button>
+                                        </div>
+                                    </form>
+                                {% elif item.condition.designation == "Approval" %}
+                                    <!-- Si Approval, On affiche le bouton  --> 
+                                    <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                    <input type="hidden" name="doc_id" value="{{model.id}}">
+                                    <input type="hidden" name="content_id" value="{{content_type_id}}">
+                                    <input type="hidden" name="url_detail" value="{{ url_detail }}">
+                                    <input type="hidden" name="url_add" value="{{ url_add }}">
+                                    {% if item.etape_destination.designation == "Liquidation créée" %}
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>Numéro de référence</label>
+                                            <div class="input-control text full-size" data-role="input">
+                                                <input name="numero" id="numero" type="text">
+                                            </div>
+                                        </div>
+                                        <input type="hidden" name="engagement_id" value="{{model.id}}">
+                                        <div class="col-md-6">
+                                            <label>Facture finale</label>
+                                            <div class="input-control file full-size" data-role="input">
+                                                <input name="document_facture" id="document_facture" type="file"><button class="button"><span class="mif-folder"></span></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Montant de la facture finale</label>
+                                            <div class="input-control number full-size" data-role="input">
+                                                <input name="montant" id="montant" type="number" step="0.01" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Montant de la facture finale SVP !">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Date Liquidation</label>
+                                            <div class="input-control text full-size"  data-format="dd/mm/yyyy" data-role="datepicker" data-locale="fr">
+                                                <input type="text" name="date_liquidation" id="date_liquidation" placeholder="jj/mm/aaaa">
+                                                <div class="button"><span class="mif-calendar"></span></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Autre Document 1</label>
+                                            <div class="input-control file full-size" data-role="input">
+                                                <input name="document_autre1" id="document_autre1" type="file"><button class="button"><span class="mif-folder"></span></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Autre Document 2</label>
+                                            <div class="input-control file full-size" data-role="input">
+                                                <input name="document_autre2" id="document_autre2" type="file"><button class="button"><span class="mif-folder"></span></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Autre Document 3</label>
+                                            <div class="input-control file full-size" data-role="input">
+                                                <input name="document_autre3" id="document_autre3" type="file"><button class="button"><span class="mif-folder"></span></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Mode de Paiement</label>
+                                            <div class="input-control text full-size">                                
+                                                <select name="type_paiement" id="type_paiement" class="selectpicker form-control" title="Sélectionner une option">
+                                                    <option value="">Sélectionnez une option</option>
+                                                    {% for item in model.list_type_paiement %}<option value="{{ item.id }}">{{ item.designation }}</option>{% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Lieu de Paiement</label>
+                                            <div class="input-control text full-size" data-role="input">
+                                                <input name="lieu_paiement" id="lieu_paiement" type="text" >
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Poste comptable</label>
+                                            <div class="input-control text full-size" data-role="input">
+                                                <input name="poste_comptable" id="poste_comptable" type="text" >
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>Description</label>
+                                            <div class="input-control text full-size">
+                                                <textarea name="description" id="description" ></textarea>
+                                            </div>
+                                        </div>
+                                    </div>     
+                                    <br><br>
+
+                                    {% endif %}
+
+                                    <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">{{item.etape_destination.label}}</button>
+                                                                
+                                {% else %}
+                                
+                                    <!-- Si Responsible, On affiche le bouton que pour le responsable du departement du demandeur -->                                
+                                    {% if model.demandeur.unite_fonctionnelle.responsable.id == utilisateur.id %}
+                                
+                                        <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+                                        <input type="hidden" name="doc_id" value="{{model.id}}">
+                                        <input type="hidden" name="content_id" value="{{content_type_id}}">
+                                        <input type="hidden" name="url_detail" value="{{ url_detail }}">
+                                        <input type="hidden" name="url_add" value="{{ url_add }}">
+                                        <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">{{item.etape_destination.label}}</button> 
+                                        
+                                    {% endif %}
+                                {% endif %}
+                            </form>
+                            
+                        {% endif %}
+                        <br>
+                    
+                        {% if item.est_decisive %}
+                            <button type="button" onclick="launchDialog('#dialogAnnulerWKF', '{{item.id}}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Annuler</button> 
+                        {% endif %}
+
+                        {% if item.est_delegable %}
+                            <button type="button" onclick="launchDialog('#dialogDeleguerWKF', '{{item.id}}')" class="theme-btn theme-btn-sm rounded  chargement-au-click">Déléguer</button> 
+                        {% endif %}
+
+                        {% if item.est_configurable %}
+                            <button type="button" onclick="launchDialogConfig('{{item.id}}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Configurer</button> 
+                        {% endif %}
+            
+                    {% endif %}                                
+                {% endfor %}
+            {% endif %}            
+        {% endfor %}
+        </div>
+        <!-- Dialogue Annuler-->
+			<div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogAnnulerWKF">
+				<div class="row cells3 padding20" style="margin-top: 10px">
+					<h3>Action à exécuter</h3>
+					<div class="cells2">
+						<form action="{% url 'backoffice_cancel_workflow_post' %}" method="POST">
+							{% csrf_token %}
+                            <input type="hidden" name="doc_id" value="{{model.id}}">
+                            <input type="hidden" name="content_id" value="{{content_type_id}}">
+                            <input type="hidden" name="type_doc" value="{{ type_doc}}">
+                            <input type="hidden" name="url_add" value="{{ url_add }}">
+                            <input type="hidden" name="url_detail" value="{{ url_detail }}">
+
+							<div class="row">
+								<label>Etape de retour:</label>
+								<div class="input-control text full-size">
+									<select name="action_id" id="action_id">
+										<option value="0">Mettre fin au processus</option>
+                                        {% for item in historique %}
+                                        <option value="{{ item.etape_id }}">{{ item.employe.nom_complet}} : {{ item.etape.designation }}</option>
+                                        {% endfor %}									
+									</select>
+								</div><br>
+							</div>
+							<div class="row">
+								<label>Notes</label>
+								<div class="input-control text full-size">
+									<input type="text" name="notes" id="notes"/>
+								</div>
+							</div><br>
+							<hr style="background-color: #f7f5f5;">
+							<div class="row">
+								<button type="submit" class="button rounded primary_color_{{ module.name|lower }}">Appliquer</button>
+								<!-- <button class="button rounded" onclick="closeDialog('#dialogAnnulerWKF')" style="margin-left: 5px">Retour</button> -->
+							</div>
+						</form>
+                        
+					</div>
+				</div>
+			</div>
+		<!-- Fin Dialogue Annuler -->
+
+        <!-- Dialogue Déléguer-->
+			<div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogDeleguerWKF">
+				<div class="row cells3 padding20" style="margin-top: 10px">
+					<h3>Déléguer votre action à </h3>
+					<div class="cells2">
+						<form action="{% url 'backoffice_stakeholder_delegation_workflow_post' %}" method="POST">
+							{% csrf_token %}
+                            <input type="hidden" name="delegue_transition_id" id="delegue_transition_id">
+                            <input type="hidden" name="is_delegation" id="is_delegation" value="1">
+                            <input type="hidden" name="doc_id" value="{{model.id}}">
+                            <input type="hidden" name="content_id" value="{{content_type_id}}">
+                            <input type="hidden" name="url_detail" value="{{ url_detail }}">
+                            <input type="hidden" name="module_source" value="{{ module }}">
+
+							<div class="row">
+								<label>Intervenant:</label>
+								<div class="input-control text full-size">
+									<select name="employe_id" id="employe_id" class="chosen-select"
+                                    data-validate-func="min" data-validate-arg="1" 
+                                    data-validate-hint="Sélectionnez un Intervenant">
+										<option value="0">Sélectionnez un intervenant</option>
+                                        {% for item in utilisateur.all_users %}
+                                        <option value="{{ item.id }}">{{ item.nom_complet }} </option>
+                                        {% endfor %}									
+									</select>
+								</div><br>
+							</div>
+							<div class="row">
+								<label>Commentaires</label>
+								<div class="input-control text full-size">
+									<input type="text" name="comments" id="comments"/>
+								</div>
+							</div><br>
+							<hr style="background-color: #f7f5f5;">
+							<div class="row">
+								<button type="submit" class="button rounded primary_color_{{ module.name|lower }}">Appliquer</button>
+								<!-- <button class="button rounded" onclick="closeDialog('#dialogDeleguerWKF')" style="margin-left: 5px">Retour</button> -->
+							</div>
+						</form>
+                        
+					</div>
+				</div>
+			</div>
+		<!-- Fin Dialogue Déléguer -->
+
+        <!-- Dialogue Déléguer-->
+			<div data-role="dialog" data-close-button="true" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" id="dialogConfigurerWKF">
+				<div class="row cells3 padding20" style="margin-top: 10px">
+					<h3>Configurer la suite </h3>
+                    <div id="labelTransition"></div>
+					<div class="cells2">
+						<form action="{% url 'backoffice_stakeholder_configuration_workflow_post' %}" method="POST">
+							{% csrf_token %}
+
+                            <input type="hidden" name="current_transition_id" id="current_transition_id">
+                            <input type="hidden" name="doc_id" value="{{model.id}}">
+                            <input type="hidden" name="content_id" value="{{content_type_id}}">
+                            <input type="hidden" name="url_detail" value="{{ url_detail }}">
+                            <input type="hidden" name="module_source" value="{{ module }}">
+                            
+
+							<div class="row">
+								<label>Intervenants:</label>
+								<div class="input-control text full-size">
+									<select name="employe_id" id="employe_id" class="chosen-select"
+                                    data-validate-func="min" data-validate-arg="1" multiple 
+                                    data-validate-hint="Sélectionnez vos intervenants">
+										<option value="0">Sélectionnez un intervenant</option>
+                                        {% for item in utilisateur.all_users %}
+                                        <option value="{{ item.id }}">{{ item.nom_complet }} </option>
+                                        {% endfor %}									
+									</select>
+								</div><br>
+							</div>
+                            <br>
+                            <div class="row">
+								<label>Cc:</label>
+								<div class="input-control text full-size">
+									<select name="cc_id" id="cc_id" class="chosen-select"
+                                    data-validate-func="min" data-validate-arg="1" multiple 
+                                    data-validate-hint="Copie pour Information">
+										<option value="0">Sélectionnez un intervenant</option>
+                                        {% for item in utilisateur.all_users %}
+                                        <option value="{{ item.id }}">{{ item.nom_complet }} </option>
+                                        {% endfor %}									
+									</select>
+								</div><br>
+							</div>
+                            <br>
+							<div class="row">
+								<label>Commentaires</label>
+								<div class="input-control text full-size">
+									<input type="text" name="comments" id="comments"/>
+								</div>
+							</div><br>
+							<hr style="background-color: #f7f5f5;">
+							<div class="row">
+								<button type="submit" class="button rounded primary_color_{{ module.name|lower }}">Appliquer</button>
+								<!-- <button class="button rounded" onclick="closeDialog('#dialogConfigurerWKF')" style="margin-left: 5px">Retour</button> -->
+							</div>
+						</form>
+                        
+					</div>
+				</div>
+			</div>
+		<!-- Fin Dialogue Déléguer -->
+
+
+    <script>
+            $(function() {
+            $('.chosen-select').chosen();
+            $('.chosen-select-deselect').chosen({ allow_single_deselect: true });
+        });
+    </script>
+    <script>
+   function launchDialog(id, item_id){
+        $("#delegue_transition_id").val(item_id)
+        var dialog = $(id).data('dialog');
+		dialog.open();
+	}
+
+    function launchDialogConfig(item_id){
+        $("#current_transition_id").val(item_id);
+        var content_type_id = "{{content_type_id}}";
+        var objet_id = "{{model.id}}";
+        console.log(content_type_id, objet_id)
+
+
+        $.get(
+            "{% url 'backoffice_list_next_transition' %}",
+            {ref:item_id, objet_id:objet_id, content_type_id: content_type_id}
+            ,
+            function (response) {
+                console.log(response)
+                $("#labelTransition").children().remove();
+
+                $("#labelTransition").append("<h4> Etape à venir</h4>");
+               
+               
+                    for (var i = 0; i < response.length; i++) {
+                    var unetransition = response[i];
+                    $("#labelTransition").append("<h4> ->" + unetransition.etape_destination +  " (" + unetransition.groupe_permission + ")</h4>")
+                    
+                }
+            },
+            "json"
+        );
+        var dialog = $("#dialogConfigurerWKF").data('dialog');
+		dialog.open();
+
+
+	}
+
+    // Fermer Boîte de dialogue
+	function closeDialog(id) {
+        console.log("************************")
+		var dialog = $(id).data('dialog');
+		dialog.close();
+	}
+
+</script>

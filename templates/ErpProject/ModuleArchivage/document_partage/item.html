@@ -1,0 +1,126 @@
+
+{% extends "ErpProject/ModuleArchivage/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_index' %}">Module Archivage</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_list_document_partage' %}">Liste des Liens partagés</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        
+        <!-- GESTION DU WORKFLOW -->
+        {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_archivage_add_document_partage" url_detail="module_archivage_detail_document_partage" csrf_token=csrf_token module=module type_doc="Documents" only %}
+        <!--FIN GESTION DU WORKFLOW--> 
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    {% if user_actions.can_update is True %}<button onclick="javascript:window.location.assign('{% url 'module_archivage_update_document_partage' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Modifier</button>{% endif %}
+                    {% if user_actions.can_create is True %}<button onclick="javascript:window.location.assign('{% url 'module_archivage_duplicate_document_partage' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded chargement-au-click">Dupliquer</button>{% endif %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_archivage_print_document_partage' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded success chargement-au-click">Imprimer</button>
+                    {% if user_actions.can_delete is True %}<button id="supprimer" class="validate-btn theme-btn theme-btn-sm rounded danger chargement-au-click">Supprimer</button>{% endif %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_archivage_list_document_partage' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>Désignation :<br>
+                            <span class="sub-alt-header">{{ model.designation }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Type de partage :<br>
+                            <span class="sub-alt-header">{{ model.value_type }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>URL :<br>
+                            <span class="sub-alt-header">{{ model.url }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Date d'échéance :<br>
+                            <span class="sub-alt-header">{{model.date_echeance|date:"d/m/Y H:i"}}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Description :<br>
+                            <span class="sub-alt-header">{{ model.description }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="fg-gray">
+                            <label>Documents :</label><br>
+                            {% for item in model.documents.all %}
+                                <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                            {% endfor %}                     
+                        </p>
+                    </div>
+                </div>     
+                <br><br>
+                <div class="row">
+                    <ul class="nav nav-tabs navtab-bg"> 
+                        <li class="active"><a href="#frame_autres" data-toggle="tab" aria-expanded="false"><span>Autres informations</span></a></li>
+                    </ul>
+                    <div class="tab-content"> 
+                        <div class="tab-pane active" id="frame_autres">
+                            <div class="row margin20 no-margin-left no-margin-right">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% if user_actions.can_delete is True %}
+    <script>
+        function supprimer() {
+            var id = '{{model.id}}'
+            //-------deux variables pour la suppression---------------------------------
+            var modele = "Model_Document_partage"
+            var the_url = "module_archivage_list_document_partage"
+            // url de suppression ------------------------------------------------------
+            url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+            url = url.replace('100', id);
+            url = url.replace('nom_modele', modele);
+            url = url.replace('url_retour', the_url);
+            document.location.href = url;
+        }
+        $('#supprimer').on('click', function () {
+            Swal.fire({
+                title: 'Etes vous sure?',
+                text: "De vouloir supprimer cette item!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, Supprime le!'
+            }).then((result) => {
+                if (result.value) {
+                    supprimer();
+                    Swal.fire(
+                        'Supprimé!',
+
+                        'Votre Item est supprimé',
+                        'Avec Succes',
+                    )
+                }
+            })
+        })
+    </script>
+{% endif %}
+{% endblock %}

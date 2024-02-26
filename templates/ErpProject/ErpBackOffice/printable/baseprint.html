@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <title>{{ title }}</title>
+    {% load static %}
+    <style>
+        #DataTables_Table_0_wrapper {
+            width: 100%
+        }
+    </style>
+    <style type="text/css">
+        .head{
+            padding: 10px;
+            font-size:13px;
+            color: white;
+            background-color: rgb(16, 49, 26);
+        }
+        .td{
+            padding: 10px;
+            font-size:13px;
+            border-bottom: 1px solid #e2dee3;
+        }
+        .title{
+            font-size: 24px;
+        }
+        .subtitle{
+            color: red;
+            font-weight: bold;
+            font-size: 17px;
+            padding-top:-20px
+        }
+        .table{
+            font-size:13px;
+            border-left-style: solid;
+            border-right-style: solid;
+            border-top-style: solid;
+            border-bottom-style: solid;
+        }
+        .row{
+            font-size: 13px;
+        }
+        .main-container {
+    width: 100%;
+        }
+
+        table, tr, td, th {
+            border-collapse: collapse;
+        }
+
+        table {
+            max-width: 800px;
+            min-width: 500px;
+            width: 100%;
+        }
+
+        /* table-1-items styles */
+
+
+        .table-1-headers {
+            background-color: #00a850;
+            height: 30px;
+            color: white;
+            font-weight: bold;
+            border-bottom: 2px solid black;
+        }
+
+        .table-1-headers td {
+            height: 50px;
+            vertical-align: middle;
+        }
+
+        .left-justify {
+            text-align: left;
+        }
+
+        .center-justify  {
+            text-align: center;
+        }
+
+        .header-item {
+            padding-left: 20px;
+        }
+
+        .item-image,
+        .item-title,
+        .item-sku,
+        .item-price,
+        .item-qty,
+        .total-line-price,
+        .header-item-price,
+        .header-qty,
+        .header-line-price {
+            padding-top:5px;
+            padding-right: 20px;
+        }
+
+        .spacer {
+            height: 15px;
+        }
+
+        /* table-2-totals styles */
+
+        .table-2-totals {
+            border-top: 2px solid black;
+        }
+
+        .totals-row-1 {
+            padding-top: 15px;
+        }
+
+        .order-instructions {
+            font-weight: bold;
+            vertical-align: top;
+            padding: 10px 30px 5px 5px;
+            white-space: nowrap;
+        }
+
+        .order-instructions span {
+            background-color: yellow;
+            font-weight: normal;
+        }
+
+        .totals-header {
+            font-weight: bold;
+            text-align: right;
+            border-left: 2px solid black;
+            padding-left: 8px;
+        }
+
+        .totals {
+            text-align: right;
+            padding-right: 0 !important;
+            min-width:101px !important;
+        }
+
+        .subtotal-header,
+        .subtotal-input {
+            padding-top: 10px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<!-- Header -->
+<div class="row">
+    <div class="panel panel-default" style="border: none;">
+        <div class="panel panel-body" style="background-color:white;">
+            <div class="col-md-12">
+                <!-- Header -->
+                <div class="row">
+                    <!--img src="http://127.0.0.1:8000/static/ErpProject/image/header_rapport_o.png" alt="" style="width: 400px;height: 150px;"-->
+                    <img src="" alt="" style="width: 400px;height: 150px;">
+                    <!--img src="http://10.1.1.8:8000/static/ErpProject/image/header_rapport_o.png" alt="" style="width: 400px;height: 150px;">
+                    </div>
+                    <!-- Fin Header -->
+                <div class="col-md-6" style="font-size:13px">
+                    {% include 'ErpProject/ErpBackOffice/widget/organisation.html' %}
+                </div>
+
+
+              <!-- Fin affichage tableaux -->
+
+            </div>
+        </div>
+    </div>
+</div>
+
+     <!-- Contenu -->
+     {% block content %}{% endblock %}
+     <!-- Fin Contenu -->
+
+
+
+    <!-- Footer -->
+
+    <!-- Fin Footer -->
+
+
+
+
+
+
+
+</body>
+
+</html>

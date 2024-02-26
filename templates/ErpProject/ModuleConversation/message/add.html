@@ -1,0 +1,273 @@
+{% extends "ErpProject/ModuleConversation/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_conversation_index' %}">Module Message</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_conversation_list_message' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Nouveau Message</h2>
+        <strong class="hidden-xs" style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary_color_{{module.name|lower}}">
+                        Valider
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_conversation_list_message' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_conversation_list_message' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+            <form id="form" method="POST" action="{% url 'module_conversation_post_add_message' %}" enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <div class="row">
+                    
+                <div class="col-md-6">
+                            <label>Objet</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="objet" id="objet" type="text" data-validate-func="required" data-validate-hint="Entrez objet !">
+                            </div>
+                </div>
+            
+                <div class="col-md-6">
+                            <label>Corps</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="corps" id="corps" type="text" data-validate-func="required" data-validate-hint="Entrez corps !">
+                            </div>
+                </div>
+            
+                <div class="col-md-6">
+                            <label>Type</label>
+                            <div class="input-control text full-size" data-role="input">
+                                    <select name="type" id="type" onchange=""
+                                    data-validate-func="min" 
+                                    data-validate-arg="1"
+                                    data-validate-hint="Selectionnez Destinataire_id svp.">
+                                    <option value="0">Selectionnez le type</option>
+                                    <option value="1">Email</option>
+                                    <option value="2">Notification</option>
+                                    <option value="3">Commentaire</option>
+                                    
+                                </select>
+                            </div>
+                </div>
+                 <!--
+                <div class="col-md-6">
+                        <label>Destinataire_id</label>
+                        <div class="input-control text full-size">
+                                <select name="destinataire_id" id="destinataire_id" onchange=""
+                                data-validate-func="min" 
+                                data-validate-arg="1"
+                                data-validate-hint="Selectionnez Destinataire_id svp.">
+                                <option value="0">Selectionnez Destinataire_id</option>
+                                {% for item in model %}
+                                    <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>-->
+                    
+
+                    
+                <!--<div class="col-md-6">
+                        <label>Expediteur_id</label>
+                        <div class="input-control text full-size">
+                            <select name="expediteur_id" id="expediteur_id" onchange=""
+                                data-validate-func="min" 
+                                data-validate-arg="1"
+                                data-validate-hint="Selectionnez Expediteur_id svp.">
+                                <option value="0">Selectionnez Expediteur_id</option>
+                                {% for item in model %}
+                                    <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>-->
+
+                    
+                <!--<div class="col-md-6">
+                            <label>Status</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="status" id="status" type="text" data-validate-func="required" data-validate-hint="Entrez status !">
+                            </div>
+                </div>-->
+                
+                <div class="col-md-6">
+                        <label>Document_id</label>
+                        <div class="input-control text full-size">
+                            <select id="document_id" name="document_id" onchange=""
+                                >
+                                <option value="0">Selectionnez Document_id</option>
+                                {% for item in model2 %}
+                                    <option value="{{ item.id }}"> N° {{item.numero_document}} -- {{ item.url_document }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <br>
+
+                    <div class="row">
+                            <div class="col-md-6">
+                                <table class="table no-margin">
+                                        <thead class="no-border">
+                                            <tr>
+                                                <th width="100%">Destinataire_id</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="itemsDest">
+                                            <tr id="ligne1">
+                                                <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                    <input id="id1" type="hidden" value="0" />
+                                                    <div class="input-control text full-size">
+                                                            <select id="destinataire_id1" name="destinataire_id" onchange=""
+                                                            data-validate-func="min" 
+                                                            data-validate-arg="1"
+                                                            data-validate-hint="Selectionnez le Destinataire svp.">
+                                                            <option value="0">Selectionnez le destinataire</option>
+                                                            {% for item in model %}
+                                                                <option value="{{ item.id }}"> {{ item.nom_complet }} </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                        <div class="pagination no-border">
+                                                            <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                                        </div>
+                                                    </td>
+                                               </tr>
+                                        </tbody>
+                                </table>
+                                <div class="row margin10 no-margin-left no-margin-right">
+                                    <button type="button" class="button small-button rounded" id="btnAjouterLigneDestinataire">Ajouter une ligne</button>
+                                </div>
+                                
+                            </div>
+                            <!--<div class="col-md-6">
+                                    <table class="table no-margin">
+                                            <thead class="no-border">
+                                                <tr>
+                                                    <th width="100%">Document_id</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="itemsDocs">
+                                                <tr id="ligne1">
+                                                    <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                        <input id="id1" type="hidden" value="0" />
+                                                        <div class="input-control text full-size">
+                                                                <select name="document_id1" id="document_id" onchange=""
+                                                                data-validate-func="min" 
+                                                                data-validate-arg="1"
+                                                                data-validate-hint="Selectionnez le document svp.">
+                                                                <option value="0">Selectionnez le document svp</option>
+                                                                {% for item in model2 %}
+                                                                    <option value="{{ item.id }}"> N° {{item.numero_document}} -- {{ item.url_document }} </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td class="no-padding-top no-padding-bottom">
+                                                            <div class="pagination no-border">
+                                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                                            </div>
+                                                        </td>
+                                                   </tr>
+                                            </tbody>
+                                    </table>
+                                    <div class="row margin10 no-margin-left no-margin-right">
+                                        <button type="button" class="button small-button rounded" id="btnAjouterLigneDocument">Ajouter une ligne</button>
+                                    </div>
+                                    
+                                </div>-->
+                        </div>
+
+
+                    
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+<script>
+        var uniteRef = "";
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+
+        $("#btnAjouterLigneDestinataire").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '">';
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><input id="id'+compteur +'" type="hidden" value="0" /><div class="input-control text full-size">';
+            nouvelleLigne += '<select id="destinataire_id'+compteur+'" name="destinataire_id" onchange="" data-validate-func="min" data-validate-arg="1" data-validate-hint="Selectionnez le Destinataire svp."> <option value="0">Selectionnez le destinataire</option> {% for item in model %}';
+            nouvelleLigne += '<option value="{{ item.id }}"> {{ item.nom_complet }} </option>{% endfor %}</select></div></td>'
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border"><span class="item" title="Supprimer la ligne" onclick="supprimerLigne('+compteur+')"><span class="mif-cross fg-red"></span></span></div></td></tr>';
+
+    
+            $("#itemsDest").append(nouvelleLigne);
+        });
+
+        $("#btnAjouterLigneDocument").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '">';
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><input id="id'+compteur +'" type="hidden" value="0" /><div class="input-control text full-size">';
+            nouvelleLigne += '<select id="document_id'+compteur+'" name="document_id" onchange="" data-validate-func="min" data-validate-arg="1" data-validate-hint="Selectionnez le document svp."> <option value="0">Selectionnez le document</option> {% for item in model2 %}';
+            nouvelleLigne += '<option value="{{ item.id }}"> {{ item.nom_complet }} </option>{% endfor %}</select></div></td>'
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border"><span class="item" title="Supprimer la ligne" onclick="supprimerLigne('+compteur+')"><span class="mif-cross fg-red"></span></span></div></td></tr>';
+
+    
+            $("#itemsDocs").append(nouvelleLigne);
+        });
+    
+        function selectChange(event)
+        {
+            $select = $(event.target); 
+            var id_element = $select[0].id;
+            console.log("ID ELEMENT : " + id_element);
+            if(id_element.substring(0, 4) == "item")
+            {
+                ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+    
+                if($("#" + id_element).val() != "0") nombreItems += 1;
+                else nombreItems -= 1;
+            }
+        }
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            $("#ligne" + indice).remove();
+        }
+    </script>
+    
+{% endblock %}

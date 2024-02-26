@@ -1,0 +1,228 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+<div class="row">
+    <div class="col-sm-12">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_generate_framework' %}">Générer Framework Module</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Générer un module</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <div class="col-md-2">
+                        <button sytle="width:100%;" onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary_color_{{module.name|lower}}">Générer</button>
+                    </div>
+                    <div class="col-md-2">
+                        <button sytle="width:100%;" onclick="javascript:window.location.assign('{% url 'module_configuration_list_modules' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+                <div class="row" style="margin-top: 10px">
+                    <div class="col-md-12">
+                        <form id="form" method="POST" action="{% url 'module_configuration_post_generate_framework' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                            novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="cell">
+                                        <label>Nom du module</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input class="form-control" name="name_module" type="text" data-validate-func="required" data-validate-hint="Entrez la désignation de ce nouveau rôle svp !">
+                                            <span class="input-state-error mif-warning"></span>
+                                            <span class="input-state-success mif-checkmark"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Numéro d'ordre</label>
+                                        <div class="input-control text full-size" data-role="input">
+                                            <input name="numero_ordre" type="text" data-validate-func="required" data-validate-hint="Entrez la désignation de ce nouveau rôle svp !">
+                                            <span class="input-state-error mif-warning"></span>
+                                            <span class="input-state-success mif-checkmark"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <table class="table no-margin">
+                                            <thead class="no-border">
+                                                <tr>
+                                                    <th width="60%">Fonction du module</th>
+                                                    <th width="10%">Create</th>
+                                                    <th width="10%">Read</th>
+                                                    <th width="10%">Update</th>
+                                                    <th width="10%">Delete</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="items">
+                                                <tr id="ligne1">
+                                                    <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                        <input id="id1" type="hidden" value="0" />
+                                                        <div class="input-control text full-size">
+                                                            <input id="fonction1" name="fonction" type="text" placeholder="Renseignez le nom de votre fonction">
+                                                            <span class="prepend-icon" style="margin-left:75%">
+                                                             <span style="margin-top: 1px;" class="sub-header place-right unite"></span>
+                                                            <span>
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                    <div class="input-control select full-size">
+                                                        <select name="TypeId" id="type1">
+                                                            <option value="0">True</option>
+                                                            <option value="1">False</option>
+                                                            </select>
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                    <div class="input-control select full-size">
+                                                        <select name="TypeId" id="type1">
+                                                            <option value="0">True</option>
+                                                            <option value="1">False</option>
+                                                            </select>
+                                                    </div>
+                                                </td>
+                                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                            <div class="input-control select full-size">
+                                                                <select name="TypeId" id="type1">
+                                                                    <option value="0">True</option>
+                                                                    <option value="1">False</option>
+                                                                    </select>
+                                                            </div>
+                                                        </td>
+                                                        <td class="no-padding-top no-padding-left no-padding-bottom">
+                                                            <div class="input-control select full-size">
+                                                                <select name="TypeId" id="type1">
+                                                                    <option value="0">True</option>
+                                                                    <option value="1">False</option>
+                                                                    </select>
+                                                            </div>
+                                                        </td>
+                                                        
+                                                        <td class="no-padding-top no-padding-bottom">
+                                                            <div class="pagination no-border">
+                                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="row margin10 no-margin-left no-margin-right">
+                                            <button type="button" class="button small-button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                                        </div>
+                                    </div>
+                                </div>
+                        </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!--<script>
+        var lesFournisseurs = new Array();
+        var lesUnites = new Array();
+
+        {% for item in fournisseurs %}
+            lesFournisseurs.push({id:"{{ item.id }}", nom_complet:"{{ item.nom_complet }}"});
+        {% endfor %}
+
+        {% for item in unites %}
+            lesUnites.push({id:"{{ item.id }}", symbole_unite:"{{ item.symbole_unite }}"});
+        {% endfor %}
+    </script>-->
+    <script>
+        var uniteRef = "";
+        var nombreLignes = 1;
+        var nombreItems = 0;
+        var ligneActuelle = 0;
+        var compteur = 1;
+
+        $("#btnAjouterLigne").on("click", function() {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne = '<tr id="ligne' + compteur + '">';
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><input id="id' + compteur + '" type="hidden" value="0" /><div class="input-control text full-size"><input id="fonction' + compteur + '" name="fonction" type="text" placeholder="Renseignez le nom de votre fonction"><span class="prepend-icon" style="margin-left:75%"><span style="margin-top: 1px;" class="sub-header place-right unite"></span></span></div></td>';
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size"><select name="Create" id="create' + compteur + '"><option value="0">True</option><option value="1">False</option></select>  </div></td>';
+
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size"><select name="Read" id="read' + compteur + '"><option value="0">True</option><option value="1">False</option></select></div></td>';
+
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size"><select name="Update" id="update' + compteur + '"><option value="0">True</option><option value="1">False</option></select>  </div></td>';
+
+            nouvelleLigne += '<td class="no-padding-top no-padding-left no-padding-bottom"><div class="input-control select full-size"><select name="Delete" id="delete' + compteur + '"><option value="0">True</option><option value="1">False</option></select>  </div></td>';
+
+            nouvelleLigne += '<td class="no-padding-top no-padding-bottom"><div class="pagination no-border"><span class="item" title="Supprimer la ligne" onclick="supprimerLigne(' + compteur + ')"><span class="mif-cross fg-red"></span></span></div></td></tr>';
+
+
+            $("#items").append(nouvelleLigne);
+        });
+
+        /* function choix_unite()
+         {
+             var unite_id = $("#unite_id").val();
+             if(unite_id != "0")
+             {
+                 for(var i = 0; i < lesUnites.length; i++)
+                 {
+                     var unite = lesUnites[i];
+                     if(unite.id == unite_id)
+                     { 
+                         uniteRef = unite.symbole_unite;
+                         break;
+                     }
+                 }
+             }
+             else uniteRef = "";
+
+             $(".unite").text(uniteRef);
+         }*/
+
+        function selectChange(event) {
+            $select = $(event.target);
+            var id_element = $select[0].id;
+            console.log("ID ELEMENT : " + id_element);
+            if (id_element.substring(0, 4) == "item") {
+                ligneActuelle = $select[0].id.substr($select[0].name.length - 1, 1);
+
+                if ($("#" + id_element).val() != "0") nombreItems += 1;
+                else nombreItems -= 1;
+            }
+        }
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            $("#ligne" + indice).remove();
+        }
+
+        /*function renvoyerOptionsFournisseurs()
+        {
+            var ligne = "";
+            for(var i = 0; i < lesFournisseurs.length; i++)
+            {
+                var fournisseur = lesFournisseurs[i];
+                ligne += '<option value="' + fournisseur.id + '">' + fournisseur.nom_complet + '</option>';
+            }
+            return ligne;
+        }*/
+    </script>
+    {% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

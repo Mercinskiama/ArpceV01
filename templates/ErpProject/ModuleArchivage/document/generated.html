@@ -1,0 +1,85 @@
+
+{% extends "ErpProject/ModuleArchivage/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_index' %}">Module Archivage</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Imprimer</button>
+    <button id="btn_export" class="theme-btn theme-btn-sm rounded chargement-au-click">Exporter en Excel</button>
+    <button onclick="javascript:window.location.assign('{% url 'module_archivage_get_generer_document' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+</div>
+
+<form id="form" method="POST" action="{% url 'module_archivage_post_imprimer_rapport_document' %}">
+    {% csrf_token %}
+    <input id="submit" type="submit" style="display: none">
+    <input type="text" name="date_debut" value="{{ date_debut }}" style="display: none">
+    <input type="text" name="date_fin" value="{{ date_fin }}" style="display: none">
+</form> 
+<hr class="hr-ligne">
+<div id="divToPrint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+    <p class="align-center header">{{ title }}</p>
+    <div class="row">
+        <p>
+            Période :<br>
+            <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+            <br>
+            <br>
+        </p>
+    </div>
+    <br>
+    <br>
+    <table id="rapport" class="table bordered no-margin" style="width: 950px">
+        <tr style="background-color:#f1f1f1">
+            <th>Désignation</th>
+            <th>Type</th>
+            <th>Taille de Fichier</th>
+            <th>Type Mime</th>
+            <th>Mime</th>
+            <th>Dossier</th>
+            <th>Modèle Ressource</th>
+            <th>Champs Ressource</th>
+            <th>Id Ressource</th>
+            <th>Est public</th>
+            <th>Est archivé</th>
+            <th>Est bloqué </th>
+            <th>Bloqué par</th>
+            <th>Token accès</th>
+            <th>URL</th>
+            <th>Description</th>
+            <th>Contenu indexé</th>
+            <th>Date de création</th>
+            <th>Créé par</th>
+        </tr>
+        {% for item in model %}
+        <tr>
+            <td>{{item.designation|truncatechars:22}}</td>
+            <td>{{ item.value_type }}</td>
+            <td>{{item.taille}}</td>
+            <td>{{ item.value_type_mime }}</td>
+            <td>{{item.mime|truncatechars:22}}</td>
+            <td>{{item.dossier}}</td>
+            <td>{{item.res_model}}</td>
+            <td>{{item.res_field|truncatechars:22}}</td>
+            <td>{{item.res_id}}</td>
+            <td>{{item.est_public|boolean}}</td>
+            <td>{{item.est_archive|boolean}}</td>
+            <td>{{item.est_bloque|boolean}}</td>
+            <td>{{item.auteur_blocage}}</td>
+            <td>{{item.access_token|truncatechars:22}}</td>
+            <td>{{item.url|truncatechars:22}}</td>
+            <td>{{item.description|truncatechars:22}}</td>
+            <td>{{item.indexation|truncatechars:22}}</td>
+            <td>{{item.creation_date|date:'d/m/Y'}}</td>
+            <td>{{item.auteur.nom_complet}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/export_excel.html' with btn_id="btn_export" table_id="rapport" filename="rapport_document" only %}
+{% endblock %}

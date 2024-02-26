@@ -1,0 +1,61 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Emplacement :<br>
+                        {% if model.emplacement is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.emplacement }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Article :<br>
+                        {% if model.article is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.article }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Quantité :<br>
+                        <span class="sub-alt-header">{{model.quantite|monetary}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Unité de mesure :<br>
+                        {% if model.unite is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.unite }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Société :<br>
+                        {% if model.societe is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.societe }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

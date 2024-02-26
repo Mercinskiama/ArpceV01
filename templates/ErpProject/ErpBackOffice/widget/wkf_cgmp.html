@@ -1,0 +1,86 @@
+<!-----------------------TRAITEMENT PARTICULIER WORKFLOW-------------------------------------------->
+<div>
+    <!--CONSULTER STOCK PR SI-->
+
+    {% for role in roles %}
+    
+    <!--CONSULTER STOCK PR MG-->
+    {% if role.designation == "Assistant CGMP" %}
+    <!--or utilisateur.user.username == "admin" -->
+          
+
+    
+    
+    {% if model.montant_total <= 10000000 %}
+    <form method="POST" action="{% url 'module_contrat_add_lettre_commande' %}"
+        enctype="multipart/form-data" 
+            data-role="validator">
+            {% csrf_token %}                        
+            <!-- Si Upload, On affiche le bouton  -->                                 
+            <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+            <input type="hidden" name="doc_id" value="{{model.id}}">
+            <input type="hidden" name="service_referent_id" value="{{ service_referent_id }}">
+            
+            
+            <!--button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button--> 
+            <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+                Générer une lettre de commande
+            </button>         
+        </form>
+        
+    
+    {% elif model.montant_total >= 10000000 and model.montant_total < 50000000 %}
+    <form method="POST" action="{% url 'module_contrat_add_demande_cotation' %}"
+    enctype="multipart/form-data" 
+        data-role="validator">
+        {% csrf_token %}                        
+        <!-- Si Upload, On affiche le bouton  -->                                 
+        <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+        <input type="hidden" name="doc_id" value="{{model.id}}">
+        <input type="hidden" name="service_referent_id" value="{{ service_referent_id }}">
+        
+        <!--button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button--> 
+        <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+            Générer une demande de cotation
+        </button>         
+    </form>
+    {% elif model.montant_total >= 50000000 and model.montant_total <= 100000000 %}
+    <form method="POST" action="{% url 'module_contrat_add_gre_a_gre' %}"
+        enctype="multipart/form-data" 
+        data-role="validator">
+        {% csrf_token %}                        
+        <!-- Si Upload, On affiche le bouton  -->                                 
+        <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+        <input type="hidden" name="doc_id" value="{{model.id}}">
+        <input type="hidden" name="service_referent_id" value="{{ service_referent_id }}">
+        
+        <!--button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button--> 
+        <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+            Générer un Gré à Gré
+        </button>         
+    </form>
+    
+    {% elif model.montant_total > 100000000 %}
+    <form method="POST" action="{% url 'module_contrat_add_avis_appel_offre' %}"
+        enctype="multipart/form-data" 
+        data-role="validator">
+        {% csrf_token %}                        
+        <!-- Si Upload, On affiche le bouton  -->                                 
+        <input type="hidden" name="etape_id" value="{{item.etape_destination_id}}">
+        <input type="hidden" name="doc_id" value="{{model.id}}">
+        <input type="hidden" name="service_referent_id" value="{{ service_referent_id }}">
+        
+        <!--button type="submit" class="button small-button rounded primary">{{item.etape_destination.label}}</button--> 
+        <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">
+            Générer un Appel d'offre
+        </button>         
+    </form>
+    {% endif %}
+ 
+
+    {% endif %} {% endfor %}
+   
+    <!--button id="supprimer" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}" style="margin-left: 5px">Supprimer l'expression de besoin</!--button-->
+
+</div>
+<!--FIN GESTION DU WORKFLOW-->

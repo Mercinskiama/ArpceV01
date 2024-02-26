@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="44" height="40" viewBox="0 0 44 40">
+  <g id="Dossier" transform="translate(222 82)">
+    <path id="直线" d="M36,.5H0" transform="translate(-218 -66.5)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <circle id="椭圆形" cx="2" cy="2" r="2" transform="translate(-190 -54)" fill="#fff" stroke="#fff" stroke-miterlimit="10" stroke-width="1"/>
+    <path id="路径" d="M0,28V5A5,5,0,0,1,5,0h9l5,6H35a5,5,0,0,1,5,5V31a5,5,0,0,1-5,5H4" transform="translate(-220 -80)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+  </g>
+</svg>

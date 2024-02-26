@@ -1,0 +1,96 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_dashboard' %}">Accueil</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong class="hidden-xs" style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                        <button onclick="javascript:window.location.assign('{% url 'module_Configuration_add_sousmodule' %}')" class="button rounded primary chargement-au-click">Créer</button>
+
+                <br>
+                <br>
+
+
+       <table id="example" class="display nowrap border bordered striped" cellspacing="0" style="width:100%">
+            <thead>
+                <tr>
+
+                    <th style="width: 20px; background-color:#2e416a; white"></th><th>Nom</th><th>Module</th><th>Numéro d'ordre</th><th>est activé</th><th>Groupe menu</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in model %}
+                    <tr>
+                        <td>
+                            <label class="small-check">
+                                <input type="checkbox">
+                                <span class="check"></span>
+                            </label>
+                        </td>
+                        
+<td><a class="lien chargement-au-click" href="{% url 'module_Configuration_detail_sousmodule' item.id %}">{{item.nom_sous_module}}</a></td>
+<td>{{item.module.nom_module}}</td>
+<td>{{item.numero_ordre}}</td>
+<td>{{item.est_actif}}</td>
+<td>{{item.groupe_menu.designation}}</td>
+                </tr>
+                    {% endfor %}
+
+            </tbody>
+        </table>
+
+
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable( {
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: "<span class='mdi mdi-content-copy' style='font-size:1rem;color:#424892;'></span> Copy",
+                    titleAttr: "Copier"
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: "<span class='mdi mdi-file-excel' style='font-size:1rem;color:#236e43;'></span> Excel",
+                    titleAttr: "Exporter en excel"
+                },
+                {
+                    extend: 'csvHtml5',
+                    text: "<span class='mdi mdi-file-outline' style='font-size:1rem;color:#9c27b0;'></span> CSV",
+                    titleAttr: "Exporter en csv"
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: "<span class='mdi mdi-file-pdf' style='font-size:1rem;color:#f44336;'></span> PDF",
+                    titleAttr: "Exporter en pdf"
+                },
+                //'copyHtml5',
+                //'excelHtml5',
+                //'csvHtml5',
+                //'pdfHtml5'
+            ]
+        } );
+    } );
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

@@ -1,0 +1,124 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Noms :<br>
+                        <span class="sub-alt-header">{{ model.name }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Type Personne :<br>
+                        <span class="sub-alt-header">{{ model.value_type }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Nature :<br>
+                        <span class="sub-alt-header">{{ model.nature }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Courriel :<br>
+                        <span class="sub-alt-header">{{ model.email }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Site web :<br>
+                        <span class="sub-alt-header">{{ model.siteweb }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Fonction :<br>
+                        <span class="sub-alt-header">{{ model.function }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Pays :<br>
+                        {% if model.country is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.country }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Province :<br>
+                        {% if model.adress_state is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.adress_state }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Ville :<br>
+                        {% if model.adress_city is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.adress_city }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Adresse ligne 1 :<br>
+                        <span class="sub-alt-header">{{ model.adress_line1 }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Adresse ligne 2 :<br>
+                        <span class="sub-alt-header">{{ model.adress_line2 }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Téléphone :<br>
+                        <span class="sub-alt-header">{{ model.phone_number }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Mobile :<br>
+                        <span class="sub-alt-header">{{ model.phone_number_2 }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Code Postal :<br>
+                        <span class="sub-alt-header">{{ model.code_postal }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Autres informations :<br>
+                        <span class="sub-alt-header">{{ model.description }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Société :<br>
+                        {% if model.societe is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.societe }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <label>Autres adresse :</label><br>
+                        {% for item in model.autres_adresses.all %}
+                            <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                        {% endfor %}                     
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

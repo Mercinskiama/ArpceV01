@@ -1,0 +1,490 @@
+@charset "UTF-8";
+@font-face {
+    font-family: "Circular Std Book";
+    font-style: normal;
+    src: url("../fonts/CircularStd-Book.woff");
+}
+
+@font-face {
+    font-family: "Circular Std Light";
+    font-style: normal;
+    src: url("../fonts/CircularStd-Medium.woff");
+}
+
+@font-face {
+    font-family: "Circular Std Bold";
+    font-style: normal;
+    src: url("../fonts/CircularStd-Bold.woff");
+}
+
+@font-face {
+    font-family: "Roboto Thin";
+    font-style: bold;
+    src: url("../fonts/Roboto-Thin.ttf");
+}
+
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: normal;
+    src: url(/static/ErpProject/fonts/Poppins-Regular.ttf) format("truetype"); }
+
+@font-face {
+    font-family: 'Poppins Thin';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Poppins Thin"), url(/static/ErpProject/fonts/Poppins-Thin.ttf) format("truetype"); }
+
+@font-face {
+    font-family: 'Poppins Italic';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Poppins Italic"), url(/static/ErpProject/fonts/Poppins-Italic.ttf) format("truetype"); }
+
+@font-face {
+    font-family: 'Poppins Medium';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Poppins Medium"), url(/static/ErpProject/fonts/Poppins-Medium.ttf) format("truetype"); }
+
+@font-face {
+    font-family: 'Poppins Bold';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Poppins Bold"), url(/static/ErpProject/fonts/Poppins-Bold.ttf) format("truetype"); }
+
+@font-face {
+    font-family: 'Poppins Black';
+    font-style: normal;
+    font-weight: normal;
+    src: local("Poppins Black"), url(/static/ErpProject/fonts/Poppins-Black.ttf) format("truetype"); }
+
+* {
+    font-family: 'Poppins';
+}
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+@page invoice {
+    size: A4;
+    margin-right: 2cm;
+    margin-left: 2cm;
+    margin-top: 3.5cm;
+    @top-center {
+        background: url("../image/logo.png") no-repeat;
+        background-size: 50% 50%!important;
+        content: '';
+        display: block;
+        vertical-align: left;
+        height: 2cm;
+        width: 50%!important; 
+        float: left;
+      }
+    @bottom-center {
+      border-top: .25pt solid #333333;
+      color: #797979;
+      font-family: "Century Gothic",sans-serif;
+      font-size: 9px;
+      height: 2cm;
+      justify-content: center;
+      content: "Etablissement public administratif doté de la personnalité juridique et de l’autonomie financière placé sous la tutelle du MPT |Adresse Imm ETAXE 91bis avenue de l’Amitié Centre-Ville| BP : 2490 Kinshasa - Congo      Téléphone : +242.05.512.07.07/ 05.510.72.72     Email : contact@etaxe-nsandax.com  | Site Internet : http://www.etaxe-nsandax.com"; } }
+
+@page facture {
+    size: A4;
+    margin-right: 2cm;
+    margin-left: 2cm;
+    margin-top: 3.8cm;
+    text-align: justify!important;
+    @top-center {
+        background: url("../image/header.png") no-repeat;
+        background-size: 100% 100%!important;
+        content: '';
+        display: block;
+        vertical-align: middle;
+        opacity: 1;
+        height: 3cm;
+        width: 100%!important; }
+    @bottom-center {
+      border-top: 4pt solid #622423;
+      color: #797979;
+      font-family: "Century Gothic",sans-serif;
+      font-size: 9pt;
+      height: 2cm;
+      justify-content: center;
+      content: "Etablissement public administratif doté de la personnalité juridique et de l’autonomie financière placé sous la tutelle du MPT |Adresse Imm Nsandax 91bis avenue de l’Amitié Centre-Ville| Kinshasa - Congo      Téléphone : +242.05.512.07.07/ 05.510.72.72     Email : contact@etaxe-nsandax.com  | Site Internet : http://www.etaxe-nsandax.com"; } }
+
+@page report{
+    size: A4;
+    margin: 1cm;
+    @top-left {
+        content: "Reporting";
+        font-size: 8px;
+        color: #000;
+        height: 1cm; }
+    @top-center {
+        border-bottom: .05cm solid gray;
+        padding-bottom: 1cm;
+        content: '';
+        display: block;
+        opacity: .5;
+        width: 100%!important; }
+    @top-right {
+        content: string(today);
+        font-size: 8px;
+        color: #000;
+        height: 1cm;
+        width: 3cm; }
+    @bottom-left {
+        content: "DynamIT ERP";
+        font-size: 8px;
+        color: #000;
+        height: 1cm;
+        width: 3cm; }
+    @bottom-center {
+        border-top: .25pt solid #000;
+        content: string(heading);
+        color: #000;
+        font-size: 8px;
+        display: block;
+        height: 1cm;
+        opacity: .5;
+        width: 100%!important; }
+    @bottom-right {
+        content: "Page " counter(page);
+        font-size: 8px;
+        color: #000;
+        height: 1cm;
+        vertical-align: middle;
+        width: 100%!important; } }
+
+@page :blank {
+  @top-left {
+    background: none;
+    content: ''; }
+  @top-center {
+    content: none; }
+  @top-right {
+    content: none; } }
+
+html body div#report {
+  page: report; }
+
+html body div#invoice {
+  page: invoice; }
+
+html body div#facture {
+  page: facture; }
+
+html {
+  color: #393939;
+  /*font-family: "Century Gothic",sans-serif;*/
+  font-size: 9px;
+  font-weight: 300;
+  line-height: 1.5; }
+
+html body h2, html body h3, html body h4 {
+  color: black;
+  font-weight: 400; }
+html body h2 {
+  break-before: always;
+  font-size: 14px;
+  string-set: heading content(); }
+html body h3 {
+  font-weight: 300;
+  font-size: 13px; }
+html body h4 {
+  font-size: 12px; }
+html body h4 {
+  font-size: 12px; }
+html body table {
+  font-size: 10px!important; }
+
+html body article#invoice {
+  break-before: right;
+  break-after: left;
+  page: invoice; }
+
+html body article#invoice h2 {
+  font-size: 20pt;
+  font-weight: 400;
+  margin-bottom: 3cm; }
+html body article#invoice h3 {
+  font-weight: 500;
+  margin: 3em 0 1em; }
+
+.invoice-text {
+  font-family: "Century Gothic"!important;
+  font-size: 12pt;
+}
+.date-text {
+  string-set: today content();
+  font-size: 1px;
+  color: #fff}
+
+.no-margin {
+  margin: 0 !important;
+}
+table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  background-color: transparent;
+  max-width: 100%!important;
+}
+table tr{
+  vertical-align: middle;
+  height: 15.95pt;
+  white-space: normal;
+  padding-left: 9px;
+}
+table tr td{
+  font-weight: 300;
+  font-style: normal;
+  text-decoration: none;
+}
+.table.bordered th, .table.bordered td {
+  border: 0.5px #000 solid;
+}
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+  padding: 6px;
+  line-height: 1.42857143;
+}
+
+p {
+  margin: 0 0 10px;
+}
+.sub-header {
+  font: 500 1.125rem/1.1 "Circular Std Book", sans-serif, serif;
+}
+.align-center {
+  text-align: center;
+}
+.header {
+  font: 500 1.5rem/1.1 "Poppins Bold", sans-serif, serif !important;
+}
+
+.bg-gray-blue{
+  background-color:#f1f1f1!important;
+}
+.no-border-left{
+  border-left: none!important;
+}
+.no-border-right{
+  border-right: none!important;
+}
+.monetary{
+  text-align: right!important;
+  font-size: 6pt!important;
+}
+.item-content {
+  background-color: #ffffff !important;
+  padding: 1.5rem !important;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+.text-hide {
+  font: 0/0 a;
+  color: transparent;
+  text-shadow: none;
+  background-color: transparent;
+  border: 0;
+}
+.container {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+.container:before,
+.container:after{
+  display: table;
+  content: " ";
+}
+.container:after {
+  clear: both;
+}
+.row {
+  width: 100% !important;
+  margin: 0 auto !important;
+}
+.row:before,
+.row:after{
+  display: table;
+  content: " ";
+}
+.row:after {
+  clear: both;
+}
+.col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12 {
+  position: relative;
+  min-height: 1px;
+  /*padding-right: 15px;
+  padding-left: 15px;*/
+}
+.col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12 {
+  float: left;
+}
+.col-md-12 {
+  width: 100%!important;
+}
+.col-md-11 {
+  width: 91.66666667%!important;
+}
+.col-md-10 {
+  width: 83.33333333%!important;
+}
+.col-md-9 {
+  width: 75%!important;
+}
+.col-md-8 {
+  width: 66.66666667%!important;
+}
+.col-md-7 {
+  width: 58.33333333%!important;
+}
+.col-md-6 {
+  width: 50%!important;
+}
+.col-md-5 {
+  width: 41.66666667%!important;
+}
+.col-md-4 {
+  width: 33.33333333%!important;
+}
+.col-md-3 {
+  width: 25%!important;
+}
+.col-md-2 {
+  width: 16.66666667%!important;
+}
+.col-md-1 {
+  width: 8.33333333%!important;
+}
+.col-md-pull-12 {
+  right: 100%!important;
+}
+.col-md-pull-11 {
+  right: 91.66666667%!important;
+}
+.col-md-pull-10 {
+  right: 83.33333333%!important;
+}
+.col-md-pull-9 {
+  right: 75%!important;
+}
+.col-md-pull-8 {
+  right: 66.66666667%!important;
+}
+.col-md-pull-7 {
+  right: 58.33333333%!important;
+}
+.col-md-pull-6 {
+  right: 50%!important;
+}
+.col-md-pull-5 {
+  right: 41.66666667%!important;
+}
+.col-md-pull-4 {
+  right: 33.33333333%!important;
+}
+.col-md-pull-3 {
+  right: 25%!important;
+}
+.col-md-pull-2 {
+  right: 16.66666667%!important;
+}
+.col-md-pull-1 {
+  right: 8.33333333%!important;
+}
+.col-md-pull-0 {
+  right: auto;
+}
+.col-md-push-12 {
+  left: 100%!important;
+}
+.col-md-push-11 {
+  left: 91.66666667%!important;
+}
+.col-md-push-10 {
+  left: 83.33333333%!important;
+}
+.col-md-push-9 {
+  left: 75%!important;
+}
+.col-md-push-8 {
+  left: 66.66666667%!important;
+}
+.col-md-push-7 {
+  left: 58.33333333%!important;
+}
+.col-md-push-6 {
+  left: 50%!important;
+}
+.col-md-push-5 {
+  left: 41.66666667%!important;
+}
+.col-md-push-4 {
+  left: 33.33333333%!important;
+}
+.col-md-push-3 {
+  left: 25%!important;
+}
+.col-md-push-2 {
+  left: 16.66666667%!important;
+}
+.col-md-push-1 {
+  left: 8.33333333%!important;
+}
+.col-md-push-0 {
+  left: auto;
+}
+.col-md-offset-12 {
+  margin-left: 100%!important;
+}
+.col-md-offset-11 {
+  margin-left: 91.66666667%!important;
+}
+.col-md-offset-10 {
+  margin-left: 83.33333333%!important;
+}
+.col-md-offset-9 {
+  margin-left: 75%!important;
+}
+.col-md-offset-8 {
+  margin-left: 66.66666667%!important;
+}
+.col-md-offset-7 {
+  margin-left: 58.33333333%!important;
+}
+.col-md-offset-6 {
+  margin-left: 50%!important;
+}
+.col-md-offset-5 {
+  margin-left: 41.66666667%!important;
+}
+.col-md-offset-4 {
+  margin-left: 33.33333333%!important;
+}
+.col-md-offset-3 {
+  margin-left: 25%!important;
+}
+.col-md-offset-2 {
+  margin-left: 16.66666667%!important;
+}
+.col-md-offset-1 {
+  margin-left: 8.33333333%!important;
+}
+.col-md-offset-0 {
+  margin-left: 0;
+}
+
+#logo_header{
+  background: url("../image/logo.png") no-repeat;
+  background-size: 100% 100%!important;
+  content: '';
+  display: block;
+  vertical-align: middle;
+  height: 100%;
+  width: 100%;
+}

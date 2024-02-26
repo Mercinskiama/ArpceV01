@@ -1,0 +1,106 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{% load static %}
+
+    <body>       
+        <div id="report">            
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <h1 class="align-center">{{title}} </h1>                
+            <br>
+            <br>
+
+            <br>
+            <br>
+
+            <div class="row">
+                <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                    <tr style="background-color:#91a7c3;color:#fff!important;font-weight:500">
+                        <td width="20%">Titre 1</td>
+                        <td width="20%">Titre 2</td>
+                        <td width="20%">Titre 3</td>
+                        <td width="20%">Titre 4</td>
+                        <td width="20%">Titre 5</td>
+                    </tr>   
+                    <tr class="tr-toggle" style="background-color:#f1f1f1;font-weight:700!important;">
+                        <td width="20%" style="text-align: right" > item 1 </td>
+                        <td width="20%" style="text-align: right"> item 2 </td>
+                        <td width="20%" style="text-align: right"> item 3 </td>
+                        <td width="20%" style="text-align: right"> item 4 </td>
+                        <td width="20%" style="text-align: right"> item 5 </td>
+                    </tr>
+                    <tr> 
+                        <td width="20%" style="text-align: right" > Valeur 1 </td>
+                        <td width="20%" style="text-align: right"> Valeur 2 </td>
+                        <td width="20%" style="text-align: right"> Valeur 3 </td>
+                        <td width="20%" style="text-align: right"> Valeur 4 </td>
+                        <td width="20%" style="text-align: right"> Valeur 5 </td>
+                    </tr>
+                    <tr>
+                        <td width="20%" style="text-align: right" > Valeur 1 </td>
+                        <td width="20%" style="text-align: right"> Valeur 2 </td>
+                        <td width="20%" style="text-align: right"> Valeur 3 </td>
+                        <td width="20%" style="text-align: right"> Valeur 4 </td>
+                        <td width="20%" style="text-align: right"> Valeur 5 </td>
+                    </tr>
+                    <tr style="background-color:#7c984a;color:#fff!important;">
+                        <th width="20%" style="text-align: right" > {{ "0.00"|monetary }} </th>
+                        <th width="20%" style="text-align: right"> {{ "0.00"|monetary }} </th>
+                        <th width="20%" style="text-align: right"> {{ "0.00"|monetary }} </th>
+                        <th width="20%" style="text-align: right"> {{ "0.00"|monetary }} </th>
+                        <th width="20%" style="text-align: right"> {{ "0.00"|monetary }} </th>
+                    </tr>
+                </table> 
+            </div>
+            
+            <br>
+            <br> 
+            <br>
+            <br>  
+
+            <div class="row">
+                <table class="display table nowrap border bordered" cellspacing="0" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th width="20%">Titre 1</th>
+                            <th width="20%">Titre 2</th>
+                            <th width="20%">Titre 3</th>
+                            <th width="20%">Titre 4</th>
+                            <th width="20%">Titre 5</th>
+                        </tr>
+                    </thead>
+                    <tbody>  
+                        <tr>
+                            <td width="20%" style="text-align: right" > {{ "0.00"|monetary }} </td>
+                            <td width="20%" style="text-align: right"> {{ "0.00"|monetary }} </td>
+                            <td width="20%" style="text-align: right"> {{ "0.00"|monetary }} </td>
+                            <td width="20%" style="text-align: right"> {{ "0.00"|monetary }} </td>
+                            <td width="20%" style="text-align: right"> {{ "0.00"|monetary }} </td>
+                        </tr>  
+                        <tr>
+                            <td width="20%" style="text-align: right" > {{ "0.00"|monetary }} </td>
+                            <td width="20%" style="text-align: right"> {{ "0.00"|monetary }} </td>
+                            <td width="20%" style="text-align: right"> {{ "0.00"|monetary }} </td>
+                            <td width="20%" style="text-align: right"> {{ "0.00"|monetary }} </td>
+                            <td width="20%" style="text-align: right"> {{ "0.00"|monetary }} </td>
+                        </tr>  
+                                                <tr>
+                            <td width="20%" style="text-align: right" > {{ "0.00"|monetary }} </td>
+                            <td width="20%" style="text-align: right"> {{ "0.00"|monetary }} </td>
+                            <td width="20%" style="text-align: right"> {{ "0.00"|monetary }} </td>
+                            <td width="20%" style="text-align: right"> {{ "0.00"|monetary }} </td>
+                            <td width="20%" style="text-align: right"> {{ "0.00"|monetary }} </td>
+                        </tr>                     
+                    </tbody>
+                </table>
+                <br><br>
+            </div> 
+        </div>
+    </body>
+</html>

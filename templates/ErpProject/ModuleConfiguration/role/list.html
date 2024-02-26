@@ -1,0 +1,113 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+{%load static %}
+<div class="row">
+    <div class="col-lg-12">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_roles' %}">Module Configuration</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <div class="col-md-2">
+                        <button style="width:100%;" onclick="javascript:window.location.assign('{% url 'module_configuration_add_role' %}')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Créer</button>
+                    </div>
+                    <div class="col-md-3">
+                        <div id="btn-view" data-role="group" data-group-type="one-state">
+                            <button id="btn-tree" onclick="javascript:window.location.assign('{% url 'module_configuration_list_roles' %}?view=list')"
+                                class="button btn-typeview btn-secondary {% if view == "list" %}{{ "active" }}{% endif %}">
+                                <span class="mif-list"></span></button>
+                            <button id="btn-kanban" onclick="javascript:window.location.assign('{% url 'module_configuration_list_roles' %}?view=kanban')"
+                                class="button btn-typeview btn-secondary {% if view == "kanban" %}{{ "active" }}{% endif %}">
+                                <span class="mif-apps"></span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+
+                {% if view == "list" %}
+                <div id="list-view" class="row">
+                    <div class="col-xs-12">
+                        <table id="data_table" class="display nowrap border bordered striped" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Désignation</th>
+                                    <th>Module</th>
+                                    <th>Sous-module</th>
+                                    <!--th>Action</th-->
+                                    <th>Utilisateur</th>
+                                    <th>Date de création</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in model %}
+                                <tr>
+                                    <td>
+                                        <label class="small-check">
+                                            <input type="checkbox">
+                                            <span class="check"></span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <a class="lien chargement-au-click" href="{% url 'module_configuration_details_role' item.id %}">{{ item.designation }}</a>
+                                    </td>
+                                    <td> {{ item.stat.nombre_module }} module(s) associé(s) </td>
+                                    <td> {{ item.stat.nombre_sous_module }} sous-module(s) associé(s) </td>
+                                    <!--td> {{ item.rel_droit.count }} action(s) autorisée(s) </td-->
+                                    <td> {{ item.groupe_permission.count }} utilisateurs </td>
+                                    <td>
+                                        {{ item.creation_date|date:"d/m/Y" }} à {{ item.creation_date|date:"h:m" }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% elif view == "kanban" %}
+                <div id="kanban-view" class="row" style="margin-top:10px;">
+                    {% for item in model %}
+                    <div class="col-md-4">
+                        <div class="card-item" style="margin-top: 10px; margin-bottom: 15px">
+                            <div class="card-item-content">
+                                <div class="thumb">
+                                </div>
+                                <div class="texts">
+                                    <a class="link chargement-au-click" href="{% url 'module_configuration_details_role' item.id %}">{{ item.designation }}</a><br>
+                                    <div class="mt-2"></div>
+                                    <span class="inner-text">{{ item.stat.nombre_module }} module(s) associé(s)</span><br>
+                                    <span class="inner-text">{{ item.stat.nombre_sous_module }} sous-module(s) associé(s)</span><br>
+                                    <span class="inner-text">{{ item.groupe_permission.count }} utilisateurs </span><br>
+                                    <span class="inner-text">{{ item.creation_date|date:"d/m/Y" }} à {{ item.creation_date|date:"h:m" }}</span>
+
+                                    <a href="{% url 'module_configuration_details_role' item.id %}" class="mt-3 btn btn-block btn-wide rounded chargement-au-click">voir detail</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Appel widget datatable -->
+{% include 'ErpProject/ErpBackOffice/widget/datatable.html' with type_view=view %}
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

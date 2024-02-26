@@ -1,0 +1,107 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_dashboard' %}">Module Configuration</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_Configuration_list_permission' %}">Liste des permission</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button rounded primary_color_{{module.name|lower}}">
+                        Valider
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_Configuration_list_permission' %}')" class="button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_Configuration_list_permission' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                            <div class="row" style="margin:10px 0">
+                                <div class="col-md-6 padding10 fg-white" style="background-color:#ff6a00;">
+                                    <div class="row" style="width: 32px;">
+                                        <span class="mif-info mif-2x"></span>
+                                    </div>
+                                    <div class="row" style="margin-left: 10px">
+                                        <span class="notify-title"><b>Information :</b></span><br>
+                                        <span class="notify-text">
+                                            {{ message }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            <form id="form" method="POST" action="{% url 'module_Configuration_post_update_permission' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                             <input name="ref" type="hidden" value="{{ model.id }}">
+                            <div class="row">
+              
+                <div class="col-md-6">
+                    <label>Sous-module</label>
+                    <div class="input-control text full-size">
+                        <select name="sous_module_id" id="sous_module_id" onchange=""
+                            data-validate-func="min"
+                            data-validate-arg="1"
+                            data-validate-hint="Selectionnez un sous-module svp.">
+                            <option value="0">Selectionnez un sous-module</option>
+                            {% for item in sousmodule %}
+                                <option {% if model.sous_module_id == item.id %} selected {% endif %} value="{{ item.id }}"> {{ item.module.nom_module }} / {{ item.nom_sous_module }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+
+            
+                <div class="col-md-6">
+                            <label>Designation</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="designation" id="designation" type="text" data-validate-func="required" data-validate-hint="Entrez designation !" value = "{{model.designation}}">
+                            </div>
+                </div>
+            
+                <div class="col-md-6">
+                            <label>Numero</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="numero" id="numero" type="text" data-validate-func="required" data-validate-hint="Entrez numero !" value = "{{model.numero}}">
+                            </div>
+                </div>
+            
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

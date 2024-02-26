@@ -1,0 +1,86 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Quantité fournie :<br>
+                        <span class="sub-alt-header">{{model.quantite|monetary}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Quantité transferée :<br>
+                        <span class="sub-alt-header">{{model.quantite_fait|monetary}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Article :<br>
+                        {% if model.article is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.article }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>description :<br>
+                        <span class="sub-alt-header">{{ model.description }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Société :<br>
+                        {% if model.societe is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.societe }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <label class="input-control checkbox small-check full-size">
+                        <input name="fait" id="fait"  {% if model.fait is True %}{{ "checked" }}{% endif %} type="checkbox" disabled="disabled">
+                        <span class="check"></span>
+                        <span class="caption">Est réalisé</span>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <p>bon transfert :<br>
+                        {% if model.bon_transfert is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.bon_transfert }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>stockage :<br>
+                        {% if model.stockage is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.stockage }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <label>Numéros de serie :</label><br>
+                        {% for item in model.series.all %}
+                            <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                        {% endfor %}                     
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

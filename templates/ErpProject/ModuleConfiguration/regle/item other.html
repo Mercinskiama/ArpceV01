@@ -1,0 +1,77 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_list_regle' %}">Module Configuration</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_list_regle' %}">Liste des règles</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+            <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row ">
+                    <button onclick="javascript:window.location.assign()" class="theme-btn theme-btn-sm rounded chargement-au-click primary_color_{{module.name|lower}}">
+                        Modifier
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_list_regle' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                
+
+                <hr class="hr-ligne">
+
+
+
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="row padding20 no-padding-top no-padding-bottom" style="border-right: 1px solid #f7f5f5;">
+                                    <p>
+
+            Designation :
+                    <br>
+                    <span class="sub-alt-header">{{ model.designation }}</span>
+                    <br>
+                    <br>
+
+            Groupe :
+                    <br>
+                    <span class="sub-alt-header">{{ model.groupe_permission.designation }}</span>
+                    <br>
+                    <br>
+            Filtre :
+                    <br>
+                    <span class="sub-alt-header">{{ model.filtre }}</span>
+                    <br>
+                    <br>
+            Permissions :
+                    <br>
+                    {% for permission in model.permissions.all %}
+                    <span class="sub-alt-header">{{ permission.designation }}</span>
+                    <br>
+                    {% endfor %}
+                    <br>
+
+        </p>
+
+                                </div>
+                            </div>
+                        </div>
+
+           {% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

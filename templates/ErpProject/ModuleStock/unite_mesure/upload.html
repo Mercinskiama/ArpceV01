@@ -1,0 +1,183 @@
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_add_unite_mesure' %}">Création nouvel objet Unité de mesure</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="selectFile()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Choisir un fichier</button> 
+                    <button id="btn-register" style="display:none;" onclick="enregistrer()" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_add_unite_mesure' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <div id="error_format_file" class="alert alert-danger col-md-12" style="display:none;">
+                    <a class="close" data-dismiss="alert">×</a>
+                    Charger un fichier Excel SVP !
+                </div>
+                
+                <form id="form" method="POST" action="{% url 'module_stock_post_upload_unite_mesure' %}"  enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                {% csrf_token %}
+                <input id="submit" type="submit" style="display: none">
+                <input type="file" id="input-excel" name="file_upload" style="display:none;"/>
+                <input type="text" id="sheet" name="sheet" style="display:none;"/>
+                    
+                <div id="match_wrapper" class="row">
+                    <ul class="nav nav-tabs navtab-bg"> 
+                        <li class="active"><a href="#frame_matchs" data-toggle="tab" aria-expanded="false"><span>Correspondance entêtes Excel et champs de l'objet</span></a></li>
+                    </ul>
+                    <div class="tab-content"> 
+                        <div class="tab-pane active" id="frame_matchs">
+                            <div class="row margin20 no-margin-left no-margin-right">                  
+
+                                <div class="col-md-3 col-sm-6 col-xs-12">
+                                    <label>Designation</label>               
+                                    <div class="input-control text full-size">
+                                        <select name="name" id="name" class="champ_filtrage" >
+                                            <option value="">Sélectionnez un champ</option>
+                                        </select>
+                                    </div> 
+                                </div>
+                                <div class="col-md-3 col-sm-6 col-xs-12">
+                                    <label>Symbole</label>               
+                                    <div class="input-control text full-size">
+                                        <select name="short_name" id="short_name" class="champ_filtrage" >
+                                            <option value="">Sélectionnez un champ</option>
+                                        </select>
+                                    </div> 
+                                </div>
+                                <div class="col-md-3 col-sm-6 col-xs-12">
+                                    <label>Description</label>               
+                                    <div class="input-control text full-size">
+                                        <select name="description" id="description" class="champ_filtrage" >
+                                            <option value="">Sélectionnez un champ</option>
+                                        </select>
+                                    </div> 
+                                </div>
+                                <div class="col-md-3 col-sm-6 col-xs-12">
+                                    <label>Société</label>               
+                                    <div class="input-control text full-size">
+                                        <select name="societe_id" id="societe_id" class="champ_filtrage" >
+                                            <option value="">Sélectionnez un champ</option>
+                                        </select>
+                                    </div> 
+                                </div>                  
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </form>
+
+                <div id="upload_wrapper">                              
+                </div>
+                
+                <div id="bg" class="row no-margin-left no-margin-right" style="padding-top:300px;">
+                    <div class="col-md-3 xs-hidden"></div>
+                    <div class="col-md-6 col-xs-12">
+                        <h3>Choisissez un fichier CSV ou Excel à importer.</h3>  
+                        <span class="fg-gray" style="text-align:center;">Les fichiers Excel sont recommandés pour le formatage des champs.<br>
+                    </div>
+                    <div class="col-md-3 xs-hidden"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+<script type="text/javascript" src="{% static 'ErpProject/js/FileSaver.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/xlsx.full.min.js' %}"></script> 
+<script>
+    function enregistrer(){
+        document.getElementById('submit').click();
+    }
+    
+    function selectFile() {
+        $('input[id=input-excel]').click();
+    }
+
+    function extractHeader(ws) {
+        const header = []
+        const columnCount = XLSX.utils.decode_range(ws['!ref']).e.c + 1
+        for (let i = 0; i < columnCount; ++i) {
+            header[i] = ws[`${XLSX.utils.encode_col(i)}1`].v
+        }
+        return header
+    }
+
+    function setOptionsHeaders(headers) {
+        $('.champ_filtrage').children().remove(); 
+
+        var ligne = "<option value=''>Aucune</option>";
+        for(var i = 0; i < headers.length; i++){
+            var header = headers[i];
+            ligne += `<option value='${header}'> ${header} </option>`;
+        }
+
+        $('.champ_filtrage').append(ligne);
+    }
+
+    
+    //Import excel
+    $('#input-excel').change(function(e){
+        const input = document.getElementById("input-excel")
+        const file = input.files[0]
+
+
+        $('#error_format_file').css('display', 'none');
+        if (file.type !== 'application/vnd.ms-excel' && file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+            $('#error_format_file').css('display', 'inline');
+        }else{
+            var reader = new FileReader();
+            reader.readAsArrayBuffer(e.target.files[0]);
+            reader.onload = function(e) {
+                var data = new Uint8Array(reader.result);
+                var wb = XLSX.read(data,{type:'array'});
+                var ws_name = wb.SheetNames[0];
+                console.log(ws_name);
+                $("#sheet").val(ws_name);
+                $("#upload_wrapper").children().remove();
+                var sheet = wb.Sheets[ws_name];
+                var htmlstr = XLSX.write(wb,{sheet: ws_name, type:'binary',bookType:'html'});
+                htmlstr = decodeURIComponent(escape(htmlstr));
+                $('#upload_wrapper')[0].innerHTML += htmlstr;
+                $('#upload_wrapper table').addClass("display nowrap border bordered striped table-overflow");
+                $('#upload_wrapper table').css('overflow', 'auto');
+                $('#upload_wrapper table').css('position', 'relative');
+                $('#upload_wrapper table').css('display', 'inline-block');
+                $('#upload_wrapper table').css('width', '100%');
+                
+                $('#bg').css('display', 'none');
+                $('#btn-register').css('display', 'inline');
+
+                const headers = extractHeader(sheet)
+                console.log("header");
+                console.log(headers);
+                setOptionsHeaders(headers);
+            }
+        }
+
+
+    });
+</script>
+{% endblock %}

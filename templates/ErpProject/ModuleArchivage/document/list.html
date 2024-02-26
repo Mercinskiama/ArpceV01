@@ -1,0 +1,403 @@
+
+{% extends "ErpProject/ModuleArchivage/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<style type="text/css">
+    .documents_inspector {
+        flex: 0 0 320px;
+        overflow: auto;
+        color: #cccccc;
+        background-color: #3F3F3F;
+        height: 100% !important;
+    }
+    .documents_inspector p{
+        font-family: "Roboto", sans-serif;
+        font-weight: 400;
+        line-height: 1.5;
+        text-align: left;
+    }
+    .documents_inspector_preview {
+        padding: 15px;
+        background-color: #2E2E2E;
+        border-bottom: 1px solid #1A1A1A;
+        min-height: 100px;
+        position: relative !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        flex-direction: row !important;
+        display: flex !important;
+    }
+    .documents_inspector_info {
+        border-top: 1px solid #4C4C4C;
+        padding: 8px 16px 16px;
+        direction: ltr;
+    }
+    .inspector_button {
+        background-color: #4C4C4C;
+        border: 1px solid #1A1A1A;
+        border-radius: 0px;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 10%), 0 1px 0 rgb(255 255 255 / 10%);
+        text-shadow: 0 1px 0 #1a1a1a;
+        color: #cccccc;
+    }
+    .btn:not(:disabled):not(.disabled) {
+        cursor: pointer;
+    }
+    .fa.pull-right {
+        margin-left: 0.3em;
+    }
+    .btn {
+        display: inline-block;
+        font-weight: 500;
+        text-align: center;
+        vertical-align: middle;
+        user-select: none;
+        padding: 0.375rem 0.75rem;
+        font-size: 1.08333333rem;
+        line-height: 1.5;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }  
+    .pull-right {
+        float: right;
+    }
+    .texts a{
+        text-decoration: none!important;
+    }
+    .record_selector {
+        float: right;
+        color: #ced4da;
+        font-size: 16px;
+    }
+    .texts-record_selector a:hover, a:focus{
+        color: #00a09d!important;
+        text-decoration: none!important;
+    }
+    .record_selector_selected {
+        float: right;
+        color: #00a09d;
+        font-size: 16px;
+    }
+    .favorite {
+        float: right;
+        color: #ced4da;
+        transition: 0.6s color 0.3s;
+        font-size: 16px;
+    }
+    .texts-favorite a:hover, a:focus{
+        color: #f0ad4e!important;
+        text-decoration: none!important;
+    }
+    .favorite_selected {
+        float: right;
+        color: #f0ad4e;
+        transition: 0.6s color 0.3s;
+        font-size: 16px;
+    }
+    .record_selected {
+        opacity: 1;
+        border-color: #00A09D;
+        box-shadow: 0 0 0 1px #00a09d;
+    }
+    .search_panel {
+        flex: 0 0 180px;
+        overflow: auto;
+        height: 100%;
+        padding: 8px 8px 32px 16px;
+        border-right: 1px solid #dee2e6;
+        background-color: white;
+    }
+    .search_panel_section_header {
+        font-family: "Roboto", sans-serif;
+        font-size: 1.08333333rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #666666;
+        text-align: left;
+    }
+    .checkbox{
+        margin-top: 0!important;
+        margin-bottom: 0!important;
+        margin-left: 40px;
+    }
+    .kanban_image {
+        width: 70px;
+        height: 70px;
+        display: inline-block;
+        position: relative;
+        text-align: center;
+        background-size: contain;
+    }
+    .kanban_image[data-mimetype='application/pdf'] {
+        background-image: url({% static 'ErpProject/image/mimetypes/pdf.svg' %});
+    }
+</style>
+<link href="{% static 'ErpProject/wizard/style.min.css' %}" rel="stylesheet">
+<script src="{% static 'ErpProject/wizard/jstree.min.js' %}"></script>
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="leaf chargement-au-click" href="{% url 'module_archivage_index' %}">Module Archivage</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row"  style="padding-top: 30px;">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">           
+                <div class="row">
+                    {% if user_actions.can_create is True %} 
+                    <div class="col-md-3 col-xs-12">
+                        <button onclick="javascript:window.location.assign('{% url 'module_archivage_add_document' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 100%;">
+                            Créer 
+                        </button>
+                    </div>
+                    {% endif %}
+                    <div class="col-md-3 col-xs-12">
+                        <div id="btn-view" data-role="group" data-group-type="one-state">
+                            <button id="btn-tree" onclick="javascript:window.location.assign('{% url 'module_archivage_list_document' %}?view=list&q={{query}}')" class="button btn-typeview btn-secondary {% if view == "list" %}{{ "active" }}{% endif %}"><span class="mif-list"></span></button>
+                            <button id="btn-kanban" onclick="javascript:window.location.assign('{% url 'module_archivage_list_document' %}?view=kanban&q={{query}}')" class="button btn-typeview btn-secondary {% if view == "kanban" %}{{ "active" }}{% endif %}"><span class="mif-apps"></span></button>
+                        </div>
+                    </div>
+                </div><br> 
+                              
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->           
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                {% if view == "list" %}
+                <div id="list-view" class="row" style="margin-top: 10px;">        
+                    <table id="data_table" class="display nowrap border bordered striped" cellspacing="0" style="overflow: auto; position: relative; width:100%">
+                        <thead>
+                            <tr>
+                                <th style="width: 20px; background-color:#2e416a; white"></th>
+                                <th>Désignation</th>
+                                <th>Type</th>
+                                <th>Taille de Fichier</th>
+                                <th>Type Mime</th>
+                                <th>Mime</th>
+                                <th>Dossier</th>
+                                <th>Modèle Ressource</th>
+                                <th>Champs Ressource</th>
+                                <th>Id Ressource</th>
+                                <th>Est public</th>
+                                <th>Est archivé</th>
+                                <th>Est bloqué </th>
+                                <th>Bloqué par</th>
+                                <th>Token accès</th>
+                                <th>URL</th>
+                                <th>Description</th>
+                                <th>Contenu indexé</th>
+                                <th>Date de création</th>
+                                <th>Créé par</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in model %}
+                            <tr>
+                                <td>
+                                    <label class="small-check">
+                                        <input type="checkbox"><span class="check"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <a class="lien chargement-au-click" href="{% url 'module_archivage_detail_document' item.id %}">{{ item.designation }}</a>
+                                </td>
+                                <td>{{item.value_type }}</td>
+                                <td>{{item.taille}}</td>
+                                <td>{{ item.value_type_mime }}</td>
+                                <td>{{item.mime|truncatechars:22}}</td>
+                                <td>{{item.dossier}}</td>
+                                <td>{{item.res_model}}</td>
+                                <td>{{item.res_field|truncatechars:22}}</td>
+                                <td>{{item.res_id}}</td>
+                                <td>{{item.est_public|boolean}}</td>
+                                <td>{{item.est_archive|boolean}}</td>
+                                <td>{{item.est_bloque|boolean}}</td>
+                                <td>{{item.auteur_blocage}}</td>
+                                <td>{{item.access_token|truncatechars:22}}</td>
+                                <td>{{item.url|truncatechars:22}}</td>
+                                <td>{{item.description|truncatechars:22}}</td>
+                                <td>{{item.indexation|truncatechars:22}}</td>
+                                <td>{{item.creation_date|date:'d/m/Y'}}</td>
+                                <td>{{item.auteur.nom_complet}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% elif view == "kanban" %}
+
+                <!-- Vue de type card -->
+                <div id="kanban-view" style="margin-top: 10px">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="documents_inspector"> 
+                                    <div class="documents_inspector_preview">
+                                        <p class="documents_inspector_default_text" style="display: none">Categorize, share and keep track of all your internal documents.</p>
+                                        <p class="documents_inspector_selected_text"><b> <span id="nombre_docs_selected">6</span> document(s) sélectionné(s)</b></p>
+                                    </div>
+                                    <div class="documents_inspector_info">
+                                        <p class="documents_inspector_default_text" style="display: none">
+                                        Documents :	<span id="nombre_docs">6</span><br>
+                                        Taille : <span id="taille_docs">3.08 MB</span>
+                                        </p>
+                                        <div class="documents_inspector_buttons">
+                                            <div class="btn-group">
+                                                <button class="btn inspector_button inspector_download" title="Télécharger"><span class="fa fa-download"></span></button>
+                                                <button class="btn inspector_button inspector_share" title="Partager cette sélection"><span class="fa fa-share-alt"></span></button>
+                                                <button class="btn inspector_button inspector_replace" title="Remplacer"><span class="fa fa-retweet"></span></button>
+                                                <button class="btn inspector_button inspector_lock" title="Bloquer"><span class="fa fa-unlock-alt"></span></button>
+                                            </div>
+                                            <button class="o_active btn inspector_button inspector_archive pull-right" title="Bloquer"><span class="fa fa-archive"></span></button>
+                                        </div>
+                                    </div>
+                                </div>                                            
+                            </div>
+                            <div class="row">
+                                <div class="search_panel">
+                                    <section class="search_panel_section search_panel_category">
+                                        <header class="search_panel_section_header">
+                                            <i class="fa fa-folder" style="margin-right: 0.25rem !important;color:#eda504;"></i>
+                                            <b>Dossier</b>
+                                        </header>
+                                        <div id="jstree">
+                                            <ul> 
+                                                <li>Main 1
+                                                    <ul> 
+                                                        <li >item 1</li>
+                                                        <li>item 2</li>
+                                                    </ul>                                            
+                                                </li>
+                                                <li>Main 2
+                                                    <ul> 
+                                                        <li>item 3</li>
+                                                        <li>item 4</li>
+                                                    </ul>                                            
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </section>
+                                    <section class="search_panel_section search_panel_filter">
+                                        <header class="search_panel_section_header">
+                                            <i class="fa fa-tag" style="margin-right: 0.25rem !important;color:#d59244;"></i>
+                                            <b>Etiquettes</b>
+                                        </header>
+                                        <div class="treeview full-size" data-role="treeview">
+                                            <ul>
+                                                <li data-mode="checkbox" class="node">
+                                                    <span class="leaf">Statut</span>
+                                                    <span class="node-toggle"></span>
+                                                    <ul>
+                                                        <li data-mode="checkbox" data-value="1" data-id="actions_1">
+                                                            <span class="leaf">Draft</span>
+                                                        </li>
+                                                        <li data-mode="checkbox" data-value="2" data-id="actions_2">
+                                                            <span class="leaf">Validated</span>
+                                                        </li>
+                                                        <li data-mode="checkbox" data-value="3" data-id="actions_3">
+                                                            <span class="leaf">Approved</span>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </section>
+                                    <section class="search_panel_section search_panel_filter">
+                                        <header class="search_panel_section_header">
+                                            <i class="fa fa-file" style="margin-right: 0.25rem !important;color:#338ffc;"></i>
+                                            <b>Attaché à</b>
+                                        </header>
+                                        <div class="treeview full-size" data-role="treeview">
+                                            <ul>
+                                                <li data-mode="checkbox">
+                                                    <span class="leaf">Pas attaché</span>
+                                                    <span class="node-toggle"></span>
+                                                </li>
+                                                <li data-mode="checkbox">
+                                                    <span class="leaf">Pas un fichier</span>
+                                                    <span class="node-toggle"></span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                {% for item in model %}
+                                <div class="col-md-6">
+                                    <div class="card-item" style="margin-top: 10px; margin-bottom: 15px">
+                                        <div class="card-item-content" style="margin: 10px">
+                                            <div class="thumb kanban_image" data-mimetype="application/pdf">
+                                            </div>
+                                            <div class="texts">
+                                                <div class="texts-record_selector">
+                                                    <a class="link chargement-au-click" href="{% url 'module_archivage_detail_document' item.id %}" style="float: left;">{{ item.designation }}</a>
+                                                    <a href="javascript: void(0)" class="fa fa-circle record_selector"></a>
+                                                    <a href="javascript: void(0)" class="fas fa-check-circle record_selector_selected hidden"></a>
+                                                </div>
+                                                <br>
+                                                <div class="mt-2"></div>
+                                                <span class="inner-text">{{ item.dossier.designation }}</span><br>
+                                                <div class="texts-favorite">
+                                                    <span class="inner-text" style="float: left;">{{ item.creation_date|date:'d/m/Y' }}</span>
+                                                    <a href="javascript: void(0)" class="mif-star-full favorite_selected hidden"></a>
+                                                    <a href="javascript: void(0)" class="mif-star-empty favorite"></a>
+                                                </div>
+                                                <br>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/datatable.html' with type_view=view %}
+<script>
+    $(function () {
+        // 6 create an instance when the DOM is ready
+        $('#jstree').jstree();
+        // 7 bind to events triggered on the tree
+        $('#jstree').on("changed.jstree", function (e, data) {
+            var node_id  = (data.node.id); // element id;           
+        });       
+        // 8 interact with the tree - either way is OK
+        $('button').on('click', function () {
+            console.log("something is clicked");
+            $('#jstree').jstree(true).select_node('child_node_1');
+            $('#jstree').jstree('select_node', 'child_node_1');
+            $.jstree.reference('#jstree').select_node('child_node_1');
+        });
+    });
+
+    $(document).ready(function(){
+        $("#btn-kanban").click(function(){
+            $("#kanban-view").removeClass('erp-hidden');
+            
+            $("#tree-view").removeClass('erp-hidden');
+            $("#tree-view").addClass('erp-hidden');		
+        });
+
+        $("#btn-tree").click(function(){
+            $("#tree-view").removeClass('erp-hidden');
+            
+            $("#kanban-view").removeClass('erp-hidden');
+            $("#kanban-view").addClass('erp-hidden');					
+        });
+    });
+</script>
+{% endblock %}

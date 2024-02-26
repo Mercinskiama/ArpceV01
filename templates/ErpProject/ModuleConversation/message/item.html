@@ -1,0 +1,98 @@
+{% extends "ErpProject/ModuleConversation/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_conversation_index' %}">Module Message</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_conversation_list_message' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Aperçu Message</h2>
+        <strong class="hidden-xs" style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+            <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <!--<button onclick="javascript:window.location.assign('{% url 'module_conversation_update_message' message.id %}')" class="button small-button rounded primary_color_{{module.name|lower}}">
+                        Modifier
+                    </button>-->
+                    <button onclick="javascript:window.location.assign('{% url 'module_conversation_list_message' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <!--<button onclick="javascript:window.location.assign('{% url 'module_conversation_update_message' message.id %}')" class="button large-button rounded primary">Valider</button>
+                --><button onclick="javascript:window.location.assign('{% url 'module_conversation_list_message' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="row padding20 no-padding-top no-padding-bottom" style="border-right: 1px solid #f7f5f5;">
+                                    <p>  
+                    
+            From :
+                    <br>
+                    {% if item.hisexpediteur == "" %}
+                    <span class="sub-alt-header">SYSTEM</span>
+                    {% else %}
+                    <span class="sub-alt-header">{{ message.hisexpediteur }}</span>
+                    {% endif %}
+                    <br>
+                    <br>
+            To :
+                    <br>
+                    <span class="sub-alt-header">Moi - {{ message.hisdestinataire }}</span>
+                    <br>
+                    <br>
+            Objet :
+                    <br>
+                    <span class="sub-alt-header">{{ message.objet }}</span>
+                    <br>
+                    <br>
+            <!--Type :
+                    <br>
+                    <span class="sub-alt-header">{{ message.type }}</span>
+                    <br>
+                    <br>-->
+            
+            Message :
+                    <br>
+                    <span class="sub-alt-header">{{ message.corps }}</span>
+                    <br>
+                    <br>
+            
+           <!--Status :
+                    <br>
+                    <span class="sub-alt-header">{{ message.status }}</span>
+                    <br>
+                    <br>-->
+
+            
+            Pièces jointes :
+                    <br>
+                    <span class="sub-alt-header">{{ message.hisdocument }}</span>
+                    <br>
+                    <br>
+            
+        </p>
+                                </div>
+                            </div>              
+                        </div>
+            
+           {% endblock %}}

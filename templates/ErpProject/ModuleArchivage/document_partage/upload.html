@@ -1,0 +1,93 @@
+
+{% extends "ErpProject/ModuleArchivage/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_index' %}">Module Archivage</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_add_document_partage' %}">Création nouvel objet Lien partagé</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="selectFile()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Choisir un fichier</button> 
+                    <button id="btn-register" style="display:none;" onclick="enregistrer()" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_archivage_add_document_partage' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <form id="form" method="POST" action="{% url 'module_archivage_post_upload_document_partage' %}"  enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    <input type="file" id="input-excel" name="file_upload" style="display:none;"/>
+                    <input type="text" id="sheet" name="sheet" style="display:none;"/>
+                </form>
+                <div id="upload_wrapper">                              
+                </div>
+                
+                <div id="bg" class="row no-margin-left no-margin-right" style="padding-top:300px;">
+                    <div class="col-md-3 xs-hidden"></div>
+                    <div class="col-md-6 col-xs-12">
+                        <h3>Choisissez un fichier CSV ou Excel à importer.</h3>  
+                        <span class="fg-gray" style="text-align:center;">Les fichiers Excel sont recommandés pour le formatage des champs.<br> <a href="/static/ErpProject/file/import/import_document_partage.xlsx" download> Cliquez ici</a> pour télécharger le modèle de fichier d'import avec les entêtes récommandés </span>
+                    </div>
+                    <div class="col-md-3 xs-hidden"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div> 
+<script type="text/javascript" src="{% static 'ErpProject/js/FileSaver.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/xlsx.full.min.js' %}"></script> 
+<script>
+    function enregistrer(){
+        document.getElementById('submit').click();
+    }
+    
+    function selectFile() {
+        $('input[id=input-excel]').click();
+    }
+    
+    //Import excel
+    $('#input-excel').change(function(e){
+        var reader = new FileReader();
+        reader.readAsArrayBuffer(e.target.files[0]);
+        reader.onload = function(e) {
+            var data = new Uint8Array(reader.result);
+            var wb = XLSX.read(data,{type:'array'});
+            var ws_name = wb.SheetNames[0];
+            console.log(ws_name);
+            $("#sheet").val(ws_name);
+            $("#upload_wrapper").children().remove();
+            var sheet = wb.Sheets[ws_name];
+            var htmlstr = XLSX.write(wb,{sheet: ws_name, type:'binary',bookType:'html'});
+            htmlstr = decodeURIComponent(escape(htmlstr));
+            $('#upload_wrapper')[0].innerHTML += htmlstr;
+            $('#upload_wrapper table').addClass("display nowrap border bordered striped table-overflow");
+            $('#upload_wrapper table').css('overflow', 'auto');
+            $('#upload_wrapper table').css('position', 'relative');
+            $('#upload_wrapper table').css('display', 'inline-block');
+            $('#upload_wrapper table').css('width', '100%');
+            
+            $('#bg').css('display', 'none');
+            $('#btn-register').css('display', 'inline');
+        }
+    });
+</script>
+{% endblock %}

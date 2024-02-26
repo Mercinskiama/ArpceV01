@@ -1,0 +1,279 @@
+{% load staticfiles %}
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/print.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.debug.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/cell.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.plugin.autotable.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/from_html.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/html2canvas.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/clipboard.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/FileSaver.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/xlsx.full.min.js' %}"></script> 
+
+<script>
+    
+        
+    $(document).ready(function() {
+        var type_view = "{{type_view}}";
+        //On crée s html des boutons d'export et du formulaire de recherche
+        var recherche_content = '<div class="row"><div class="dataTables_length"><label>Nombre de résultats: <select id="nbre_item" name="nbre_item" aria-controls="DataTables_Table_0" class=""><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> </label> <div class="navigation_separator">|</div><label class="input-control checkbox small-check">  <input name="all_items" id="all_items"  type="checkbox"><span class="check"></span><span class="caption">Tout afficher</span></label>  </div><div id="dt_filter" class="dataTables_filter"><label>Recherche:<input id="search" onkeyup="rechercher()" type="search" class="" placeholder=""></label></div></div>';
+        var buttons_export = '<div class="row"><div id="dt_buttons" class="dt-buttons"><button id="btn_export_copy" data-clipboard-target="#data_table" class="dt-button buttons-copy buttons-html5" type="button" title="Copier"><span><i class="far fa-copy" style="font-size:1rem;color:#424892;margin-right:5px;"></i> Copier</span></button>'; 
+        buttons_export += '<button id="btn_export_excel" class="dt-button buttons-excel buttons-html5" type="button" title="Exporter en excel"><span><i class="far fa-file-excel" style="font-size:1rem;color:#236e43;margin-right:5px;"></i> Excel</span></button>';              
+        buttons_export += '<button id="btn_export_csv" class="dt-button buttons-csv buttons-html5" type="button" title="Exporter en csv"><span><i class="fas fa-file-csv" style="font-size:1rem;color:#9c27b0;margin-right:5px;"></i> CSV</span></button>';                   
+        buttons_export += '<button id="btn_export_pdf" class="dt-button buttons-pdf buttons-html5" type="button" title="Exporter en pdf"><span><i class="far fa-file-pdf" style="font-size:1rem;color:#f44336;margin-right:5px;"></i> PDF</span></button></div></div>';
+        //On crée les html de la pagination et des infos sur les données paginées
+        var footer = '<br><div class="row"></div>';
+        var infos_data = '<div class="row"><div class="dataTables_info" id="dt_info" role="status" aria-live="polite">Affichage de '+ {{ model.start_index }} +' à '+ {{ model.end_index }} +' sur '+ {{ model.paginator.count }} +' données au total</div>';
+        var pagination = '<div class="dataTables_paginate paging_simple_numbers" id="dt_paginate">';
+        {% if model.has_other_pages %}
+            {% if model.has_previous %}
+                pagination += '<a href="?view='+ type_view +'&page='+ {{ model.previous_page_number }} +'&count='+ {{ model.num_items }} +'" class="paginate_button previous" data-dt-idx="0" tabindex="0" id="data_table_previous">Précédent</a>';
+            {% else %}
+                pagination += '<a class="paginate_button previous disabled"  data-dt-idx="0" tabindex="0" id="data_table_previous">Précédent</a>';
+            {% endif %}
+            pagination += '<span>';
+            {% for i in model.paginator.page_range %}
+                {% if model.number == i %}
+                    pagination += '<a class="paginate_button current" data-dt-idx="'+ {{ i }} +'" tabindex="0">'+ {{ i }} +' </a>';
+                {% else %}
+                    pagination += '<a href="?view='+ type_view +'&page='+ {{ i }} +'&count='+ {{ model.num_items }} +'" class="paginate_button " data-dt-idx="'+ {{ i }} +'" tabindex="0">'+ {{ i }} +'</a>';
+                {% endif %}
+            {% endfor %}
+            pagination += '</span>';
+            {% if model.has_next %}
+                pagination += '<a href="?view='+ type_view +'&page='+ {{ model.next_page_number }} +'&count='+ {{ model.num_items }} +'" class="paginate_button next"  data-dt-idx="4" tabindex="0" id="data_table_next">Suivant</a>';
+            {% else %}
+                pagination += '<a class="paginate_button disabled next" data-dt-idx="4" tabindex="0" id="data_table_next">Suivant</a>';
+            {% endif %}                           
+        {% endif %}
+        pagination += '</div></div>'; 
+        footer += infos_data;
+        footer += pagination;
+
+        footer += '<a href="?view='+ type_view +'&count='+ {{ model.paginator.count }} +'" style="display: none" id="all_items_link">all items</a>';
+        footer += '<a href="?view='+ type_view +'&count='+ {{ model.num_items }} +'" style="display: none" id="nbre_item_link">all items</a>';
+        
+        //On ajoute les boutons d'export, le formulaire de recherche, la pagination et les infos sur les données paginées autours du tableau existant
+        if (type_view == "list"){
+            $("#list-view").prepend(recherche_content);
+            $("#list-view").prepend(buttons_export);
+
+            $("#list-view").append(footer);
+        }else if (type_view == "kanban"){
+
+            $("#kanban-view").prepend(recherche_content);
+            $("#kanban-view").append(footer);          
+        }
+        //On ajoute les classes nécessaires pour prendre les styles du datatable Metro UI
+        $("#data_table").addClass("dataTable");
+        $("#data_table thead th").addClass("sorting");
+        var title = "{{ title }}";
+
+        //On implémente les actions des boutons d'export qui sont disponible que dans la vue list
+        if (type_view == "list"){
+            //Exporter en Excel
+            //=================
+            $("#btn_export_excel").click(function(){
+                console.log("btn_export_excel cliqué");
+
+                var wb = XLSX.utils.table_to_book(document.getElementById('data_table'), {sheet: title});
+                var wopts = { bookType:'xlsx', bookSST:true, type: 'binary' };
+                var wbout = XLSX.write(wb, wopts);
+                function s2ab(s) {
+                    var buf = new ArrayBuffer(s.length);
+                    var view = new Uint8Array(buf);
+                    for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                    return buf;
+                }
+                saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), title+'.xlsx');
+            });
+            //Exporter en CSV
+            //===============
+            $("#btn_export_csv").click(function(){
+                console.log("btn_export_csv cliqué");
+                var wb = XLSX.utils.table_to_book(document.getElementById('data_table'), {sheet: title});
+                var wopts = { bookType:'csv', bookSST:true, type: 'binary' };
+                var wbout = XLSX.write(wb, wopts);
+                function s2ab(s) {
+                    var buf = new ArrayBuffer(s.length);
+                    var view = new Uint8Array(buf);
+                    for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                    return buf;
+                }
+                saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), title+'.csv');
+            });
+            //Exporter en pdf
+            //===============
+            $("#btn_export_pdf").click(function(){
+                console.log("btn_export_pdf cliqué");
+                var doc = new jsPDF({orientation: 'l'});
+                
+                doc.autoTable({ html: '#data_table', margin:{top:15}, 
+                    beforePageContent: function (data) {
+                        doc.setFont('arial')
+                        doc.setFontType('bolditalic')
+                        doc.setFontSize(20)
+                        doc.text(title, 50, 10);
+                    },
+                    afterPageContent: function (data) {
+
+                    }
+                });                       
+                var total_pages = doc.internal.getNumberOfPages();
+                console.log("total_pages: "+ total_pages);
+
+                var page_info = doc.internal.getCurrentPageInfo();
+                console.log("page_info: "+ page_info);
+
+                var current_page = page_info.pageNumber;
+                console.log("current_page: "+ current_page);
+
+                if(total_pages == current_page){
+                    doc.addPage();
+                    doc.fromHTML($('#pagetotal1').html(), 10, 10);
+                    doc.fromHTML($('#pagetotal2').html(), 120, 10);
+                    doc.fromHTML($('#pagetotal3').html(), 215, 10);
+                }
+                doc.save(title+'.pdf');
+            }); 
+            //Exporter en copiant
+            //===================
+            var btn = document.getElementById('btn_export_copy');
+            var clipboard = new ClipboardJS(btn);
+            clipboard.on('success', function(e) {
+                /*console.info('Action:', e.action);
+                console.info('Text:', e.text);
+                console.info('Trigger:', e.trigger);
+
+                e.clearSelection();
+                console.log(e);*/
+                var not = $.Notify({
+                    caption: "Copie dans le presse-papier",
+                    content: "Les données du tableau ont été copiées avec succès!",
+                    timeout: 5000 // 5 seconds
+                });
+            });
+
+            clipboard.on('error', function(e) {
+                /*console.error('Action:', e.action);
+                console.error('Trigger:', e.trigger);
+                console.log(e);*/
+            });
+
+            //Sorting
+            table = document.getElementById("data_table");
+            th = table.getElementsByTagName("th");
+            for (i = 1; i < th.length; i++) {
+                head = th[i];
+                head.setAttribute("onclick", "sortTable("+i+")");
+            }
+        }
+
+        //Nombre d'items
+        $("#nbre_item").val({{ model.num_items }});
+        $("#nbre_item").change(function() {			  
+            var nbre_item = $("#nbre_item").val();
+            nbre_item_link = document.getElementById('nbre_item_link');
+            nbre_item_link.href = '?view='+ type_view +'&count='+ nbre_item ;
+            nbre_item_link.click();
+        });
+
+        //Tout afficher
+        $("#all_items").prop("checked", false);
+        $("#all_items").change(function() {
+            console.log("all_items checked");
+            if(this.checked) {
+                Swal.fire({
+                    title: 'Confimer',
+                    text: "Voulez-vous vraiment voir toutes les lignes ? Pour une grande table, cela pourrait faire planter le navigateur.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'Annuler',
+                    confirmButtonText: 'Ok'
+                }).then((result) => {
+                    if (result.value) {
+                        document.getElementById('all_items_link').click();
+                    }
+                })
+            }        
+        });
+
+    });
+
+    //Searching
+    //===================
+    function rechercher() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("data_table");
+        tr = table.getElementsByTagName("tr");
+        console.log(filter);
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                console.log(txtValue.toUpperCase());
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+            }
+        }
+    }
+    //Sorting 
+    //===================
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("data_table");
+        switching = true;
+        // Initialiser le sorting direction à asc:
+        dir = "asc";
+        while (switching) {
+            // On commence par dire qu'aucun switching n'est fait:
+            switching = false;
+            rows = table.rows;
+            /* On parcours toutes les lignes de la table (excepté la première
+            qui contient les titres de la table): */
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                /* On compare 2 cellules de la colonne à trier */
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /* checker si les 2 cellules doivent s'échanger leur place,
+                sur base de la direction, asc or desc: */
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        // Si le premier est sup au dexième, on marque comme doît être changer, puis on quite la boucle
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        // Si le premier est inf au dexième, on marque comme doît être changer, puis on quite la boucle
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /* If un switch est fait, on inverse la position des 2 cellules, puis on marque le switch comme fait: */
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                // A chaque fois que le switch est fait, On incrémente le compteur de 1:
+                switchcount ++;
+            } else {
+                /* Si aucun switch n'est fait ET la direction est "asc",
+                mettre la direction à "desc" et puis on continue de parcourir. */
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>

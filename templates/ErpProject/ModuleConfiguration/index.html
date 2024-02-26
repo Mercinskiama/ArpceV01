@@ -1,0 +1,1186 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %} {% load static %}
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+<style>
+    #page-wrapper {
+        background-color: #F8F8F8 !important;
+    }
+
+    .container {
+        width: 110%;
+        margin-left: -33px;
+        margin-right: 0px;
+        background-color: #fff;
+    }
+
+    .wrapper {
+        max-width: 100%;
+        margin: auto;
+        margin-top: 10px;
+    }
+
+    .tab-wrapper {
+        text-align: center;
+        display: block;
+        margin: auto;
+        max-width: 100%;
+    }
+
+    .tabs {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .tab-link {
+        margin: 0 1%;
+        list-style: none;
+        padding: 10px 40px;
+        color: #aaa;
+        cursor: pointer;
+        font-weight: 700;
+        transition: all ease 0.5s;
+        border-bottom: solid 3px rgba(255, 255, 255, 0);
+        letter-spacing: 1px;
+    }
+
+    .tab-link:hover {
+        color: #999;
+        border-color: #999;
+    }
+
+    .tab-link.active {
+        color: #333;
+        border-color: #333;
+    }
+
+    .tab-link:nth-of-type(1).active {
+        color: #EE6534;
+        border-color: #EE6534;
+    }
+
+    .tab-link:nth-of-type(2).active {
+        color: #1790D2;
+        border-color: #1790D2;
+    }
+
+    .tab-link:nth-of-type(3).active {
+        color: #EEC63B;
+        border-color: #EEC63B;
+    }
+
+    .content-wrapper {
+        padding: 40px 80px;
+    }
+
+    .tab-content {
+        display: none;
+        text-align: center;
+        color: #888;
+        font-weight: 300;
+        font-size: 15px;
+        opacity: 0;
+        transform: translateY(15px);
+        animation: fadeIn 0.5s ease 1 forwards;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        100% {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    .mod-card {
+        padding: 16px;
+        border: solid 1px #f8f8f8;
+        border-radius: 4px;
+        width: 335px;
+        position: relative;
+        height: 130px;
+        display: inline-block;
+        cursor: pointer;
+        margin: 0 5px 10px;
+        text-decoration: none;
+        color: #333;
+        /* background-color: #fff; */
+        background-image: linear-gradient(to right, #865ec4, #8067cf, #7870d9, #6e78e4, #6381ed);
+    }
+
+    .mod-card:hover {
+        border: solid 1px #CE8801;
+    }
+
+    .mod-card:hover h4,
+    .mod-card:hover .count {
+        opacity: 1;
+    }
+
+    .mod-card:hover polyline {
+        fill: rgba(255, 207, 111, 0.3) !important;
+        stroke: rgba(206, 136, 1, 0.3) !important;
+    }
+
+    .mod-card.important.active {
+        border: solid 1px #c1272d;
+    }
+
+    .mod-card.important.active h4,
+    .mod-card.important.active .count {
+        opacity: 1;
+    }
+
+    .mod-card.important.active polyline {
+        fill: #f3d4d5 !important;
+        stroke: #c1272d !important;
+    }
+
+    .mod-card.important.active:hover {
+        border: solid 1px #c1272d;
+    }
+
+    .mod-card.important.active:hover h4,
+    .mod-card.important.active:hover .count {
+        opacity: 1;
+    }
+
+    .mod-card.important.active:hover polyline {
+        fill: #f3d4d5 !important;
+        stroke: #c1272d !important;
+    }
+
+    .mod-card.important:hover {
+        border: solid 1px #665f60;
+    }
+
+    .mod-card.important:hover h4,
+    .mod-card.important:hover .count {
+        opacity: 1;
+    }
+
+    .mod-card.important:hover polyline {
+        fill: rgba(243, 212, 213, 0.3) !important;
+        stroke: rgba(193, 39, 45, 0.3) !important;
+    }
+
+    .mod-card.active {
+        border: solid 1px #CE8801;
+    }
+
+    .mod-card.active h4,
+    .mod-card.active .count {
+        opacity: 1;
+    }
+
+    .mod-card.active polyline {
+        fill: rgba(255, 207, 111, 0.3) !important;
+        stroke: #CE8801 !important;
+    }
+
+    .mod-card.active:hover h4,
+    .mod-card.active:hover .count {
+        opacity: 1;
+    }
+
+    .mod-card.active:hover polyline {
+        fill: rgba(255, 207, 111, 0.3) !important;
+        stroke: #CE8801 !important;
+    }
+
+    .mod-card h4 {
+        color: rgba(0, 0, 0, 10);
+        margin: 0 0 10px 0;
+        line-height: 1;
+        z-index: 2;
+        position: relative;
+        font-size: 1.24em;
+        opacity: 1;
+    }
+
+    .mod-card h4+span {
+        color: #D8D8D8;
+        font-size: 0.9em;
+        z-index: 2;
+        position: relative;
+        /* background-color: rgba(255, 255, 255, 0.8); */
+    }
+
+    .mod-card .count {
+        font-size: 1.8em;
+        transform: translate(-50%, -50%);
+        position: absolute;
+        top: 65%;
+        left: 50%;
+        z-index: 2;
+        border-radius: 100%;
+        padding: 10px;
+        opacity: 1;
+        color: #fff;
+    }
+
+    .mod-card .chart {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 352px;
+        height: 162px;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .ligneHd {
+        position: relative;
+        top: -20px;
+        background-color: #F5F5F5 !important;
+    }
+
+    .barr {
+        background-color: #1790D2;
+        height: 120px;
+        width: 5px;
+        position: relative;
+        left: -5%;
+    }
+
+    .btSh {
+        border-radius: 0px;
+        padding-right: 0px;
+        margin-right: 0px;
+        background-color: #fff;
+        margin-bottom: 2%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .blb {
+        border-left: solid 7px #1790D2;
+        height: 100px;
+    }
+
+    .positMod {
+        position: relative;
+        top: 10%;
+        color: #000;
+    }
+    /*  */
+
+    input {
+        font-family: "Open Sans", Helvetica, sans-serif;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus,
+    button:focus {
+        outline: none;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    textarea:focus,
+    input:focus {
+        outline: none;
+    }
+
+    a {
+        text-decoration: none;
+        color: #bbbbca;
+    }
+
+    .wrapper {
+        /* display: grid;
+        height: 100vh;
+        grid-template-areas: "aside header" "aside main";
+        flex-wrap: wrap; */
+    }
+
+    @media screen and (max-width: 400px) {
+        .wrapper {
+            grid-template-columns: initial;
+            grid-template-rows: initial;
+        }
+    }
+
+    .header {
+        grid-area: header;
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        align-items: center;
+        padding: 1rem 3rem;
+    }
+
+    @media screen and (max-width: 400px) {
+        .header {
+            gap: 0.75rem;
+            padding: 0.75rem;
+        }
+    }
+
+    .header .btn-appointment {
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        height: fit-content;
+        color: #fff;
+        background: #9395ed;
+        background: linear-gradient(90deg, #9395ed 0%, #6c6de3 100%);
+        font-weight: 600;
+    }
+
+    .header .profile {
+        justify-self: end;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .header .profile .image {
+        justify-self: end;
+    }
+
+    .header .profile .image img {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 4rem;
+    }
+
+    .header .profile .image .workflow {
+        position: absolute;
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-top: -1.7rem;
+        margin-left: 3rem;
+        background-color: #ff7d7d;
+        border-radius: 1.25rem;
+        box-shadow: 0px 0px 10px 0px #ff7d7d;
+    }
+
+    @media screen and (max-width: 400px) {
+        .header .profile .image .workflow {
+            margin-top: -1.5rem;
+            margin-left: 2.3rem;
+        }
+    }
+
+    .header .profile select {
+        height: fit-content;
+        border: none;
+        background: none;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: "Open Sans", Helvetica, sans-serif;
+    }
+
+    .aside {
+        grid-area: aside;
+        display: grid;
+        gap: 1.5rem;
+        padding: 1rem;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #bbbbca;
+        background-color: #fcfdfd;
+    }
+
+    @media screen and (max-width: 400px) {
+        .aside {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            border-top: 1px solid #f1f1f1;
+            justify-content: initial;
+        }
+    }
+
+    .aside ul {
+        display: grid;
+        grid-template-rows: repeat(8, min-content);
+        gap: 3rem;
+        margin-top: 0.75rem;
+    }
+
+    @media screen and (max-width: 400px) {
+        .aside ul {
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: none;
+            margin-top: 0;
+        }
+        .aside ul .hide,
+        .aside ul .logo.hide {
+            display: none;
+        }
+    }
+
+    .aside ul li {
+        display: grid;
+        place-items: center;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .aside ul li.active {
+        background-color: #fff;
+        -webkit-box-shadow: 0px 0px 33px -10px rgba(126, 127, 232, 0.5);
+        -moz-box-shadow: 0px 0px 33px -10px rgba(126, 127, 232, 0.5);
+        box-shadow: 0px 0px 33px -10px rgba(126, 127, 232, 0.5);
+        border-radius: 0.75rem;
+    }
+
+    .aside ul li.active a {
+        color: #7e7fe8;
+    }
+
+    .aside ul li.logo img {
+        width: 3rem;
+    }
+
+    .aside ul li.logo a {
+        color: #fff;
+        text-align: center;
+        font-size: 1.25rem;
+    }
+
+    .main {
+        padding-top: 1rem;
+        grid-area: main;
+        /* background-color: #edf1fb; */
+        /* display: grid; */
+        grid-template-rows: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    @media screen and (max-width: 1148px) {
+        .main {
+            grid-template-rows: initial;
+        }
+    }
+
+    @media screen and (max-width: 400px) {
+        .main {
+            padding: 1rem 0 6rem 0;
+            gap: 1rem;
+        }
+    }
+
+    .main .top {
+        display: grid;
+        grid-template-columns: 5fr 8fr;
+        gap: 2rem;
+    }
+
+    @media screen and (max-width: 1148px) {
+        .main .top {
+            grid-template-columns: initial;
+        }
+    }
+
+    @media screen and (max-width: 400px) {
+        .main .top {
+            gap: 1rem;
+        }
+    }
+
+    .main .bottom {
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: 4.2fr 3.8fr 5.2fr;
+    }
+
+    @media screen and (max-width: 1148px) {
+        .main .bottom {
+            grid-template-columns: initial;
+        }
+    }
+
+    @media screen and (max-width: 400px) {
+        .main .bottom {
+            gap: 1rem;
+        }
+    }
+
+    .main .card {
+        background-color: #fff;
+        border-radius: 0.3rem;
+        /* padding: 2rem; */
+    }
+
+    .card {
+        border: 1px solid #fff !important;
+    }
+
+    .main .card .card-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0rem;
+        background-color: #fff;
+    }
+
+    .main .card .card-header .right {
+        color: #bbbbca;
+    }
+
+    .main .card .card-header h1 {
+        display: inline-block;
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    .main .card .card-header .header-container {
+        display: grid;
+        grid-template-columns: max-content max-content;
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .main .card .card-header .header-container span {
+        color: #bbbbca;
+        position: absolute;
+        margin-left: 9rem;
+        margin-top: .3rem;
+    }
+
+    .main .card .card-header select {
+        height: fit-content;
+        border: none;
+        background: none;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: "Open Sans", Helvetica, sans-serif;
+    }
+
+    .main .card .card-body {
+        display: grid;
+        gap: 2rem;
+    }
+
+    .main .card .appointment {
+        display: grid;
+        grid-template-columns: min-content max-content 1fr min-content min-content;
+        grid-template-rows: repeat(3, min-content);
+        grid-template-areas: "profile name name check times" "profile title title check times" "profile date time check times";
+        column-gap: 1.5rem;
+        row-gap: 0;
+    }
+
+    .main .card .appointment .image {
+        grid-area: profile;
+        width: 4rem;
+        height: 4rem;
+        border-radius: 4rem;
+        box-shadow: 5px 5px 22px 0px rgba(116, 204, 214, 0.5);
+    }
+
+    .main .card .appointment .image.gray {
+        box-shadow: 5px 5px 22px 0px #c7c5d2;
+    }
+
+    .main .card .appointment .image.red {
+        box-shadow: 5px 5px 22px 0px rgba(193, 68, 84, 0.5);
+    }
+
+    .main .card .appointment .name {
+        grid-area: name;
+        font-weight: 600;
+        text-align: left;
+    }
+
+    .main .card .appointment .title {
+        grid-area: title;
+        font-size: 0.8rem;
+        color: #9695af;
+        text-align: left;
+    }
+
+    .main .card .appointment .date {
+        grid-area: date;
+        font-size: 0.8rem;
+    }
+
+    .main .card .appointment .date i {
+        color: #758dff;
+    }
+
+    .main .card .appointment .time {
+        grid-area: time;
+        font-size: 0.8rem;
+    }
+
+    .main .card .appointment .time i {
+        color: #758dff;
+    }
+
+    .main .card .appointment .check {
+        grid-area: check;
+        font-size: 1rem;
+        align-self: center;
+        color: #689F38;
+    }
+
+    .main .card .appointment .times {
+        grid-area: times;
+        font-size: 2rem;
+        align-self: center;
+        color: #ff7d7d;
+    }
+
+    .main .card .chart-container {
+        height: 17rem;
+    }
+
+    @media screen and (max-width: 650px) {
+        .main .card .chart-container {
+            height: 10rem;
+        }
+    }
+
+    .main .card .news-list .news {
+        display: grid;
+        grid-template-columns: 1fr min-content;
+        grid-template-areas: "title arrow" "subtitle arrow";
+        gap: 0.5rem;
+        text-align: left;
+    }
+
+    .main .card .news-list .news .title {
+        grid-area: title;
+        font-weight: 700;
+        color: #0c0a3d;
+    }
+
+    .main .card .news-list .news .subtitle {
+        grid-area: subtitle;
+        color: #9594ae;
+    }
+
+    .main .card .news-list .news .fa-caret-right {
+        grid-area: arrow;
+        align-self: center;
+    }
+
+    .main .card .news-list .news hr {
+        width: 100%;
+        border: none;
+        background-color: #bbbbca;
+        height: 1px;
+    }
+
+    .main .card .news-list .more {
+        text-align: center;
+    }
+
+    .main .card .news-list .more a {
+        color: #7e7fe8;
+        font-weight: bold;
+    }
+
+    .main .card.alert {
+        background: linear-gradient(90deg, #9395ed 0%, #6c6de3 100%);
+        color: #fff;
+    }
+
+    .workflows ul {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .workflows .more {
+        text-align: center;
+    }
+
+    .workflows .more a {
+        color: #7e7fe8;
+        font-weight: 600;
+    }
+
+    .workflows .workflow {
+        display: grid;
+        grid-template-areas: "dot title date";
+        grid-template-columns: min-content 1fr max-content;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .workflows .workflow .dot {
+        grid-area: dot;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 0.75rem;
+    }
+
+    .workflows .workflow .dot.green {
+        background-color: #16c08f;
+    }
+
+    .workflows .workflow .dot.red {
+        background-color: #ff7d7d;
+    }
+
+    .workflows .workflow .dot.blue {
+        background-color: #7e7fe8;
+    }
+
+    .workflows .workflow .title {
+        grid-area: title;
+        color: #0c0a3d;
+        font-weight: 600;
+        text-align: left;
+    }
+
+    .workflows .workflow .date {
+        grid-area: date;
+    }
+    /*  */
+</style>
+<div class="container">
+    <div class="row">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li>MODULE CONTROLE DE GESTION</li>
+            <li>DASHBOARD</li>
+        </ul>
+    </div>
+    <!-- <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "d/m/Y" %}</strong> -->
+    <hr class="ligneHd">
+    <div class="wrapper">
+        <div class="tab-wrapper" style="background-color:#fff;">
+            <ul class="tabs">
+                <li class="tab-link active" data-tab="1">
+                    <i class="fas fa-window-restore" style="font-size:20px;"></i>&nbsp;&nbsp; INFORMATIONS OPERATIONNELLES
+                </li>
+                <li class="tab-link" data-tab="2">
+                    <i class="fas fa-chart-pie" style="font-size:20px;"></i>&nbsp;&nbsp; STATISTIQUE
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="pt-3" style="padding-top: 2%;">
+    <!-- INFORMATION GENERALE -->
+    <div id="tab-1" class="tab-content active">
+        <div class="wrapper">
+            <main class="main">
+                <div class="top">
+                    <div class="upcoming-appointments card shadow">
+                        <div class="card-header">
+                            <h1>Utilisateurs Connectés</h1>
+                            <a href="#"><i class="fa fa-ellipsis-h right" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="card-body">
+                            {% for item in users_connected %}
+                            <div class="appointment">
+                                {% if item.image != None and item.image != "" %}
+                                <img class="image" src="{% static item.image %}" />
+                                {% else %}
+                                <img class="image" src="{% static 'ErpProject/image/icone_profile.png' %}" />
+                                {% endif %}
+                                <span class="name">{{ item.nom_complet }}</span>
+                                <span class="date"><i class="fa fa-calendar" aria-hidden="true"></i> {{ item.user.last_login|date:"d M Y H:i:s" }}</span>
+                                <a href="#" class="check"><i class="fas fa-circle" {% if item.is_connected %} style="color: green;"  {% else %} style="color: red;" {% endif %}></i></a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="recent-results card shadow">
+                        <div class="card-header">
+                            <div class="header-container">
+                                <h1>Fréquence de connexion des utilisateurs par mois</h1>
+                            </div>
+                            <a href="#"><i class="fa fa-ellipsis-h right" aria-hidden="true"></i></a>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="recentResultsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bottom">
+                    <div class="news card shadow">
+                        <div class="card-header">
+                            <h1>Utilisateurs enregistrés recemment</h1>
+                            <a href="#"><i class="fa fa-ellipsis-h right" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="card-body">
+                            <ul class="news-list">
+                                {% for user in last_users %}
+                                <li>
+                                    <a href="#" class="news">
+                                        <span class="title">{{ user.nom_complet|truncatechars:50 }}</span>
+                                        <span class="subtitle">{{ user.creation_date|timesince }}</span>
+                                        <i class="fas fa-caret-right"></i>
+                                        <hr>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                                <li class="more"><a href="{% url 'module_configuration_list_utilisateurs' %}">Plus...</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="workflows card shadow">
+                        <div class="card-header">
+                            <h1>Rôles enregistrés recemment</h1>
+                            <a href="#"><i class="fa fa-ellipsis-h right" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                {% for role in last_roles %}
+                                <li>
+                                    <a href="#" class="workflow">
+                                        <div class="dot blue"></div>
+                                        <span class="title">{{ role.designation|truncatechars:30 }}</span>
+                                        <span class="date"> {{ role.creation_date|timesince }} </span>
+                                    </a>
+                                </li>
+                                {% endfor %}
+
+                                <li class="more"><a href="{% url 'module_configuration_list_roles' %}">Plus...</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="workflows card shadow">
+                        <div class="card-header">
+                            <h1>Procédures enregistrés recemment </h1>
+                            <a href="#"><i class="fa fa-ellipsis-h right" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                {% for workflow in last_workflows %}
+                                <li>
+                                    <a href="#" class="workflow">
+                                        <div class="dot blue"></div>
+                                        <span class="title">{{ workflow.type_document|truncatechars:30 }}</span>
+                                        <span class="date"> {{ workflow.creation_date|timesince }} </span>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                                <li class="more"><a href="{% url 'module_configuration_list_workflow' %}">Plus...</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <!-- STATISTIQUE -->
+    <div id="tab-2" class="tab-content">
+        <div id="ressembl">
+            <br>
+            <div class="col-xs-12 col-md-6 btSh" style="height: 30px;display:flex;justify-content:start;">
+                <strong class="positMod"> <i class="fas fa-thumbtack"></i>&nbsp;&nbsp; INDICATEURS UTILISATEURS </strong>
+            </div>
+            <div class="col-md-12"></div>
+            <div class="row">
+                <div class="col-md-3" style="">
+                    <div class="card-item">
+                        <div class="epsaceC">
+                            <h3>{{ total_users }}</h3>
+                            <p>Utilisateur(s)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3" style="">
+                    <div class="card-item">
+                        <div class="epsaceC">
+                            <h3>{{ number_users_connected }}</h3>
+                            <p>Utilisateur(s) connecté(s) actuellement</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3" style="">
+                    <div class="card-item">
+                        <div class="epsaceC">
+                            <h3>{{ total_actif_users }}</h3>
+                            <p>Utilisateur(s) Actif(s)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3" style="">
+                    <div class="card-item">
+                        <div class="epsaceC">
+                            <h3>{{ total_inactif_users }}</h3>
+                            <p>Utilisateur(s) Inactif(s)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="col-lg-6 col-md-6 btSh" style="height: 30px;display:flex;justify-content:start;">
+                <strong class="positMod"> <i class="fas fa-thumbtack"></i>&nbsp;&nbsp; SECURITE </strong>
+            </div>
+            <div class="col-lg-12"></div>            
+            <div class="row espace" style="padding-left:0%;">
+                <div class="col-xs-12 col-md-4 item-dash btSh blb">
+                    <a href="#">
+                        <div class="row item_header">
+
+                            <span class="col-lg-12" id="totalEmploye" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                {{ total_inactif_users }}
+                            </span>
+                            <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;">
+                                <span style="color:#7C7C7C;font-size: 400;">Rôle(s) configuré(s)</span>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-xs-12 col-md-4 item-dash btSh blb">
+                    <a href="#">
+                        <div class="row item_header">
+                            <span class="col-lg-12" id="totalDepart" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                {{ total_permissions }}
+                            </span>
+                            <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;">
+                                <span style="color:#7C7C7C;font-size: 400;">Permission(s) configuré(s)</span>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-xs-12 col-md-4 item-dash btSh blb">
+                    <a href="#">
+                        <div class="row item_header">
+
+                            <span class="col-lg-12" id="totalConge" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                {{ total_regles }}
+                            </span>
+                            <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;">
+                                <span style="color:#7C7C7C;font-size: 400;">Règles configurée(s)</span>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-xs-12 col-md-6 btSh" style="height: 30px;display:flex;justify-content:start;">
+                <strong class="positMod"> <i class="fas fa-thumbtack"></i>&nbsp;&nbsp; INTERFACE UTILISATEUR </strong>
+            </div>
+            <div class="col-lg-12">
+                <div class="col-md-4">
+                    <a href="#" id="card-declined" class="mod-card important grid_control">
+                        <div id="card-decline-graph" class="chart"></div>
+                        <div class="card-content">
+                            <h4 style="display:flex;justify-content:start;color:#fff;">Menu(s) latéral(s)</h4>
+                            <div class="count">{{ total_menus }}</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="#" id="card-declined" class="mod-card important grid_control">
+                        <div id="card-decline-graph" class="chart"></div>
+                        <div class="card-content">
+                            <h4 style="display:flex;justify-content:start;color:#fff;">Menu(s) Actif(s)</h4>
+                            <div class="count">{{ total_menus_actifs }}</div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="#" id="card-declined" class="mod-card important grid_control">
+                        <div id="card-decline-graph" class="chart"></div>
+                        <div class="card-content">
+                            <h4 style="display:flex;justify-content:start;color:#fff;">Groupe(s) menu(s)</h4>
+                            <div class="count">{{ total_groupemenus }}</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <br><br>
+            <div class="col-lg-6 col-md-6 btSh" style="height: 30px;display:flex;justify-content:start;">
+                <strong class="positMod"> <i class="fas fa-thumbtack"></i>&nbsp;&nbsp; PROCEDURES </strong>
+            </div>
+            <div class="col-lg-12"></div>
+            <div class="row espace" style="padding-left:0%;">
+                <div class="col-xs-12 col-md-4 item-dash btSh blb">
+                    <a href="#">
+                        <div class="row item_header">
+                            <span class="col-lg-12" id="totalEmploye" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                {{ total_workflows }}
+                            </span>
+                            <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;">
+                                <span style="color:#7C7C7C;font-size: 400;">Procédures</span>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-xs-12 col-md-4 item-dash btSh blb">
+                    <a href="#">
+                        <div class="row item_header">
+                            <span class="col-lg-12" id="totalDepart" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                {{ total_wkf_etapes }}
+                            </span>
+                            <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;">
+                                <span style="color:#7C7C7C;font-size: 400;">Etape(s)</span>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-xs-12 col-md-4 item-dash btSh blb">
+                    <a href="#">
+                        <div class="row item_header">
+                            <span class="col-lg-12" id="totalConge" style="margin-bottom:5%;font-size:150%;color:#000; font-weight: 900;">
+                                {{ total_wkf_transitions }}
+                            </span>
+                            <span class="col-lg-12 montantP" style="margin:2% 0 2% 0;font-style:normal;">
+                                <span style="color:#7C7C7C;font-size: 400;">Transition(s)</span>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END -->
+</div>
+
+<script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-pie-demo.js' %}"></script>
+<script src="{% static 'ErpProject/js/chart-area-demo.js' %}"></script>
+<script>
+    $('.tab-link').click(function() {
+        var tabID = $(this).attr('data-tab');
+        $(this).addClass('active').siblings().removeClass('active');
+        $('#tab-' + tabID).addClass('active').siblings().removeClass('active');
+    });
+</script>
+
+<script>
+    var ctx = document.getElementById('recentResultsChart').getContext('2d');
+    var gradientFill = ctx.createLinearGradient(0, 0, 0, 200);
+    gradientFill.addColorStop(0.1, "rgba(109,110,227, .3)");
+    gradientFill.addColorStop(1, "rgba(255,255,255, .3)");
+
+
+    var data = {
+        labels:["JAN", "FEV", "MARS", "AVRIL", "MAI", "JUIN", "JUILLET", "AOUT", "SEPT", "OCT", "NOV", "DEC"],
+        datasets: [{
+            backgroundColor: "rgba(0,0,0,0)",
+            borderColor: "#6d6ee3",
+            borderWidth: 2,
+            fill: true,
+            backgroundColor: gradientFill,
+            data: {{nbre_employes_login}},
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointColor: "#FFFFFF",
+            fillColor: "#FFFFFF",
+            strokeColor: "#FF0000",
+
+        }]
+    };
+
+    var options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+            display: false
+        },
+        tooltips: {
+            mode: 'index',
+            intersect: true,
+            yPadding: 10,
+            xPadding: 10,
+            caretSize: 8,
+            backgroundColor: '#fff',
+            titleFontColor: "#6d6ee3",
+            bodyFontStyle: 'bold',
+            bodyFontColor: "#737295",
+            displayColors: false,
+            callbacks: {
+                label: function(tooltipItems, data) {
+                    //return "10.5";
+                }
+            },
+            bevelWidth: 3,
+            bevelHighlightColor: 'rgba(255, 255, 255, 0.75)',
+            bevelShadowColor: 'rgba(0, 0, 0, 0.5)'
+        },
+        showAllTooltips: true,
+        scales: {
+            yAxes: [{
+                display: true,
+                ticks: {
+                    maxTicksLimit: 5,
+                    min: 0,
+                },
+                gridLines: {
+                    display: true
+                }
+            }],
+            xAxes: [{
+                display: true,
+                ticks: {
+                    fontSize: 12,
+                    fontColor: '#c3c6de'
+                },
+                gridLines: {
+                    display: false
+                }
+            }]
+        },
+        elements: {
+            point: {
+                radius: 0
+            }
+        }
+    };
+
+    Chart.pluginService.register({
+        beforeRender: function(chart) {
+            if (chart.config.options.showAllTooltips) {
+                // create an array of tooltips
+                // we can't use the chart tooltip because there is only one tooltip per chart
+                chart.pluginTooltips = [];
+                chart.config.data.datasets.forEach(function(dataset, i) {
+                    chart.getDatasetMeta(i).data.forEach(function(sector, j) {
+                        chart.pluginTooltips.push(new Chart.Tooltip({
+                            _chart: chart.chart,
+                            _chartInstance: chart,
+                            _data: chart.data,
+                            _options: chart.options.tooltips,
+                            _active: [sector]
+                        }, chart));
+                    });
+                });
+
+                // turn off normal tooltips
+                chart.options.tooltips.enabled = false;
+            }
+        },
+        afterDraw: function(chart, easing) {
+            if (chart.config.options.showAllTooltips) {
+                // we don't want the permanent tooltips to animate, so don't do anything till the animation runs atleast once
+                if (!chart.allTooltipsOnce) {
+                    if (easing !== 1)
+                        return;
+                    chart.allTooltipsOnce = true;
+                }
+
+                // turn on tooltips
+                chart.options.tooltips.enabled = true;
+                Chart.helpers.each(chart.pluginTooltips, function(tooltip, i) {
+                    if (i !== 3) return;
+                    tooltip.initialize();
+                    tooltip.update();
+                    // we don't actually need this since we are not animating tooltips
+                    tooltip.pivot();
+                    tooltip.transition(easing).draw();
+                });
+                chart.options.tooltips.enabled = false;
+            }
+        }
+    });
+    var myLineChart = new Chart(ctx, {
+        type: 'line',
+        data: data,
+        options: options
+    });
+</script>
+
+{% endblock %}

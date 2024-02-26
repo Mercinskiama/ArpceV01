@@ -1,0 +1,16 @@
+<button id="{{id}}" style="width: 100%;" onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">{{val}}</button>
+
+<script>
+
+    $(document).ready(function () {
+      console.log("bien reçu 2")
+        $("#{{id}}").on('click', function (event) {
+          console.log("bien reçu")
+
+              var el = $(this);
+              el.prop('disabled', true);
+              setTimeout(function(){el.prop('disabled', false); }, 3000);
+                event.preventDefault();
+        });
+   });
+</script>

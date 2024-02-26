@@ -1,0 +1,99 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_dashboard' %}">Accueil</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_Configuration_list_groupemenu' %}">Liste des groupes menu</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong class="hidden-xs" style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 15%;">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_Configuration_list_groupemenu' %}')"  class="theme-btn theme-btn-sm rounded" style="width: 15%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+
+                <div class="row" style="margin-top: 10px">
+                    <div class="col-md-12">
+                        <form id="form" method="POST" action="{% url 'module_Configuration_post_add_groupemenu' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <input value="{{ module_id }}" name="module_page" id="module_page" type="text" style="display: none">
+                            <div class='row'>                           
+                                <div class="col-md-6">
+                                    <label>Designation</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="designation" id="designation" type="text" data-validate-func="required" data-validate-hint="Entrez designation !">
+                                    </div>
+                                </div>
+                        
+                                <div class="col-md-6">
+                                    <label>Menu Icon</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="icon_menu" id="icon_menu" type="text">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label>Numero d'ordre</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="numero_ordre" id="numero_ordre" type="text" data-validate-func="required" data-validate-hint="Entrez numero_ordre !">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label>Module</label>
+                                    <div class="input-control text full-size">
+                                        {% if module_id != 0 %}
+                                        <select name="module_id">
+                                            <option value="{{module_id}}">
+                                            {% for item in lesmodules %}
+                                                {% if item.id == module_id %}{{ item.nom_module }}{% endif %}
+                                            {% endfor %}
+                                            </option>
+                                        </select>
+                                        {% else %}
+                                        <select name="module_id" id="module_id"
+                                            data-validate-func="min"
+                                            data-validate-arg="1"
+                                            data-validate-hint="Selectionnez un module svp.">
+                                            <option value="0">Selectionnez un module</option>
+                                            {% for item in lesmodules %}
+                                                <option value="{{ item.id }}"> {{ item.nom_module }} </option>
+                                            {% endfor %}
+                                        </select>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                        
+                                <div class="col-md-6">
+                                    <label>Description</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="description" id="description" type="text">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

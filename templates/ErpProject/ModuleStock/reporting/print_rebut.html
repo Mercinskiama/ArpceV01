@@ -1,0 +1,99 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Numéro :<br>
+                        <span class="sub-alt-header">{{ model.numero }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Date :<br>
+                        <span class="sub-alt-header">{{model.date|date:"d/m/Y H:i"}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Article :<br>
+                        {% if model.article is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.article }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Numero Série :<br>
+                        <span class="sub-alt-header">{{ model.serie_article }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Quantité :<br>
+                        <span class="sub-alt-header">{{model.quantite|monetary}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Société :<br>
+                        {% if model.societe is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.societe }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Status :<br>
+                        {% if model.status is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.status }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Unité de mesure :<br>
+                        {% if model.unite is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.unite }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Emplacement d'origine :<br>
+                        {% if model.emplacement_origine is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.emplacement_origine }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Emplacement rébut :<br>
+                        {% if model.emplacement_rebut is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.emplacement_rebut }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Document d'origine :<br>
+                        <span class="sub-alt-header">{{ model.document }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,95 @@
+{% load static %}
+<style type="text/css">
+    @import url({% static 'ErpProject/css/semantic.min.css' %});
+    @import url({% static 'ErpProject/css/sweetcss.css' %});
+    @import url({% static 'ErpProject/css/bootstrap-datetimepicker.min.css' %});
+    @import url({% static 'ErpProject/css/bootstrap-select.css' %});
+    @import url({% static 'ErpProject/css/multi-select.css' %});
+    @import url({% static 'ErpProject/css/timepicki.css' %});
+    @import url({% static 'ErpProject/css/bootstrap-chosen.css' %});
+    @import url({% static 'ErpProject/css/buttons.dataTables.min.css' %});
+    /*@import url({% static 'ErpProject/css/rowGroup.dataTables.min.css' %});
+    @import url({% static 'ErpProject/lib/fullcalendar/core/main.min.css' %});
+    @import url({% static 'ErpProject/lib/fullcalendar/daygrid/main.min.css' %});
+    @import url({% static 'ErpProject/lib/fullcalendar/timegrid/main.min.css' %});
+    @import url({% static 'ErpProject/lib/fullcalendar/list/main.min.css' %});
+    @import url({% static 'ErpProject/css/jkanban.min.css' %});*/
+</style>
+
+<script src="{% static 'ErpProject/js/semantic.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/timepicki.js' %}"></script>
+<script src="{% static 'ErpProject/js/canvasjs.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/sweetalert2.all.js' %}"></script>
+<script src="{% static 'ErpProject/js/jszip.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/jquery.multi-select.js' %}"></script>
+<script src="{% static 'ErpProject/js/jquery.quicksearch.js' %}"></script>
+<script src="{% static 'ErpProject/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/bootstrap-select.js' %}"></script>
+<script src="{% static 'ErpProject/js/AutoNumeric.js' %}"></script>
+<script src="{% static 'ErpProject/js/autonumeric.class.js' %}"></script>
+
+<script src="{% static 'ErpProject/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/dataTables.rowGroup.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/pdfmake.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/vfs_fonts.js' %}"></script>
+<script src="{% static 'ErpProject/js/jkanban.min.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'ErpProject/js/sweetalert2.all.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/print.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.debug.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/cell.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.plugin.autotable.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/from_html.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/html2canvas.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/clipboard.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/FileSaver.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/xlsx.full.min.js' %}"></script> 
+
+<script>
+    $(document).ready(function() {
+        $('.ui.dropdown').dropdown();
+        $('.multi_select2').multiSelect();
+
+        $('.datetimepicker').datetimepicker({
+            "allowInputToggle": true,
+            "showClose": true,
+            "showClear": true,
+            "showTodayButton": true,
+            "format": "DD/MM/YYYY HH:mm:ss",
+            "locale": "fr",
+        });
+
+        $(".trigger-input-file").click(function() {
+            $(this).parent().find(".image_upload").click();
+        });
+
+        $(".image_upload").change(function () {
+            readImageURL(this);
+        });
+    });
+
+    function readImageURL(input) {
+        //console.log("readImageURL ......")
+        if (input.files && input.files[0]) {                   
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                //console.log('src ' + e.target.result);
+                $(input).parent().find(".image_preview").attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    /* separateur in puts*/
+    jQuery(function($) {
+        $('.monetary').autoNumeric('init');
+    });
+
+    /* end separateur*/
+    jQuery(function($) {
+        $('.cursor').css("cursor", "pointer");
+    });
+</script>

@@ -1,0 +1,152 @@
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+{% if not isPopup %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_list_ligne_reception' %}">Liste des Lines Bons de Receptions</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    {% if not isPopup %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_get_upload_ligne_reception' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Importer les données à partir excel</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_list_ligne_reception' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                    {% endif %}
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <form id="form" method="POST" action="{% url 'module_stock_post_add_ligne_reception' %}"  enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    {% if isPopup %}<input id="isPopup" name="isPopup" value="1" type="text" style="display: none">{% endif %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Opération stock</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size">                                
+                                <select name="bon_reception_id" id="bon_reception_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/bon_reception/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/bon_reception/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in bon_receptions %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Article</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size">                                
+                                <select name="article_id" id="article_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/article/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/article/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in articles %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Société</label>
+                            <div class="input-control text full-size">                                
+                                <select name="societe_id" id="societe_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/configurationdashboard/societe/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/configurationdashboard/societe/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in societes %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Quantité demandée</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input name="quantite_demandee" id="quantite_demandee" type="number" step="0.01" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Quantité demandée SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Quantité réalisée</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input name="quantite_fait" id="quantite_fait" type="number" step="0.01" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Quantité réalisée SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Quantité restante</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input name="quantite_reste" id="quantite_reste" type="number" step="0.01" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Quantité restante SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Prix Unitaire</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input name="prix_unitaire" id="prix_unitaire" type="number" step="0.01" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Prix Unitaire SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Unité de mesure</label>
+                            <div class="input-control text full-size">                                
+                                <select name="unite_id" id="unite_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/unite_mesure/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/unite_mesure/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in unite_mesures %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Devise</label>
+                            <div class="input-control text full-size">                                
+                                <select name="devise_id" id="devise_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/comptabilite/devise/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/comptabilite/devise/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in devises %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Description</label>
+                            <div class="input-control text full-size">
+                                <textarea name="description" id="description" ></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="input-control checkbox small-check full-size">
+                                <input name="fait" id="fait" type="checkbox">
+                                <span class="check"></span><span class="caption">Est réalisé</span>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Numéros de serie</label>
+                            <div class="text full-size">
+                                <select multiple="multiple" class="multi-select multi_select2" name="series" id="series">
+                                    {% for item in actifs %}<option value="{{ item.id }}">{{item}}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<script>
+    url_item = "{% url 'module_stock_select_ligne_reception' '100' %}";    
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/create_view.html' %}
+{% endblock %}

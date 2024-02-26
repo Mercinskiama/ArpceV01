@@ -1,0 +1,38 @@
+{% extends "ErpProject/ModuleComptabilite/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_modules' %}">Liste des modules</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_sous_modules' ref %}">Liste des sous_modules</a></li>
+            <li>{{ title }}</li>
+    </ul>
+</div>
+<div class="row">
+    <button onclick="javascript:window.location.assign('#')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button>
+    <button onclick="javascript:window.location.assign('{% url 'module_configuration_list_sous_modules' ref %}')" class="button small-button rounded chargement-au-click">Annuler</button>
+</div>
+<hr class="hr-ligne">
+<!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+<br>
+<div class="row item-content" style="margin-top: 20px">
+    <div class="cell padding30 shadow">
+        <div class="row cells2">
+            <div class="cell">
+                <p class="minor-header fg-gray">
+                   Nom Sous-Module :<br>
+                    <span class="sub-alt-header fg-dark">{{model.nom_sous_module}}</span>
+                </p>
+            </div>
+            <div class="cell">
+                    <p class="minor-header fg-gray">
+                      Description :<br>
+                        <span class="sub-alt-header fg-dark">{{model.description}}</span>
+                    </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

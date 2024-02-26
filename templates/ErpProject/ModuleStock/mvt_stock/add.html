@@ -1,0 +1,218 @@
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+{% if not isPopup %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_list_mvt_stock' %}">Liste des Mouvements stocks</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    {% if not isPopup %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_get_upload_mvt_stock' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Importer les données à partir excel</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_list_mvt_stock' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                    {% endif %}
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <form id="form" method="POST" action="{% url 'module_stock_post_add_mvt_stock' %}"  enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    {% if isPopup %}<input id="isPopup" name="isPopup" value="1" type="text" style="display: none">{% endif %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Date</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size datetimepicker">
+                                <input type="text" name="date" id="date" placeholder="jj/mm/aaaa hh:mm">
+                                <div class="button"><span class="glyphicon glyphicon-screenshot far fa-calendar" style="margin-right:3px;"></span><span class="glyphicon glyphicon-screenshot far fa-clock"></span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Type mouvement</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size">                                
+                                <select name="type_id" id="type_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/type_mvt_stock/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/type_mvt_stock/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in type_mvt_stocks %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Article</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size">                                
+                                <select name="article_id" id="article_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/article/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/article/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in articles %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Emplacement</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size">                                
+                                <select name="emplacement_id" id="emplacement_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/emplacement/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/emplacement/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in emplacements %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Réception</label>
+                            <div class="input-control text full-size">                                
+                                <select name="reception_id" id="reception_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/bon_reception/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/bon_reception/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in bon_receptions %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Transfert</label>
+                            <div class="input-control text full-size">                                
+                                <select name="transfert_id" id="transfert_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/bon_transfert/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/bon_transfert/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in bon_transferts %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Sortie</label>
+                            <div class="input-control text full-size">                                
+                                <select name="sortie_id" id="sortie_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/bon_sortie/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/bon_sortie/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in bon_sorties %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Retour</label>
+                            <div class="input-control text full-size">                                
+                                <select name="retour_id" id="retour_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/bon_retour/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/bon_retour/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in bon_retours %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Inventaire</label>
+                            <div class="input-control text full-size">                                
+                                <select name="ajustement_id" id="ajustement_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/ajustement/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/ajustement/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in ajustements %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Rebut</label>
+                            <div class="input-control text full-size">                                
+                                <select name="rebut_id" id="rebut_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/rebut/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/rebut/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in rebuts %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Quantité Initiale</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input name="quantite_initiale" id="quantite_initiale" type="number" step="0.01" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Quantité Initiale SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Unité de mesure initiale</label>
+                            <div class="input-control text full-size">                                
+                                <select name="unite_initiale_id" id="unite_initiale_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/unite_mesure/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/unite_mesure/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in unite_mesures %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Quantité finale</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input name="quantite" id="quantite" type="number" step="0.01" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Quantité finale SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Société</label>
+                            <div class="input-control text full-size">                                
+                                <select name="societe_id" id="societe_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/configurationdashboard/societe/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/configurationdashboard/societe/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in societes %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Unité de mesure finale</label>
+                            <div class="input-control text full-size">                                
+                                <select name="unite_id" id="unite_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/unite_mesure/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/unite_mesure/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in unite_mesures %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="input-control checkbox small-check full-size">
+                                <input name="est_rebut" id="est_rebut" type="checkbox">
+                                <span class="check"></span><span class="caption">Est rebut</span>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Numéros de serie</label>
+                            <div class="text full-size">
+                                <select multiple="multiple" class="multi-select multi_select2" name="series" id="series">
+                                    {% for item in actifs %}<option value="{{ item.id }}">{{item}}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<script>
+    url_item = "{% url 'module_stock_select_mvt_stock' '100' %}";    
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/create_view.html' %}
+{% endblock %}

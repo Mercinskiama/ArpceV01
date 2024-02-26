@@ -1,0 +1,306 @@
+
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_index' %}">Module Configuration</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_list_societe' %}">Liste des Sociétés</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_detail_societe' model.id %}">{{ model }}</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_detail_societe' model.id %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <form id="form" method="POST" action="{% url 'module_configuration_post_update_societe' %}"  enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    <input type="text"  id="ref" name="ref" value ="{{ model.id }}" style="display: none">
+                    {% if isPopup %}<input id="isPopup" name="isPopup" value="1" type="text" style="display: none">{% endif %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Code</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.code }}" name="code" id="code" type="text" data-validate-func="required" data-validate-hint="Saisissez le champ Code SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nom de la société</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.name }}" name="name" id="name" type="text" data-validate-func="required" data-validate-hint="Saisissez le champ Nom de la société SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Logo de la société</label>
+                            <div class="tile-container">  
+                                <input class="image_upload" name="picture_icon" id="picture_icon" type="file" accept="image/*" style="display:none;">                              
+                                <a id="trigger-input-file" href="#" class="trigger-input-file tile-wide fg-white shadow" style="height: 100px!important; width: 100px!important;" data-role="tile"> 
+                                    <div class="tile-content slide-up">
+                                        <div class="slide">
+                                            {% if model.picture_icon %}<img class="image_preview" src="{% static model.picture_icon.url %}" style="height: 100px; width: 100px;"> {% else %}
+                                            <img class="image_preview" src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 100px; width: 100px;">{% endif %}
+                                        </div>
+                                        <div class="slide-over op-dark padding10" style="text-align: center!important; opacity: 60%!important;">
+                                            <span class="icon mif-pencil" style="text-align: center!important; font-size: 40px!important;"></span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Type</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.type }}" name="type" id="type" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Société mère</label>
+                            <div class="input-control text full-size">                                
+                                <select class="selectpicker form-control" title="Sélectionner une option" name="societe_id" id="societe_id">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/configurationdashboard/societe/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/configurationdashboard/societe/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in societes %}<option {% if model.societe_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Devise de référence</label>
+                            <div class="input-control text full-size">                                
+                                <select class="selectpicker form-control" title="Sélectionner une option" name="devise_id" id="devise_id">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/comptabilite/devise/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/comptabilite/devise/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in devises %}<option {% if model.devise_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Type de période</label>
+                            <div class="input-control text full-size">                                
+                                <select class="selectpicker form-control" title="Sélectionner une option" name="type_periode_id" id="type_periode_id">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/configurationdashboard/type_periode/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/configurationdashboard/type_periode/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in type_periodes %}<option {% if model.type_periode_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Email</label>
+                            <div class="input-control email full-size" data-role="input">
+                                <input value="{{ model.adress_email }}" name="adress_email" id="adress_email" type="email" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Genre</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.siteweb }}" name="siteweb" id="siteweb" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Pays</label>
+                            <div class="input-control text full-size">                                
+                                <select class="selectpicker form-control" title="Sélectionner une option" name="pays_id" id="pays_id">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/configurationdashboard/pays/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/configurationdashboard/pays/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in payss %}<option {% if model.pays_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nom Pays</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.pays_adress }}" name="pays_adress" id="pays_adress" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Province</label>
+                            <div class="input-control text full-size">                                
+                                <select class="selectpicker form-control" title="Sélectionner une option" name="province_id" id="province_id">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/configurationdashboard/province/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/configurationdashboard/province/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in provinces %}<option {% if model.province_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nom Province</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.province_adress }}" name="province_adress" id="province_adress" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Ville</label>
+                            <div class="input-control text full-size">                                
+                                <select class="selectpicker form-control" title="Sélectionner une option" name="ville_id" id="ville_id">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/configurationdashboard/ville/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/configurationdashboard/ville/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in villes %}<option {% if model.ville_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nom Ville</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.ville_adress }}" name="ville_adress" id="ville_adress" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Commune</label>
+                            <div class="input-control text full-size">                                
+                                <select class="selectpicker form-control" title="Sélectionner une option" name="commune_id" id="commune_id">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/configurationdashboard/commune/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/configurationdashboard/commune/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in communes %}<option {% if model.commune_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Adresse ligne 1</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.adresse_line1 }}" name="adresse_line1" id="adresse_line1" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Adresse ligne 2</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.adresse_line2 }}" name="adresse_line2" id="adresse_line2" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Téléphone 1</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.telephone_1 }}" name="telephone_1" id="telephone_1" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Téléphone 2</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.telephone_2 }}" name="telephone_2" id="telephone_2" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nombre période Comptabilité</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input value="{{ model.nbr_periode_gl }}" name="nbr_periode_gl" id="nbr_periode_gl" type="number" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Nombre période Comptabilité SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nombre période Comptabilité Client</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input value="{{ model.nbr_periode_ar }}" name="nbr_periode_ar" id="nbr_periode_ar" type="number" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Nombre période Comptabilité Client SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nombre période Comptabilité Fournisseur</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input value="{{ model.nbr_periode_ap }}" name="nbr_periode_ap" id="nbr_periode_ap" type="number" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Nombre période Comptabilité Fournisseur SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nombre période Comptabilité Trésorerie </label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input value="{{ model.nbr_periode_cm }}" name="nbr_periode_cm" id="nbr_periode_cm" type="number" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Nombre période Comptabilité Trésorerie  SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nombre période Comptabilité Immobilisation</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input value="{{ model.nbr_periode_fa }}" name="nbr_periode_fa" id="nbr_periode_fa" type="number" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Nombre période Comptabilité Immobilisation SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nombre période Budget</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input value="{{ model.nbr_periode_bgt }}" name="nbr_periode_bgt" id="nbr_periode_bgt" type="number" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Nombre période Budget SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nombre période Paie</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input value="{{ model.nbr_periode_py }}" name="nbr_periode_py" id="nbr_periode_py" type="number" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Nombre période Paie SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Début exercice en cours</label>
+                            <div class="input-control text full-size datetimepicker">
+                                <input type="text" name="period_begin_date" id="period_begin_date" placeholder="jj/mm/aaaa hh:mm" value="{{ model.period_begin_date|date:"d/m/Y H:i" }}">
+                                <div class="button"><span class="glyphicon glyphicon-screenshot far fa-calendar" style="margin-right:3px;"></span><span class="glyphicon glyphicon-screenshot far fa-clock"></span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Fin Exercice en cours</label>
+                            <div class="input-control text full-size datetimepicker">
+                                <input type="text" name="period_end_date" id="period_end_date" placeholder="jj/mm/aaaa hh:mm" value="{{ model.period_end_date|date:"d/m/Y H:i" }}">
+                                <div class="button"><span class="glyphicon glyphicon-screenshot far fa-calendar" style="margin-right:3px;"></span><span class="glyphicon glyphicon-screenshot far fa-clock"></span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Description</label>
+                            <div class="input-control text full-size">
+                                <textarea name="description" id="description" >{{ model.description }}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Autres adresse</label>
+                            <div class="text full-size">
+                                <select multiple="multiple" class="multi-select multi_select2" name="autres_adresses" id="autres_adresses">
+                                    {% for item in adresses %}<option {% for object in model.autres_adresses.all %} {% if object.id == item.id %}{{ "selected" }}{% endif %}{% endfor %} value="{{ item.id }}">{{item}}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Contacts</label>
+                            <div class="text full-size">
+                                <select multiple="multiple" class="multi-select multi_select2" name="contacts" id="contacts">
+                                    {% for item in contacts %}<option {% for object in model.contacts.all %} {% if object.id == item.id %}{{ "selected" }}{% endif %}{% endfor %} value="{{ item.id }}">{{item}}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>     
+                    <br><br>
+                    <div class="row">
+                        <ul class="nav nav-tabs navtab-bg"> 
+                            <li class="active"><a href="#frame_autres" data-toggle="tab" aria-expanded="false"><span>Autres informations</span></a></li>
+                        </ul>
+                        <div class="tab-content"> 
+                            <div class="tab-pane active" id="frame_autres">
+                                <div class="row margin20 no-margin-left no-margin-right">                                
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<script>
+    url_item = "{% url 'module_configuration_select_societe' '100' %}";    
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/update_view.html' %}
+{% endblock %}

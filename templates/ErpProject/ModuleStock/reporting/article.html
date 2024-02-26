@@ -1,0 +1,125 @@
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+{% if not isPopup %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_list_ajustement' %}">Liste des Inventaires</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    {% if not isPopup %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_get_upload_ajustement' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Importer les données à partir excel</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_list_ajustement' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                    {% endif %}
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                <form id="form" method="POST" action="{% url 'module_stock_post_rapport_article_in_stock' %}"  enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    {% if isPopup %}<input id="isPopup" name="isPopup" value="1" type="text" style="display: none">{% endif %}
+                    <input id="submit" type="submit" style="display: none">
+                    <input name="print" type="number" value="0" style="display: none">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Emplacement</label>
+                            <select onchange="fill_account()" name="emplacement_origine_id" id="emplacement_origine_id" class="selectpicker form-control" data-container="body" data-live-search="true" title="Choisir une categorie" data-hide-disabled="true">
+                                <option value="">Sélectionnez un emplacement</option>
+                                {% for item in emplacements %}
+                                    <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="article_inventorie">
+                                <label>Article</label>
+                                <select onchange="selectChange(event)" name="article_id" id="article_id" class="selectpicker form-control" data-container="body" data-live-search="true" title="Choisir un article" data-hide-disabled="true">
+                                    {% for item in articles %}
+                                        <option value="{{ item.id }}"> {{ item }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div id="categorie_inventorie">
+                                <label>Catégorie</label>
+                                <select name="categorie_id" id="categorie_id" class="selectpicker form-control"  data-container="body" data-live-search="true" title="Choisir une categorie" data-hide-disabled="true">
+                                    <option value="0">Sélectionnez une catégorie </option>
+                                    {% for item in categories %}
+                                        <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Rapport de:</label>
+                            <div class="row">
+                                <label class="input-control radio small-check">
+                                    <input value="0" name="inventaire_de" checked type="radio">
+                                    <span class="check"></span>
+                                    <span class="caption">Tous les articles</span>
+                                </label><br>
+                                <label class="input-control radio small-check" style="/*margin-left: 15px*/">
+                                    <input value="1" name="inventaire_de" type="radio">
+                                    <span class="check"></span>
+                                    <span class="caption">Une catégorie d'articles</span>
+                                </label><br>
+                                <label class="input-control radio small-check">
+                                    <input value="2" name="inventaire_de" type="radio">
+                                    <span class="check"></span>
+                                    <span class="caption">Un article seulement</span>
+                                </label><br>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<script>
+    $(document).ready(function(){
+        $("#categorie_inventorie").hide();
+        $("#article_inventorie").hide();
+
+        $("input[name='inventaire_de']").change(function(){
+            if($(this).val() == '0') {
+                $("#categorie_inventorie").hide();
+                $("#article_inventorie").hide();
+            } else if ($(this).val() == '1') {
+                $("#categorie_inventorie").show();
+                $("#article_inventorie").hide();
+                $("#categorie_id").val('');
+            }else if ($(this).val() == '2') {
+                $("#categorie_inventorie").hide();
+                $("#article_inventorie").show();
+                $("#article_id").val('');
+                
+            }
+        });
+    });
+</script>
+{% endblock %}

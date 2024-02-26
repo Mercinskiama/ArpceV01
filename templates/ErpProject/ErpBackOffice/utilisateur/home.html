@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <title>{{ title }}</title>
+        {% load static %}
+
+        <link rel="shortcut icon" href="{% static organisation.icon %}">
+
+        <link href="{% static 'ErpProject/css/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'ErpProject/css/metisMenu.min.css' %}" rel="stylesheet">
+        <link href="{% static 'ErpProject/css/custom.css' %}" rel="stylesheet">
+        <link href="{% static 'ErpProject/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+
+        <link rel="stylesheet" href="{% static 'ErpProject/css/metro.css' %}">
+        <link rel="stylesheet" href="{% static 'ErpProject/css/metro-icons.css' %}">
+        <link rel="stylesheet" href="{% static 'ErpProject/css/metro-schemes.css' %}">
+        <link rel="stylesheet" href="{% static 'ErpProject/css/bootstrap-chosen.css' %}">
+        <script src="{% static 'ErpProject/js/chosen.jquery.js' %}"></script> 
+
+        <style>
+            .body-login {
+                background-image: url('{% static 'ErpProject/image/login.jpg' %}');
+                background-repeat: no-repeat;
+            }
+            @media (max-width: 767px) {
+                .body-login {
+                    right: 10%;
+                    height: 0rem;
+                }
+            }
+    
+            @media (min-width: 768px) and (max-width: 991px) {
+                .body-login {
+                    right: 10%;
+                    height: 0rem;
+                }
+            }
+            
+            @media (min-width: 992px) {
+                .body-login {
+                    background-size: 100%;
+                    left: 0%;
+                    height: 0rem;
+                }
+            }
+        </style>
+    </head>
+
+    <body class="body-login">
+        <!-- Chargement -->
+        <div id="chargement" data-role="dialog" class="padding20 dialog fg-white" data-close-button="false" data-overlay="true" data-overlay-color="op-dark" data-overlay-click-close="false" style="max-width: 300px; visibility: hidden; background-color: transparent;">
+            <div data-role="preloader" data-type="ring" style="margin: auto"></div>
+        </div>
+        <!-- Page login -->
+        <div id="wrapper">
+            <!-- Navigation -->
+            <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="margin-bottom:0">          
+                <div class="navbar-header" style="width: 100%;" >
+                    <a class="navbar-band" href="#" style="float: left;"><img src="{% static 'ErpProject/image/logo_large.png' %}" style="width: 180px;"></a>                
+                </div>
+                <!-- /.navbar-header -->           
+            </nav>
+
+            <section class="section-login">
+                    <div class="container" >
+                      <div class="espace"></div>
+                          <div class="row">
+                              <div class="col-lg-12 "  >
+                                  <div class=" col-md-12 text-content xs-hidden">
+                                        <h1 class="titres">{{organisation.nom}}</h1>
+                                        <p class="commentaires">Vous souhaite la bienvenue!</p>
+                                        <div class="separ"></div>
+                                        <div   style="float: right;">    
+                                            <form method="GET" action="{% url 'backoffice_connexion' %}">
+                                                <input type="text" style="display: none;" name="redirect_login" value="OK">
+                                                <p class="commentaire">Connectez-vous ici! <button class="btn btn-default" type="submit"><i class="fa  fa-unlock-alt"></i></button></p>
+                                            </form>
+                                        </div>                                  
+                                  </div>
+                              
+                             </div>
+                              <!-- /.col-lg-12 -->
+                          </div>
+                      </div>
+              </section>
+                   
+        </div> 
+        <!-- Fin wrapper-->
+        <script src="{% static 'ErpProject/js/jquery-2.1.3.min.js' %}"></script>
+        <script src="{% static 'ErpProject/js/metro.js' %}"></script>      
+        <script src="{% static 'js/jquery.min.js' %}"></script>
+        <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'js/metisMenu.min.js' %}"></script>
+        <script src="{% static 'js/custom.js' %}"></script>
+
+        <script>
+            function showDialog(id) {
+                var dialog = $("#" + id).data('dialog');
+                if (!dialog.element.data('opened')) dialog.open();
+                else dialog.close();
+            }
+
+            $(".chargement-au-click").bind("click", function() {
+                showDialog("chargement");
+            });
+        </script>
+    </body>
+</html>

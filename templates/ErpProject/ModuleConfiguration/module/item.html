@@ -1,0 +1,206 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+<div class="row">
+    <div class="col-xs-12">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_modules' %}">Module Configuration</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_modules' %}">Liste des modules</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Configurer le module {{ model.nom_module }}</h2>
+        <strong class="hidden-xs" style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+
+                <div class="row">
+                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_update_module' model.id %}')"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 15%;">Modifier</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_list_modules' %}')"  class="theme-btn theme-btn-sm rounded" style="width: 15%;margin-left: 5px">Annuler</button>
+                </div>
+                <hr class="hr-ligne">
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                <div class="row">
+                    <div class="col-md-6 col-xs-12">
+                        <p>Description :<br>
+                            <span class="sub-alt-header">{{ model.description }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6 col-xs-12">
+                        <p>Chemin Url :<br>
+                            <span class="sub-alt-header">{{ model.url_vers }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6 col-xs-12">
+                        <p>Numéro d'ordre :<br>
+                            <span class="sub-alt-header">{{ model.numero_ordre }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6 col-xs-12">
+                        <p>Icon Module :<br>
+                            <span class="sub-alt-header">{{ model.icon_module }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6 col-xs-12">
+                        <p>Est Installé :<br>
+                            <span class="sub-alt-header">{{ model.est_installe }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6 col-xs-12">
+                        <p>Couleur :<br>
+                            <span class="sub-alt-header">{{ model.couleur }}</span>
+                        </p>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <ul class="nav nav-tabs navtab-bg"> 
+                        <li class="active"><a href="#frame_modele" data-toggle="tab" aria-expanded="false"><span>Modèles</span></a></li>
+                        <li class=""><a href="#frame_groupemenu" data-toggle="tab" aria-expanded="false"><span>Groupes de menus</span></a></li>
+                        <li class=""><a href="#frame_menu" data-toggle="tab" aria-expanded="false"><span>Menus</span></a></li>
+                    </ul>
+                    <div class="tab-content"> 
+                        <div class="tab-pane active" id="frame_modele">
+                            <h4>Liste des modèles attachés à ce module</h4>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <!--table class="table dataTable striped border bordered" data-role="datatable" data-searching="true" style="width: 100%"-->
+                                    <table id="rapport" class="table striped border bordered" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Id</th>
+                                                <th>Désignation</th>
+                                                <th>Date création</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in modeles %}
+                                            <tr>
+                                                <td>{{item.id}}</td>
+                                                <td><a class="lien chargement-au-click" href="#">{{ item.model }}</a></td>
+                                                <td>{{ item.created_at }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_add_modele' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 15%;">Ajouter</button>
+                                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_exporter_modele' model.id %}')" class="theme-btn theme-btn-sm rounded primary" style="width: 15%;margin-left: 5px">Exporter en Excel</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="frame_groupemenu">
+                            <h4>Liste des groupes de menus attachés à ce module</h4>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table class="table dataTable striped border bordered" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Désignation</th>
+                                                <th>Description</th>
+                                                <th>Numéro d'ordre</th>
+                                                <th>Icône</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in groupesmenus %}
+                                            <tr>
+                                                <td><a class="lien chargement-au-click" href="{% url 'module_Configuration_detail_groupemenu' item.id %}">{{item.designation}}</a></td>
+                                                <td>{{ item.description }}</td>
+                                                <td>{{ item.numero_ordre }}</td>
+                                                <td>{{ item.icon_menu }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <button onclick="javascript:window.location.assign('{% url 'module_Configuration_add_groupemenu' %}?module_id={{model.id}}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 15%;">Ajouter</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="frame_menu">
+                            <h4>Liste des menus attachés à ce module</h4>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table class="table dataTable striped border bordered" data-searching="true" style="width: 100%">
+                                        <thead>
+                                            <tr>
+                                                <th width="40%">Désignation</th>
+                                                <th width="25%">Groupe</th>
+                                                <th width="20%">Numéro d'ordre</th>
+                                                <th width="15%">Actif</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        <form id="form" method="POST" action="{% url 'module_configuration_post_update_sous_module' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                                        data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                        {% csrf_token %}
+                                        <input id="submit" type="submit" style="display: none">
+                                        <input value="{{ model.id }}" name="module_id" type="text" style="display: none">
+                                            {% for item in menus %}
+                                            <input value="{{ item.id }}" name="sous_module_id" type="text" style="display: none">
+                                            <tr>
+                                                <td><a class="lien chargement-au-click" href="#">{{ item.nom_sous_module }}</a></td>
+                                                <td>{{ item.groupe_menu.designation }}</td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control text full-size">
+                                                        <input value="{{ item.numero_ordre }}" name="numero_ordre" type="number" autocomplete="off">
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <label class="input-control checkbox small-check full-size">
+                                                        <input {% if item.est_actif == True %}{{ "checked" }}{% endif %}  name="est_actif" id="est_actif" type="checkbox" class="check_est_actif"><span class="check"></span>
+                                                        <input value="{% if item.est_actif == True %}{{ "1" }}{% else %}{{ "0" }}{% endif %}" name="input_est_actif" class="input_est_actif" style="display: none">
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </form>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_add_sous_module' model.id %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 15%;">Ajouter</button>
+                                    {% if menus|length > 0 %}<button onclick="javascript:document.getElementById('submit').click()" class="theme-btn theme-btn-sm rounded primary" style="width: 15%;margin-left: 5px">Modifier</button>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(".check_est_actif").change(function() {
+        theInput = $(this).parent().find(".input_est_actif");
+        if(this.checked) {
+            //console.log("Is checked");
+            theInput.val("1");
+        }else{
+            //console.log("Is Not checked");
+            theInput.val("0");            
+        }
+        //console.log("Element value Is " + theInput.val());
+    });
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% include 'ErpProject/ErpBackOffice/widget/export_excel.html' with btn_id="btn_export" table_id="rapport" filename="Liste_modeles" only %}
+{% endblock %}

@@ -1,0 +1,179 @@
+{% load static %}
+<style type="text/css">
+    @import url({% static 'ErpProject/css/semantic.min.css' %});
+    @import url({% static 'ErpProject/css/sweetcss.css' %});
+    @import url({% static 'ErpProject/css/bootstrap-datetimepicker.min.css' %});
+    @import url({% static 'ErpProject/css/bootstrap-select.css' %});
+    @import url({% static 'ErpProject/css/multi-select.css' %});
+    @import url({% static 'ErpProject/css/timepicki.css' %});
+    @import url({% static 'ErpProject/css/bootstrap-chosen.css' %});
+</style>
+
+<script src="{% static 'ErpProject/js/semantic.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/timepicki.js' %}"></script>
+<script src="{% static 'ErpProject/js/canvasjs.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/sweetalert2.all.js' %}"></script>
+<script src="{% static 'ErpProject/js/jszip.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/jquery.multi-select.js' %}"></script>
+<script src="{% static 'ErpProject/js/jquery.quicksearch.js' %}"></script>
+<script src="{% static 'ErpProject/js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'ErpProject/js/bootstrap-select.js' %}"></script>
+<script src="{% static 'ErpProject/js/AutoNumeric.js' %}"></script>
+<script src="{% static 'ErpProject/js/autonumeric.class.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/print.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.debug.js' %}"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.ui.dropdown').dropdown();
+        $('.multi_select2').multiSelect();
+
+        $('.datetimepicker').datetimepicker({
+            "allowInputToggle": true,
+            "showClose": true,
+            "showClear": true,
+            "showTodayButton": true,
+            "format": "DD/MM/YYYY HH:mm:ss",
+            "locale": "fr",
+        });
+
+        $(".trigger-input-file").click(function() {
+            $(this).parent().find(".image_upload").click();
+        });
+
+        $(".image_upload").change(function () {
+            readImageURL(this);
+        });
+
+        $(document).delegate('.add-record', 'click', function(e) {
+            e.preventDefault();  
+            var content = $(this).parent().find('.sample_table tr');
+            var compteur = $(this).parent().attr('data-compteur');
+            compteur = parseInt(compteur);
+            compteur++;
+            $(this).parent().attr('data-compteur', compteur);
+            element = null;    
+            element = content.clone();
+            $(this).parent().find('.tbl_posts_body').append(element);
+            
+            //Initialiser les IDs
+            select_name = element.find('select').attr('name');
+            element.find('select').attr('id', select_name+'-'+compteur);
+
+            elem = element.find('select').attr('id');
+            //$("#"+elem).trigger('change');
+            $("#"+elem).selectpicker('refresh');
+            //console.log("Refreshed ... "+elem);
+        });
+
+        $(document).delegate('.delete-record', 'click', function(e) {
+            e.preventDefault();
+            var didConfirm = confirm("Etes-vous sûr de vouloir supprimer cette ligne");
+            if (didConfirm == true) {
+                $(this).parent().parent().parent().remove();				
+                return true;
+            } else {
+                return false;
+            }
+        });
+    });
+
+    function readImageURL(input) {
+        //console.log("readImageURL ......")
+        if (input.files && input.files[0]) {                   
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                //console.log('src ' + e.target.result);
+                $(input).parent().find(".image_preview").attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function enregistrer(form, url) {
+        var formData = new FormData($(form)[0]);
+        console.log(formData);
+        showDialog("chargement");
+        $.ajax({
+            type: $(form).attr('method'),
+            url: $(form).attr('action'),
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                console.log('Submission was successful.');
+                console.log(response);
+                showDialog("chargement");
+                if(response.error === false) { 
+                    Swal.fire(
+                        'Succès !',
+
+                        'Mise à jour effectuée',
+                        'Avec Succès',
+                    )
+                    setTimeout(function () {
+                        var id = response.id;
+                        var isPopup = response.isPopup;
+                        url = url.replace('100', id);
+                        if(isPopup == 1){
+                            url = url + "?isPopup=1";
+                        }
+
+                        //url = url.replace('0', isPopup);
+                        document.location.href = url;                                               
+                    }, 2000);
+
+                }else{
+                    console.log('Error.');
+                    console.log(response.message);
+                    $.Notify({
+                        caption: 'Echec !',
+                        content: response.message,
+                        type: 'alert',
+                        keepOpen: true
+                    });
+                }
+            },
+            error: function (response) {
+                console.log('An error occurred.');
+                console.log(response);
+                showDialog("chargement");
+                $.Notify({
+                    caption: 'Echec !',
+                    content: "Une erreur est survenue pendant l'enregistrement",
+                    type: 'alert',
+                    keepOpen: true
+                });
+            },
+        }); 
+    }
+    $("form").on("submit", function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Etes vous sûr?',
+            text: "De vouloir modifier ces informations !",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui',
+            cancelButtonText: 'Annuler'
+        }).then((result) => {
+            if (result.value) {
+                enregistrer(this, url_item);
+            }
+        }) 
+    }); 
+
+    /* separateur in puts*/
+    jQuery(function($) {
+        $('.monetary').autoNumeric('init');
+    });
+
+    /* end separateur*/
+    jQuery(function($) {
+        $('.cursor').css("cursor", "pointer");
+    });
+</script>

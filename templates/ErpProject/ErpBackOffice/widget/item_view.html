@@ -1,0 +1,72 @@
+{% load static %}
+<style type="text/css">
+    @import url({% static 'ErpProject/css/semantic.min.css' %});
+    @import url({% static 'ErpProject/css/sweetcss.css' %});
+    @import url({% static 'ErpProject/css/bootstrap-chosen.css' %});
+    @import url({% static 'ErpProject/css/jquery.magnify.min.css' %});
+    @import url({% static 'ErpProject/css/magnify-white-theme.css' %});
+
+    @import url({% static 'ErpProject/css/bootstrap-chosen.css' %});
+    @import url({% static 'ErpProject/css/jquery.magnify.min.css' %});
+    @import url({% static 'ErpProject/css/magnify-white-theme.css' %});
+
+    .kanban_image {
+        width: 70px;
+        height: 70px;
+        display: inline-block;
+        position: relative;
+        text-align: center;
+        background-size: contain;
+    }
+    .kanban_image[data-mimetype='application/pdf'] {
+        background-image: url({% static 'ErpProject/image/mimetypes/pdf.svg' %});
+    }
+</style>
+
+<!-- <link rel="stylesheet" href="{% static 'ErpProject/css/profil.css' %}" /> -->
+<!-- <link rel="stylesheet" href="{% static 'ErpProject/organigram/css/organigram.css' %}" /> -->
+<!-- <link href="{% static 'ErpProject/css/css_circle/progress-circle.css' %}" rel="stylesheet"> -->
+<!-- <link href="{% static 'ErpProject/css/css_circle/layout.css' %}" rel="stylesheet"> -->
+
+<script type="text/javascript" src="{% static 'ErpProject/js/semantic.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/canvasjs.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/sweetalert2.all.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/jszip.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/jquery.magnify.min.js' %}"></script>
+<script> 
+    $("[data-magnify=gallery]").magnify();
+</script>
+{% if user_actions.can_delete is True %}
+<script> 
+    function supprimer(modele, url_retour) {
+        var id = '{{model.id}}'
+        // url de suppression ------------------------------------------------------
+        url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+        url = url.replace('100', id);
+        url = url.replace('nom_modele', modele);
+        url = url.replace('url_retour', url_retour);
+        document.location.href = url;
+    }
+    $('#supprimer').on('click', function () {
+        Swal.fire({
+            title: 'Etes vous sûr?',
+            text: "De vouloir supprimer cette item!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, Supprime le!'
+        }).then((result) => {
+            if (result.value) {
+                supprimer(modele, the_url);
+                Swal.fire(
+                    'Supprimé!',
+
+                    'Votre Item est supprimé',
+                    'Avec Succes',
+                )
+            }
+        })
+    })
+</script>
+{% endif %}

@@ -1,0 +1,120 @@
+
+    {% for item in stakeholders %}
+    
+    
+            
+                {% if utilisateur in item.employes.all %}   
+                <ul class="breadcrumbs2 small">
+   
+                    <li>
+                        <a title="De {{ item.auteur }}: {{ item.comments }}" href="#" style="background: #9c28b1;hover: ba">Délégation</a>
+                    </li>
+            
+                </ul>                    
+            
+
+                    {% if item.transition.condition.designation == "Link" %}
+                        <!-- Si Link, On rédige vers le lien rattaché   
+                        <script>
+                            window.location.assign("{{ item.transition.condition.url }}")
+                        </script>
+                        -->
+
+                        <form method="POST" action="{% url item.transition.url %}"
+                        enctype="multipart/form-data" 
+                            data-role="validator">
+                            {% csrf_token %}                        
+                            <!-- Si Upload, On affiche le bouton  -->                                 
+                            <input type="hidden" name="etape_id" value="{{item.transition.etape_destination_id}}">
+                            <input type="hidden" name="doc_id" value="{{model.id}}">
+                            <input type="hidden" name="service_referent_id" value="{{ service_referent_id }}">
+                            {% for ligne in lignes %}
+                            <input type="hidden" name="quantite_fournie" value="{{ ligne.quantite_fournie }}">
+                            <input type="hidden" name="ligne_id" value="{{ ligne.id }}">
+                            {% endfor %}
+                            <!--button type="submit" class="button small-button rounded primary">{{item.transition.etape_destination.label}}</button--> 
+                            <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">{{item.transition.etape_destination.label}}</button>         
+                        </form>
+                        
+                    {% elif item.transition.condition.designation == "LinkParam" %}
+                        <!-- Si Link, On rédige vers le lien rattaché
+                        <script>
+                            window.location.assign("{{ item.transition.condition.url }}")
+                        </script>
+                        -->
+                        <form method="POST" action="{% url item.transition.url model.id %}"
+                        enctype="multipart/form-data" 
+                        data-role="validator">
+                            {% csrf_token %}                        
+                            <!-- Si Upload, On affiche le bouton  -->                                 
+                            <input type="hidden" name="etape_id" value="{{item.transition.etape_destination_id}}">
+                            <input type="hidden" name="doc_id" value="{{model.id}}">
+                            <input type="hidden" name="url_detail" value="{{ url_detail }}">
+                            <input type="hidden" name="url_add" value="{{ url_add }}">
+                            <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">{{item.transition.etape_destination.label}}</button>     
+                        </form>
+                    {% elif item.transition.condition.designation == "Transition" %}
+        
+                    {% else %}
+                        <form method="POST" action="{% url 'backoffice_workflow_post' %}"
+                        enctype="multipart/form-data" 
+                            data-role="validator">
+                            {% csrf_token %}                        
+                
+                                {% if item.transition.condition.designation == "Upload" %} 
+                                        <!-- Si Upload, On affiche le bouton  -->                                 
+                                        <input style="margin-bottom: 5px" type="file" name="file_upload" required="required" multiple>
+                                        <input type="hidden" name="etape_id" value="{{item.transition.etape_destination_id}}">
+                                        <input type="hidden" name="doc_id" value="{{model.id}}">
+                                        <input type="hidden" name="content_id" value="{{content_type_id}}">
+                                        <input type="hidden" name="url_detail" value="{{ url_detail }}">
+                                        <input type="hidden" name="url_add" value="{{ url_add }}">
+                                        <div>
+                                            <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">{{item.transition.etape_destination.label}}</button>
+                                        </div>
+                                    </form>
+                                {% elif item.transition.condition.designation == "Approval" %}
+                                    <!-- Si Approval, On affiche le bouton  --> 
+                                    <input type="hidden" name="etape_id" value="{{item.transition.etape_destination_id}}">
+                                    <input type="hidden" name="doc_id" value="{{model.id}}">
+                                    <input type="hidden" name="content_id" value="{{content_type_id}}">
+                                    <input type="hidden" name="url_detail" value="{{ url_detail }}">
+                                    <input type="hidden" name="url_add" value="{{ url_add }}">
+                                    <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">{{item.transition.etape_destination.label}}</button>
+                                
+                                {% else %}
+                                
+                                    <!-- Si Responsible, On affiche le bouton que pour le responsable du departement du demandeur -->                                
+                                    {% if model.demandeur.unite_fonctionnelle.responsable.id == utilisateur.id %}
+                                
+                                        <input type="hidden" name="etape_id" value="{{item.transition.etape_destination_id}}">
+                                        <input type="hidden" name="doc_id" value="{{model.id}}">
+                                        <input type="hidden" name="content_id" value="{{content_type_id}}">
+                                        <input type="hidden" name="url_detail" value="{{ url_detail }}">
+                                        <input type="hidden" name="url_add" value="{{ url_add }}">
+                                        <button type="submit" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click primary_color_{{ module.name|lower }}">{{item.transition.etape_destination.label}}</button> 
+                                        
+                                    {% endif %}
+                                {% endif %}
+                            </form>
+                
+                    {% endif %}
+            <br>
+            
+                    {% if item.transition.est_decisive %}
+                    <button type="button" onclick="launchDialog('#dialogAnnulerWKF', '{{item.transition.id}}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Annuler</button> 
+                    {% endif %}
+                    {% if item.transition.est_delegable %}
+                    <button type="button" onclick="launchDialog('#dialogDeleguerWKF', '{{item.transition.id}}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Déléguer</button> 
+                    {% endif %}
+                    {% if item.transition.est_configurable %}
+                    <button type="button" onclick="launchDialog('#dialogConfigurerWKF', '{{item.id}}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Configurer</button> 
+                    {% endif %}
+
+                {% endif %}            
+            
+            
+            
+    {% endfor %}
+
+                

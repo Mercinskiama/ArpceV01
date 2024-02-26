@@ -1,0 +1,158 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Date :<br>
+                        <span class="sub-alt-header">{{model.date|date:"d/m/Y H:i"}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Type mouvement :<br>
+                        {% if model.type is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.type }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Article :<br>
+                        {% if model.article is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.article }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Emplacement :<br>
+                        {% if model.emplacement is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.emplacement }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Réception :<br>
+                        {% if model.reception is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.reception }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Transfert :<br>
+                        {% if model.transfert is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.transfert }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Sortie :<br>
+                        {% if model.sortie is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.sortie }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Retour :<br>
+                        {% if model.retour is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.retour }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Inventaire :<br>
+                        {% if model.ajustement is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.ajustement }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Rebut :<br>
+                        {% if model.rebut is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.rebut }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Quantité Initiale :<br>
+                        <span class="sub-alt-header">{{model.quantite_initiale|monetary}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Unité de mesure initiale :<br>
+                        {% if model.unite_initiale is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.unite_initiale }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Quantité finale :<br>
+                        <span class="sub-alt-header">{{model.quantite|monetary}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Société :<br>
+                        {% if model.societe is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.societe }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Unité de mesure finale :<br>
+                        {% if model.unite is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.unite }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <label class="input-control checkbox small-check full-size">
+                        <input name="est_rebut" id="est_rebut"  {% if model.est_rebut is True %}{{ "checked" }}{% endif %} type="checkbox" disabled="disabled">
+                        <span class="check"></span>
+                        <span class="caption">Est rebut</span>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <label>Numéros de serie :</label><br>
+                        {% for item in model.series.all %}
+                            <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                        {% endfor %}                     
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

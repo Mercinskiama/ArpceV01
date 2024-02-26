@@ -1,0 +1,26 @@
+{% load static %}
+
+{% regroup sous_modules by groupe_menu as menu_list %}
+{% for menu in menu_list %}
+    {% if  menu.grouper != None %}
+        <li class="li-menu">
+            <a href="#" class="a-menu">
+                <img src="/static/ErpProject/image/icones/new/{{ menu.grouper.icon_menu}}" style="margin-right: 10px;width: 23px;">
+                {{  menu.grouper.designation }}
+                <span class="fa fa arrow"></span></a>
+            <ul class="nav nav-second-level">
+                {% for sous_module in  menu.list %}
+                    <li class="{% if menu == 10 %}{{ 'active' }}{% endif %} chargement-au-click">
+                        <a href="{% url sous_module.url_vers %}" class="a-menu">{{ sous_module.nom_sous_module }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% else %}
+        {% for sous_module in  menu.list %}
+            <li class="li-menu {% if menu == 0 %}{{ 'active' }}{% endif %} chargement-au-click">
+                <a href="{% url sous_module.url_vers %}" class="a-menu"><img src="/static/ErpProject/image/icones/new/{{sous_module.icon_menu}}" style="margin-right: 10px;width:22px;">{{ sous_module.nom_sous_module }}</a>
+            </li>
+        {% endfor %}
+    {% endif %}
+{% endfor %}

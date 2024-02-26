@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <g id="Groupe_2" data-name="Groupe 2" transform="translate(-464 41)">
+    <path id="路径" d="M0,28V9A5,5,0,0,1,5,4H8l4-4H24l4,4h3a5,5,0,0,1,5,5V31a5,5,0,0,1-5,5H4" transform="translate(466 -39)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <circle id="椭圆形" cx="5" cy="5" r="5" transform="translate(479 -23)" fill="none" stroke="#fff" stroke-miterlimit="10" stroke-width="4"/>
+    <circle id="椭圆形-2" data-name="椭圆形" cx="2" cy="2" r="2" transform="translate(492 -29)" fill="#fff"/>
+  </g>
+</svg>

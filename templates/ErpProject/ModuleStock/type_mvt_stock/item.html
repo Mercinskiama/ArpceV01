@@ -1,0 +1,107 @@
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<style type="text/css">
+    .kanban_image {
+        width: 70px;
+        height: 70px;
+        display: inline-block;
+        position: relative;
+        text-align: center;
+        background-size: contain;
+    }
+    .kanban_image[data-mimetype='application/pdf'] {
+        background-image: url({% static 'ErpProject/image/mimetypes/pdf.svg' %});
+    }
+</style>
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_list_type_mvt_stock' %}">Liste des Types de mouvement stock</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        
+        <!-- GESTION DU WORKFLOW -->
+        {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_stock_add_type_mvt_stock" url_detail="module_stock_detail_type_mvt_stock" csrf_token=csrf_token module=module type_doc="Type de mouvement stock" only %}
+        <!--FIN GESTION DU WORKFLOW--> 
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    {% if user_actions.can_update is True %}<button onclick="javascript:window.location.assign('{% url 'module_stock_update_type_mvt_stock' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Modifier</button>{% endif %}
+                    {% if user_actions.can_create is True %}<button onclick="javascript:window.location.assign('{% url 'module_stock_duplicate_type_mvt_stock' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded chargement-au-click">Dupliquer</button>{% endif %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_print_type_mvt_stock' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded success chargement-au-click">Imprimer</button>
+                    {% if user_actions.can_delete is True %}<button id="supprimer" class="validate-btn theme-btn theme-btn-sm rounded danger chargement-au-click">Supprimer</button>{% endif %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_list_type_mvt_stock' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>Designation :<br>
+                            <span class="sub-alt-header">{{ model.designation }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Société :<br>
+                            {% if model.societe is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% else %}
+                            <span class="sub-alt-header"><a class="link chargement-au-click" href="{% url 'module_configuration_detail_societe' model.societe_id %}">{{ model.societe }}</a></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="frame_documents">
+                            <div class="row margin20 no-margin-left no-margin-right">
+                                {% for item in documents %}
+                                <div class="col-md-4">
+                                    <div class="card-item" style="margin-top: 10px; margin-bottom: 15px">
+                                        <div class="card-item-content" style="margin: 10px">
+                                            <div class="thumb kanban_image" data-mimetype="application/pdf">
+                                            </div>
+                                            <div class="texts">
+                                                <div class="texts-record_selector">
+                                                    <a class="link chargement-au-click" href="{% if item.fichier %}{% static item.fichier.url %}{% else %}{% url 'module_archivage_detail_document' item.id %}{% endif %}" style="float: left;">{{ item.designation }}</a>
+                                                </div>
+                                                <br>
+                                                <div class="mt-2"></div>
+                                                <span class="inner-text">{{ item.dossier.designation }}</span><br>
+                                                <div class="texts-favorite">
+                                                    <span class="inner-text" style="float: left;">{{ item.creation_date|date:'d/m/Y' }}</span>
+                                                </div>
+                                                <br>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //-------  Deux variables pour la suppression  ---------------
+    var modele = "Model_Type_mvt_stock"
+    var the_url = "module_stock_list_type_mvt_stock"
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/item_view.html' %}
+{% endblock %}

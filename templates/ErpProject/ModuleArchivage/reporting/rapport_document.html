@@ -1,0 +1,73 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <p>
+                    Période :<br>
+                    <span class="sub-header">Du {{ date_debut }} au {{ date_fin }} </span>
+                    <br>
+                    <br>
+                </p>
+            </div>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#f1f1f1">
+                    <th>Désignation</th>
+                    <th>Type</th>
+                    <th>Taille de Fichier</th>
+                    <th>Type Mime</th>
+                    <th>Mime</th>
+                    <th>Dossier</th>
+                    <th>Modèle Ressource</th>
+                    <th>Champs Ressource</th>
+                    <th>Id Ressource</th>
+                    <th>Est public</th>
+                    <th>Est archivé</th>
+                    <th>Est bloqué </th>
+                    <th>Bloqué par</th>
+                    <th>Token accès</th>
+                    <th>URL</th>
+                    <th>Description</th>
+                    <th>Contenu indexé</th>
+                    <th>Date de création</th>
+                    <th>Créé par</th>
+                </tr>
+                {% for item in model %}
+                <tr>
+                    <td>{{item.designation|truncatechars:22}}</td>
+                    <td>{{ item.value_type }}</td>
+                    <td>{{item.taille}}</td>
+                    <td>{{ item.value_type_mime }}</td>
+                    <td>{{item.mime|truncatechars:22}}</td>
+                    <td>{{item.dossier}}</td>
+                    <td>{{item.res_model}}</td>
+                    <td>{{item.res_field|truncatechars:22}}</td>
+                    <td>{{item.res_id}}</td>
+                    <td>{{item.est_public|boolean}}</td>
+                    <td>{{item.est_archive|boolean}}</td>
+                    <td>{{item.est_bloque|boolean}}</td>
+                    <td>{{item.auteur_blocage}}</td>
+                    <td>{{item.access_token|truncatechars:22}}</td>
+                    <td>{{item.url|truncatechars:22}}</td>
+                    <td>{{item.description|truncatechars:22}}</td>
+                    <td>{{item.indexation|truncatechars:22}}</td>
+                    <td>{{item.creation_date|date:'d/m/Y'}}</td>
+                    <td>{{item.auteur.nom_complet}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </body>
+</html>

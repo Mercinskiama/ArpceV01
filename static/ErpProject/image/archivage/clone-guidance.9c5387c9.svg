@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 223.4495 149.2298">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#linear-gradient);
+      }
+
+      .cls-2 {
+        fill: #0065ff;
+      }
+
+      .cls-3 {
+        fill: #73a7f6;
+      }
+
+      .cls-4 {
+        fill: #e5e8ec;
+      }
+
+      .cls-5 {
+        fill: url(#linear-gradient-2);
+      }
+
+      .cls-6 {
+        fill: #1db9d4;
+      }
+    </style>
+    <linearGradient id="linear-gradient" x1="8.1077" y1="157.3342" x2="161.7293" y2="3.7126" gradientUnits="userSpaceOnUse">
+      <stop offset="0.1429" stop-color="#3dc7dc"/>
+      <stop offset="0.3007" stop-color="#42c8dd"/>
+      <stop offset="0.487" stop-color="#50cde0"/>
+      <stop offset="0.6876" stop-color="#68d4e4"/>
+      <stop offset="0.897" stop-color="#89ddea"/>
+      <stop offset="1" stop-color="#9ce3ee"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-2" x1="0" y1="95.0816" x2="223.4495" y2="95.0816" xlink:href="#linear-gradient"/>
+  </defs>
+  <title>Folder with Files</title>
+  <g id="Layer_2" data-name="Layer 2">
+    <g id="Objects">
+      <path id="_Path_" data-name="&lt;Path&gt;" class="cls-1" d="M171.0987,15.8382H74.3565C55.2767,15.8382,60.62,0,41.7514,0H6.6574A6.6542,6.6542,0,0,0,.0032,6.6542V149.23h177.75V22.4924A6.6541,6.6541,0,0,0,171.0987,15.8382Z"/>
+      <polygon class="cls-2" points="177.753 149.226 0.605 149.226 11.482 21.365 188.631 21.365 177.753 149.226"/>
+      <polygon class="cls-3" points="201.896 28.117 177.753 149.226 0.605 149.226 24.748 28.117 201.896 28.117"/>
+      <polygon class="cls-4" points="177.753 149.226 0.605 149.226 38.013 34.868 215.161 34.868 177.753 149.226"/>
+      <path id="_Path_2" data-name="&lt;Path&gt;" class="cls-5" d="M177.75,149.2259H0L47.0109,43.7615a4.7638,4.7638,0,0,1,4.3511-2.8243H218.68a4.7638,4.7638,0,0,1,4.3511,6.7034Z"/>
+      <polygon class="cls-6" points="40.179 59.088 39.367 60.91 217.117 60.91 217.929 59.088 40.179 59.088"/>
+      <polygon class="cls-6" points="211.778 72.886 212.59 71.064 34.841 71.064 34.029 72.886 211.778 72.886"/>
+    </g>
+  </g>
+</svg>

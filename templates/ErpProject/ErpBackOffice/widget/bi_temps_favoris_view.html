@@ -1,0 +1,56 @@
+{% load static %}
+
+<!-- Button dropdown Temps-->
+<button class="theme-btn-dropdown dropdown theme-btn theme-btn-sm rounded chargement-au-click" >
+<a class="dropdown-toggle" style="text-decoration: none!important;" data-toggle="dropdown" href="#">
+    <i class="far fa-calendar-alt"></i> Plages de temps <i class="fa fa-caret-down"></i>
+</a>
+<ul id="dropdown-temps" class="dropdown-menu dropdown-user o_dropdown_menu">
+    <li class="col-md-12">
+        <label>Basé sur :</label>
+        <div class="input-control text full-size">
+            <select name="item_plage" id="item_plage">
+                <option value="">Sélectionnez un champ</option>
+                {% for name, db_name, verbose_name in champs_date %}
+                <option value="{{db_name}}">{{verbose_name}}</option>
+                {% endfor %}
+            </select>
+        </div> 
+    </li>
+    <li class="col-md-12">
+        <label>Plage :</label>
+        <div class="input-control text full-size">
+            <select id="operateur_plage" name="operateur_plage">
+                <option value="last_7days">Les 7 derniers jours</option>
+                <option value="last_30days">Les 30 derniers jours</option>
+                <option value="last_365days">Dernier 365 jours</option>
+                <option value="today">Aujourd'hui</option>
+                <option value="this_week">Cette semaine</option>
+                <option value="this_month">Ce mois</option>
+                <option value="this_quarter">Ce trimestre</option>
+                <option value="this_year">Cette année</option>
+                <option value="yesterday">Hier</option>
+                <option value="last_week">La semaine dernière</option>
+                <option value="last_month">Le mois dernier</option>
+                <option value="last_quarter">dernier trimestre </option>
+                <option value="last_year">L'année dernière</option>
+            </select>
+        </div> 
+    </li>
+    <li class="divider"></li>
+    <li class="col-md-12">
+        <div id="btnAjouterTemps" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Appliquer</div> 
+    </li>
+</ul>
+</button>
+<!-- Button dropdown Favoris -->
+<button id="btn-favoris" class="theme-btn-dropdown dropdown theme-btn theme-btn-sm rounded chargement-au-click" >
+<a class="dropdown-toggle" style="text-decoration: none!important;" data-toggle="dropdown" href="#">
+    <i class="fa fa-star"></i> Favoris <i class="fa fa-caret-down"></i>
+</a>
+<ul id="dropdown-favoris" class="dropdown-menu dropdown-user o_dropdown_menu">
+    <li id="li-favoris"><a href="#" id="toggle-favoris" class="dropdown-item li-toggle" data-selected="false" data-show="false">Sauver la recherche en cours <i class="fa fa-caret-right" style="margin-left: 3px;"></i></a></li>
+    <div id="favoris-perso" class="div-toggle">
+    </div>
+</ul>
+</button>

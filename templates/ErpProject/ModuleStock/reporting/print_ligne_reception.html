@@ -1,0 +1,105 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Opération stock :<br>
+                        {% if model.bon_reception is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.bon_reception }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Article :<br>
+                        {% if model.article is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.article }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Société :<br>
+                        {% if model.societe is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.societe }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Quantité demandée :<br>
+                        <span class="sub-alt-header">{{model.quantite_demandee|monetary}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Quantité réalisée :<br>
+                        <span class="sub-alt-header">{{model.quantite_fait|monetary}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Quantité restante :<br>
+                        <span class="sub-alt-header">{{model.quantite_reste|monetary}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Prix Unitaire :<br>
+                        <span class="sub-alt-header">{{model.prix_unitaire|monetary}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Unité de mesure :<br>
+                        {% if model.unite is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.unite }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Devise :<br>
+                        {% if model.devise is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.devise }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Description :<br>
+                        <span class="sub-alt-header">{{ model.description }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <label class="input-control checkbox small-check full-size">
+                        <input name="fait" id="fait"  {% if model.fait is True %}{{ "checked" }}{% endif %} type="checkbox" disabled="disabled">
+                        <span class="check"></span>
+                        <span class="caption">Est réalisé</span>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <label>Numéros de serie :</label><br>
+                        {% for item in model.series.all %}
+                            <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                        {% endfor %}                     
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

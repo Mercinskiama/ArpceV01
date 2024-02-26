@@ -1,0 +1,108 @@
+{% extends "ErpProject/ModuleConversation/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_conversation_index' %}">Module Message</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_conversation_list_message' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Modifier Message</h2>
+        <strong class="hidden-xs" style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary_color_{{module.name|lower}}">
+                        Valider
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_conversation_list_message' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_conversation_list_message' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+            <form id="form" method="POST" action="{% url 'module_conversation_post_update_message' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                             <input name="ref" type="hidden" value="{{ model.id }}">
+                            <div class="row">
+                    
+                <div class="col-md-6">
+                            <label>Objet</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="objet" id="objet" type="text" data-validate-func="required" data-validate-hint="Entrez objet !" value = "{{model.objet}}">
+                            </div>
+                </div>
+            
+                <div class="col-md-6">
+                            <label>Corps</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="corps" id="corps" type="text" data-validate-func="required" data-validate-hint="Entrez corps !" value = "{{model.corps}}">
+                            </div>
+                </div>
+            
+                <div class="col-md-6">
+                            <label>Type</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="type" id="type" type="text" data-validate-func="required" data-validate-hint="Entrez type !" value = "{{model.type}}">
+                            </div>
+                </div>
+            
+                <div class="col-md-6">
+                            <label>Destinataire_id</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="destinataire_id" id="destinataire_id" type="text" data-validate-func="required" data-validate-hint="Entrez destinataire_id !" value = "{{model.destinataire_id}}">
+                            </div>
+                </div>
+            
+                <div class="col-md-6">
+                            <label>Expediteur_id</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="expediteur_id" id="expediteur_id" type="text" data-validate-func="required" data-validate-hint="Entrez expediteur_id !" value = "{{model.expediteur_id}}">
+                            </div>
+                </div>
+            
+                <div class="col-md-6">
+                            <label>Status</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="status" id="status" type="text" data-validate-func="required" data-validate-hint="Entrez status !" value = "{{model.status}}">
+                            </div>
+                </div>
+            
+                <div class="col-md-6">
+                            <label>Document_id</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="document_id" id="document_id" type="text" data-validate-func="required" data-validate-hint="Entrez document_id !" value = "{{model.document_id}}">
+                            </div>
+                </div>
+            
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+    
+{% endblock %}

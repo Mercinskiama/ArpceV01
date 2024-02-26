@@ -1,0 +1,12 @@
+{% load i18n static %}<!DOCTYPE html>
+<html>
+  <head><title>{% trans 'Popup closing...' %}</title></head>
+  <body>
+    <script src="{% static 'ErpProject/js/jquery-2.1.3.min.js' %}"></script>
+    <script type="text/javascript"
+            id="django-admin-popup-response-constants"
+            src="{% static "ErpProject/js/popup_response.js" %}"
+            data-popup-response="{{ popup_response_data }}">
+    </script>
+  </body>
+</html>

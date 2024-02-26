@@ -1,0 +1,178 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}{% load static %}
+<div class="row">
+    <div class="col-xs-12">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_modules' %}">Module Configuration</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_modules' %}">Liste des modules</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Ajouter un module</h2>
+        <strong class="hidden-xs" style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 15%;">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_list_modules' %}')"  class="theme-btn theme-btn-sm rounded" style="width: 15%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+
+                <div class="row" style="margin-top: 10px">
+                    <div class="col-md-12">
+                        <form id="form" method="POST" action="{% url 'module_configuration_post_add_module' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Nom module</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="nom_module" type="text" placeholder="Ex.: Test" data-validate-func="required" data-validate-hint="Entrez la désignation de ce nouveau rôle svp !">
+                                        <span class="input-state-error mif-warning"></span>
+                                        <span class="input-state-success mif-checkmark"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Description</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="description" type="text" placeholder="Ex.: Module de gestion des tests" data-validate-func="required" data-validate-hint="Entrez la désignation de ce nouveau rôle svp !">
+                                        <span class="input-state-error mif-warning"></span>
+                                        <span class="input-state-success mif-checkmark"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Url vers</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="url_vers" type="text" placeholder="Ex.: test/" data-validate-func="required" data-validate-hint="Entrez la désignation de ce nouveau rôle svp !">
+                                        <span class="input-state-error mif-warning"></span>
+                                        <span class="input-state-success mif-checkmark"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Numéro d'ordre</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="numero_ordre" type="text" placeholder="Ex.: 10"data-validate-func="required" data-validate-hint="Entrez la désignation de ce nouveau rôle svp !">
+                                        <span class="input-state-error mif-warning"></span>
+                                        <span class="input-state-success mif-checkmark"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Icône Module</label>
+                                    <div class="ui fluid search selection dropdown">
+                                        <input type="hidden" name="icon_module">
+                                        <i class="dropdown icon"></i>
+                                        <div class="default text">Sélectionnez l'Icône </div>
+                                        <div class="menu">
+                                            <div class="item" data-value="achats"><img src="{% static 'ErpProject/icons/' %}achats.png" alt="" style="height: 40px;width: 40px;" />achats.png</div>
+                                            <div class="item" data-value="clients"><img src="{% static 'ErpProject/icons/' %}clients.png" alt="" style="height: 40px;width: 40px;" />clients.png</div>
+                                            <div class="item" data-value="ventes"><img src="{% static 'ErpProject/icons/' %}ventes.png" alt="" style="height: 40px;width: 40px;" />ventes.png</div>
+                                            <div class="item" data-value="payroll"><img src="{% static 'ErpProject/icons/' %}payroll.png" alt="" style="height: 40px;width: 40px;" />payroll.png</div>
+                                            <div class="item" data-value="application"><img src="{% static 'ErpProject/icons/' %}application.png" alt="" style="height: 40px;width: 40px;" />application.png</div>
+                                            <div class="item" data-value="archivage"><img src="{% static 'ErpProject/icons/' %}archivage.png" alt="" style="height: 40px;width: 40px;" />archivage.png</div>
+                                            <div class="item" data-value="ressourceshumaines"><img src="{% static 'ErpProject/icons/' %}ressourceshumaines.png" alt="" style="height: 40px;width: 40px;" />ressourceshumaines.png</div>
+                                            <div class="item" data-value="comptabilite"><img src="{% static 'ErpProject/icons/' %}comptabilite.png" alt="" style="height: 40px;width: 40px;" />comptabilite.png</div>
+                                            <div class="item" data-value="configuration"><img src="{% static 'ErpProject/icons/' %}configuration.png" alt="" style="height: 40px;width: 40px;" />configuration.png</div>
+                                            <div class="item" data-value="calendrier"><img src="{% static 'ErpProject/icons/' %}calendrier.png" alt="" style="height: 40px;width: 40px;" />calendrier.png</div>
+                                            <div class="item" data-value="inventaire"><img src="{% static 'ErpProject/icons/' %}inventaire.png" alt="" style="height: 40px;width: 40px;" />inventaire.png</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Couleur</label>
+                                    <div class="ui fluid search selection dropdown">
+                                        <input type="hidden" name="couleur">
+                                        <i class="dropdown icon"></i>
+                                        <div class="default text">Sélectionnez une couleur</div>
+                                        <div class="menu">
+                                            <div class="item" data-value="Orange"><i class="fas fa-square" style="font-size: 30px;color: rgba(214, 79, 13, 1);margin-right: 5px;"></i>Orange</div>
+                                            <div class="item" data-value="Bleu foncé"><i class="fas fa-square" style="font-size: 30px;color: rgba(33, 108, 168, 1);margin-right: 5px;"></i>Bleu foncé</div>
+                                            <div class="item" data-value="Bleu ciel"><i class="fas fa-square" style="font-size: 30px;color: rgba(106, 121, 227, 1);margin-right: 5px;"></i>Bleu ciel</div>
+                                            <div class="item" data-value="Pourpre"><i class="fas fa-square" style="font-size: 30px;color: rgba(153, 27, 88, 1);margin-right: 5px;"></i>Pourpre</div>
+                                            <div class="item" data-value="Vert"><i class="fas fa-square" style="font-size: 30px;color: rgba(27, 124, 79, 0.8);margin-right: 5px;"></i>Vert</div>
+                                            <div class="item" data-value="Magenta"><i class="fas fa-square" style="font-size: 30px;color: rgba(89, 15, 92, 0.7);margin-right: 5px;"></i>Magenta foncé</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <br><label>Choisissez le modèle de page d'accueil</label>
+                                    <div class="row">
+                                        <label class="input-control radio small-check">
+                                            <input value="1" name="model_dashboard" checked type="radio">
+                                            <span class="check"></span>
+                                            <span class="caption">Template 1</span>
+                                        </label><br>
+                                        <label class="input-control radio small-check" style="/*margin-left: 15px*/">
+                                            <input value="2" name="model_dashboard" type="radio">
+                                            <span class="check"></span>
+                                            <span class="caption">Template 2</span>
+                                        </label><br>
+                                        <label class="input-control radio small-check" style="/*margin-left: 15px*/">
+                                            <input value="3" name="model_dashboard" type="radio">
+                                            <span class="check"></span>
+                                            <span class="caption">Template 3</span>
+                                        </label><br>
+                                    </div>
+                                    <div class="row">
+                                        <img id="img_temp1" src="{% static 'ErpProject/image/img_temp1.png' %}" style="height: 150px; width: 150px;">
+                                        <img id="img_temp2" src="{% static 'ErpProject/image/img_temp2.png' %}" style="height: 150px; width: 150px;">
+                                        <img id="img_temp3" src="{% static 'ErpProject/image/img_temp3.png' %}" style="height: 150px; width: 150px;">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="input-control checkbox small-check full-size">
+                                        <input name="est_installe" id="est_installe" type="checkbox">
+                                        <span class="check"></span><span class="caption">Installer le module ?</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function(){
+        $("#img_temp1").show();
+        $("#img_temp2").hide();
+        $("#img_temp3").hide();
+
+        $("input[name='model_dashboard']").change(function(){
+            if($(this).val() == '1') {
+                $("#img_temp1").show();
+                $("#img_temp2").hide();
+                $("#img_temp3").hide();
+                console.log('click 1');
+            } else if ($(this).val() == '2') {
+                $("#img_temp1").hide();
+                $("#img_temp2").show();
+                $("#img_temp3").hide();
+                console.log('click 2');
+            }
+            else if ($(this).val() == '3') {
+                $("#img_temp1").hide();
+                $("#img_temp2").hide();
+                $("#img_temp3").show();
+                console.log('click 3');
+            }
+        });
+    });
+</script>
+
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

@@ -1,0 +1,275 @@
+
+{% extends "ErpProject/ModuleSupport/shared/layout.html" %}
+{% block page %}{% load static %}{% load account_filters %}
+
+<style type="text/css">
+body {background-color: grey!important;}
+.btSh{border-radius: 0px;margin-right: 10px;margin-bottom: 0px;margin-bottom: 3%;}
+.f{margin:2%;}
+.block_f{margin-left: 0%;}
+.fond{background-color: rgba(240, 240, 240, 0.3);border-radius: 50px;height: 50px;width: 50px;opacity:3.5;float: right;display: flex;justify-content: center;align-items: center;}
+</style>
+
+<!-- Design Admin -->
+<div id="vue_Admin" class="row" style="padding-top:30px;">
+    <div class="col-lg-12">
+    <h2>{{title}}</h2>
+    <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+    <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+            <!-- Appel de la fonction message -->
+            {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+
+            <!--Notification-->
+            <div class="panel" style="background-color:#f5f5f5;border: none;"></div>
+            {% if temp_notif_count > 0 %}
+            <div class="col-md-12" style="padding: 10px;">
+                {% for item in temp_notif_list %}
+                <div class="col-md-4" style="padding: 10px;">
+                    <div style="">
+                        <div class="mb-4 ">
+                            <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                                <div style="width: 100%;background-color: white;/*padding: 10px;">
+                                    <div style="padding: 10px;">
+                                        <strong class="sub-header"
+                                            style="margin: 10px;font-weight: 900;">Notification</strong>
+                                        <small style="margin-right:50">{{item.notification.created_at}}</small>
+                                        <button
+                                            onclick="javascript:window.location.assign('{% url 'back_office_notification' item.id %}')"
+                                            type="button" class="ml-2 mb-1 close" data-dismiss="toast"
+                                            aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="separ"
+                                        style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;">
+                                    </div>
+
+                                </div>
+                                <div class="pt-4"
+                                    style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                    <p>
+                                        {{item.notification.text}}<br>
+                                    </p>
+                                </div>
+                                <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>
+
+                                <div style="padding: 15px;padding-top: 0px;">
+                                    {% if item.type_action == "Link" %}
+                                    <button class="btn rounded primary_color_{{module.name|lower}}"
+                                        onclick="javascript:window.location.assign('{% url item.lien_action item.source_identifiant %}')">Vérifier</button>
+                                    {% endif %}
+                                </div>
+                                <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        <!--END Notification-->
+        <div class="Menu_Inventaire">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="panel panel-success" style="border-radius: 0px;border-bottom: none;background-color:#FF6A22;">
+                        <div class="panel-heading" style="background-color: transparent;color: white;">
+                            <div class="row">
+                                <div class="col-xs-7 text-left">
+                                    <div class="header_vente_stat" style="">Élément 1</div>
+                                    <p style="font-weight: 800;font-size: 22px;font-family: 'Poppins Bold'">15</p>
+                                </div>
+                                <div class="col-xs-3 text-right fond">
+                                    <span class="mif-stack" style="float: left;font-size:25px"></span>
+                                </div>
+                                <div>
+                                    <p style="float: left;font-size:80%;color:#fff;">Éléments nouvellement inscrits ou sympatisant</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="panel panel-success p2" style="border-radius: 0px;border-bottom: none;">
+                        <div class="panel-heading" style="background-color: transparent;color: white;">
+                            <div class="row">
+                                <div class="col-md-7 text-left">
+                                    <div class="header_vente_stat" style="">Élément 2</div>
+                                    <p style="font-weight: 800;font-size: 22px;font-family: 'Poppins Bold'">8</p>
+                                </div>
+                                <div class="col-md-3 text-right fond">
+                                    <span class="mif-calendar" style="float: left;font-size:25px"></span>
+                                </div>
+                                <div>
+                                    <p style="float: left;font-size:80%;color:#fff;">Nombre de éléments actifs au sein du groupe</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="panel panel-success p3" style="border-radius: 0px;border-bottom: none;">
+                        <div class="panel-heading" style="background-color: transparent;color: white;">
+                            <div class="row">
+                                <div class="col-xs-7 text-left">
+                                    <div class="header_vente_stat" style="">Élément 3</div>
+                                    <p style="font-weight: 800;font-size: 22px;font-family: 'Poppins Bold'">10</p>
+                                </div>
+                                <div class="col-xs-3 text-right fond">
+                                    <span class="mif-exit" style="float: left;font-size:25px"></span>
+                                </div>
+                                <div>
+                                    <p style="float: left;font-size:80%;color:#fff;">Nombre total d'Éléments officiels du groupe</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="panel panel-success p4" style="border-radius: 0px;border-bottom: none;">
+                        <div class="panel-heading" style="background-color: transparent;color: white;">
+                            <div class="row">
+                                <div class="col-xs-7 text-left">
+                                    <div class="header_vente_stat" style="">Élément 4</div>
+                                    <p style="font-weight: 800;font-size: 22px;font-family: 'Poppins Bold'">5</p>
+                                </div>
+                                <div class="col-xs-3 text-right fond">
+                                    <span class="mif-database" style="font-size:25px"></span>
+                                </div>
+                                <div>
+                                    <p style="float: left;font-size:80%;color:#fff;">Le nombre total de cellules officielles du parti</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-4">
+                        <!-- Card Body -->
+                        <div class="card-body" style="padding: 0;">
+                        <div class="chart-area item-dash" style="padding: 15px;background-color: white;">
+                            <center> <p>Evolution des éléments par province</p></center>
+                            <canvas id="bar-chart" width="400" height="100"></canvas>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div><br>
+
+            <div class="row">
+                <div class="col-md-4" style="padding: 10px;">
+                    <div class="mb-4">
+                        <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                            <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                <div style="padding: 10px;"> 
+                                    <strong class="sub-header" style="margin: 10px;font-weight: 900;">Indicateur 1</strong>
+                                </div>
+                                <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>  
+                            </div>
+                            <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                <h3 style="color: gray;font-weight: bold;">100 USD</h3>
+                                <div class="" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                    <span class="fg-red"><i class="fa fa-arrow-down"></i> <i>En diminution</i></span>
+                                    <span class="fg-green" style="margin-left:20px"><i class="fa fa-arrow-up"></i> <i>En hausse</i></span>
+                                </div>
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>                              
+                            <div style="padding: 15px;padding-top: 0px;"     >
+                                <button  onclick="javascript:window.location.assign('')" class="btn rounded primary_color_{{module.name|lower}}">Voir plus</button>
+                                <button  onclick="javascript:window.location.assign('')" class="button rounded btn btn-default ">Annuler</button>
+                            </div>
+                            <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4" style="padding: 10px;">
+                    <div class="mb-4 ">
+                        <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                            <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                <div style="padding: 10px;"> 
+                                    <strong class="sub-header" style="margin: 10px;font-weight: 900;">Indicateur 2</strong>
+                                </div>
+                                <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>                                   
+                            </div>
+                            <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                <h3 style="color: gray;font-weight: bold;">550 USD</h3>  
+                                <div class="" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                    <span class="fg-red"><i class="fa fa-arrow-down"></i> <i>En diminution</i></span>
+                                    <span class="fg-green" style="margin-left:20px"><i class="fa fa-arrow-up"></i> <i>En hausse</i></span>
+                                </div>
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>                              
+                            <div style="padding: 15px;padding-top: 0px;"     >
+                                <button  class="btn rounded primary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('')">Voir plus</button>
+                                <button  class="button rounded btn btn-default" onclick="javascript:window.location.assign('')">Annuler</button>
+                            </div>
+                            <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>                                        
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4" style="padding: 10px;">
+                    <div class="mb-4 ">
+                        <div class="card-body shadow" style="padding: 0px;background-color: white;">
+                            <div  style="width: 100%;background-color: white;/*padding: 10px;">
+                                <div style="padding: 10px;"> 
+                                    <strong class="sub-header" style="margin: 10px;font-weight: 900;">Indicateur 3</strong>
+                                </div>
+                                <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>             
+                            </div>
+                            <div class="pt-4" style="padding: 15px;background-color: white;padding-top: 0px;padding-bottom: 0px;">
+                                <h3 style="color: gray;font-weight: bold;">200 USD</h3>   
+                                <div class="" style="margin:2% 0 2% 0;font-style:normal;font-size:85%;">
+                                    <span class="fg-red"><i class="fa fa-arrow-down"></i> <i>En diminution</i></span>
+                                    <span class="fg-green" style="margin-left:20px"><i class="fa fa-arrow-up"></i> <i>En hausse</i></span>
+                                </div>
+                            </div>
+                            <div class="separ" style="background-color: grey;opacity: 0.2;height: 1px;margin-bottom: 10px;"></div>                               
+                            <div style="padding: 15px;padding-top: 0px;">
+                                <button  onclick="javascript:window.location.assign('')" class="btn rounded primary_color_{{module.name|lower}}">Voir plus</button>
+                                <button  onclick="javascript:window.location.assign('')" class="button rounded btn btn-default ">Annuler</button>
+                            </div>
+                            <div class="primary_color_{{module.name|lower}}" style="height: 5px;"></div>     
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Design Admin -->
+
+<script src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+<script>
+    // Bar chart
+    new Chart(document.getElementById("bar-chart"), {
+        type: 'bar',
+        data: {
+        labels: ["Kinshasa", "Kongo Centrale", "Kwango", "Kwilu", "Lomami", "Lualaba", "Mai-Ndombe", "Maniema", "Mongala", "Nord-Kivu", "Nord-Ubangi", "Sankuru", "Sud-Kivu", "Sud-Ubangi", "Tanganyika", "Tshopo", "Tshuapa", "Kasaï oriental", "Kasaï central", "Kasaï", "Ituri", "Haut-Katanga", "Haut-Lomami", "Bas-Uele", "Haut-Uele", "Équateur"],
+        datasets: [
+            {
+            label: "Elément au niveau national",
+            backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850","#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850","#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850","#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850","#c45850","#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+            data: [2478,5267,734,784,433,2478,5267,734,784,433,2478,5267,734,784,433,2478,5267,734,784,433,433,2478,5267,734,784,433]
+            }
+        ]},
+        options: {
+            legend: { display: false },
+            title: {
+                display: true,
+                text: "Courbe d'évolution de nouveaux éléments en 2021"
+            },
+            font: {
+                family: 'Poppins'
+            }
+        }
+    });
+</script>
+{% endblock %}    
+    

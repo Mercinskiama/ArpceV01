@@ -1,0 +1,184 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+<div class="row">
+    <div class="col-xs-12">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_modules' %}">Module Configuration</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_modules' %}">Liste des modules</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Création d'une transition</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <div class="col-md-2">
+{% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit" class="button small-button rounded primary_color_{{module.name|lower}}" val="Valider"%}
+                    </div>
+                    <div class="col-md-2">
+                        <button style="width:100%;" onclick="javascript:window.location.assign('{% url 'module_configuration_list_workflow' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+
+                {% if messages %} 
+                    {% for message in messages %} 
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                            <div class="row" style="margin:10px 0">
+                                <div class="col-md-6 padding10 fg-white" style="background-color:#ff6a00;">
+                                    <div class="row" style="width: 32px;">
+                                        <span class="mif-info mif-2x"></span>
+                                    </div>
+                                    <div class="row" style="margin-left: 10px">
+                                        <span class="notify-title"><b>Information :</b></span><br>
+                                        <span class="notify-text">
+                                            {{ message }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %} 
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                            <div class="row" style="margin:10px 0">
+                                <div class="row cells12 padding10 fg-white" style="background-color:#36D900;">
+                                    <div class="cell colspan3" style="width: 32px;">
+                                        <span class="mif-info mif-2x"></span>
+                                    </div>
+                                    <div class="cell colspan9" style="margin-left: 10px">
+                                        <span class="notify-title"><b>Information :</b></span><br>
+                                        <span class="notify-text">
+                                            {{ message }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %} 
+                {% endif %}
+
+                <div class="row" style="margin-top: 10px">
+                    <div class="col-md-6">
+                        <form id="form" method="POST" action="{% url 'module_configuration_post_add_transition' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <input name="workflow_id" type="hidden" value="{{ workflow_id }}">
+                            <div class="row">
+                                <label>Etape source</label>
+                                <div class="input-control text full-size">
+                                    <select type="text" name="et_source_id"
+                                        data-validate-func="min" data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez l'étape source svp.">
+                                        <option value="">Sélectionnez une étape</option>
+                                        {% for item in etapes %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label>Etape destination</label>
+                                <div class="input-control text full-size">
+                                    <select type="text" name="et_destination_id" id="et_destination_id"
+                                        data-validate-func="min" data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez l'étape de destination svp.">
+                                        <option value="">Sélectionnez une étape</option>
+                                        {% for item in etapes %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label>Role utilisateur</label>
+                                <div class="input-control text full-size">
+                                    <select type="text" name="role_id" >
+                                        <option value="">Sélectionnez un role</option>
+                                        {% for item in roles %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <label>Unité fonctionnelle</label>
+                                <div class="input-control text full-size">
+                                    <select type="text" name="unite_fonctionnelle_id">
+                                        <option value="">Sélectionnez une unité fonctionnelle</option>
+                                        {% for item in unite_fonctionnelles %}
+                                            <option value="{{ item.id }}"> {{ item.libelle }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label>Condition</label>
+                                <div class="input-control text full-size">
+                                    <select type="text" name="condition_id"
+                                        data-validate-func="min" data-validate-arg="1"
+                                        data-validate-hint="Sélectionnez une condition svp.">
+                                        <option value="">Sélectionnez un code budgetaire</option>
+                                        {% for item in conditions %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <label>Url</label>
+                                <div class="input-control text full-size" data-role="input">
+                                    <input name="url" type="text" data-validate-func="required" data-validate-hint="Entrez l'url svp !">
+                                    <span class="input-state-error mif-warning"></span>
+                                    <span class="input-state-success mif-checkmark"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label>Traitement</label>
+                                <div class="input-control text full-size" data-role="input">
+                                    <input name="traitement" type="text">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label>N° ordre</label>
+                                <div class="input-control text full-size" data-role="input">
+                                    <input name="num_ordre" type="text">
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function change_presence(checkBox) {
+        var id_check = est_initiale.value;				
+        if(checkBox.checked == true) {
+            $("#est_initiale").val("2");
+        }else{
+            $("#est_initiale").val("1");
+        }
+    }
+</script>
+
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

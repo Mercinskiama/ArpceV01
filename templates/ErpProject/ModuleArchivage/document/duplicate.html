@@ -1,0 +1,212 @@
+
+{% extends "ErpProject/ModuleArchivage/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_index' %}">Module Archivage</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_list_document' %}">Liste des Documents</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_detail_document' model.id %}">{{ model }}</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_archivage_detail_document' model.id %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <form id="form" method="POST" action="{% url 'module_archivage_post_add_document' %}"  enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    <input type="text"  id="ref" name="ref" value ="{{ model.id }}" style="display: none">
+                    {% if isPopup %}<input id="isPopup" name="isPopup" value="1" type="text" style="display: none">{% endif %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Désignation</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.designation }}" name="designation" id="designation" type="text" data-validate-func="required" data-validate-hint="Saisissez le champ Désignation SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Type</label>
+                            <div class="input-control text full-size">                                
+                                <select name="type" id="type">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% for item in model.list_type %}<option {% if model.type == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item.designation }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Taille de Fichier</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input value="{{ model.taille }}" name="taille" id="taille" type="number" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Taille de Fichier SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Type Mime</label>
+                            <div class="input-control text full-size">                                
+                                <select name="type_mime" id="type_mime">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% for item in model.list_type_mime %}<option {% if model.type_mime == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item.designation }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Mime</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.mime }}" name="mime" id="mime" type="text" data-validate-func="required" data-validate-hint="Saisissez le champ Mime SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Dossier</label>
+                            <div class="input-control text full-size">                                
+                                <select name="dossier_id" id="dossier_id">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/archivage/dossier/add?isPopup=1">Créer nouveau...</option>
+                                    {% for item in dossiers %}<option {% if model.dossier_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Modèle Ressource</label>
+                            <div class="input-control text full-size">                                
+                                <select name="res_model_id" id="res_model_id">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/archivage/contenttype/add?isPopup=1">Créer nouveau...</option>
+                                    {% for item in contenttypes %}<option {% if model.res_model_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Champs Ressource</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.res_field }}" name="res_field" id="res_field" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Id Ressource</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input value="{{ model.res_id }}" name="res_id" id="res_id" type="number" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Id Ressource SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="input-control checkbox small-check full-size">
+                                <input name="est_public" id="est_public" {% if model.est_public == True %} {{ "checked" }} {% endif %} type="checkbox">
+                                <span class="check"></span><span class="caption">Est public</span>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="input-control checkbox small-check full-size">
+                                <input name="est_archive" id="est_archive" {% if model.est_archive == True %} {{ "checked" }} {% endif %} type="checkbox">
+                                <span class="check"></span><span class="caption">Est archivé</span>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="input-control checkbox small-check full-size">
+                                <input name="est_bloque" id="est_bloque" {% if model.est_bloque == True %} {{ "checked" }} {% endif %} type="checkbox">
+                                <span class="check"></span><span class="caption">Est bloqué </span>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Bloqué par</label>
+                            <div class="input-control text full-size">                                
+                                <select name="auteur_blocage_id" id="auteur_blocage_id">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/archivage/personne/add?isPopup=1">Créer nouveau...</option>
+                                    {% for item in personnes %}<option {% if model.auteur_blocage_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Token accès</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.access_token }}" name="access_token" id="access_token" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>URL</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.url }}" name="url" id="url" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Description</label>
+                            <div class="input-control text full-size">
+                                <textarea name="description" id="description" >{{ model.description }}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Contenu indexé</label>
+                            <div class="input-control text full-size">
+                                <textarea name="indexation" id="indexation" >{{ model.indexation }}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Fichier</label>
+                                {% if model.document %}                         
+                                <span style=" color: #000; font-size: 10px;">Actuellement: <a href="{% static model.document.url %}">{{model.document.name|truncatechars:45}}</a></span>                         
+                                {% else %}<span style=" color: #000; font-size: 10px;">Actuellement: Aucun document attaché</span>{% endif %}
+                            <div class="input-control file full-size" data-role="input">
+                                <input name="fichier" id="fichier" type="file"><button class="button"><span class="mif-folder"></span></button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Miniature</label>
+                                {% if model.document %}                         
+                                <span style=" color: #000; font-size: 10px;">Actuellement: <a href="{% static model.document.url %}">{{model.document.name|truncatechars:45}}</a></span>                         
+                                {% else %}<span style=" color: #000; font-size: 10px;">Actuellement: Aucun document attaché</span>{% endif %}
+                            <div class="input-control file full-size" data-role="input">
+                                <input name="miniature" id="miniature" type="file"><button class="button"><span class="mif-folder"></span></button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Etiquettes</label>
+                            <div class="text full-size">
+                                <select multiple="multiple" class="multi-select multi_select2" name="tags" id="tags">
+                                    {% for item in tags %}<option {% for object in model.tags.all %} {% if object.id == item.id %}{{ "selected" }}{% endif %}{% endfor %} value="{{ item.id }}">{{item}}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Favoris</label>
+                            <div class="text full-size">
+                                <select multiple="multiple" class="multi-select multi_select2" name="favoris" id="favoris">
+                                    {% for item in personnes %}<option {% for object in model.favoris.all %} {% if object.id == item.id %}{{ "selected" }}{% endif %}{% endfor %} value="{{ item.id }}">{{item}}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>     
+                    <br><br>
+                    <div class="row">
+                        <ul class="nav nav-tabs navtab-bg"> 
+                            <li class="active"><a href="#frame_autres" data-toggle="tab" aria-expanded="false"><span>Autres informations</span></a></li>
+                        </ul>
+                        <div class="tab-content"> 
+                            <div class="tab-pane active" id="frame_autres">
+                                <div class="row margin20 no-margin-left no-margin-right">                                
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+{% endblock %}

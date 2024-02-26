@@ -1,0 +1,132 @@
+{% load humanize %} {% load static %} {% load account_filters %}
+<style type="text/css">
+    .o_dropdown_menu {
+        min-width: 220px;
+        max-height: calc(100vh - 125px);
+        overflow: auto;
+    }
+</style>
+
+{% if view == "pivot" or view == "chart" %}
+<style>
+    @import url({% static 'ErpProject/pivottable/pivot.min.css' %});
+</style>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-9">
+        {% if view == "table" %}
+        <div class="view-table">                   
+            <!-- Button dropdown Exporter -->
+            <button class="theme-btn-dropdown dropdown theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" >
+                <a class="dropdown-toggle" style="color:#ffffff!important;text-decoration: none!important;" data-toggle="dropdown" href="#">
+                    Exporter <i class="fa fa-caret-down"></i>
+                </a>
+                <ul id="dropdown-exporter" class="dropdown-menu dropdown-user o_dropdown_menu">
+                    <li><a href="#" id="export_pdf" class="dropdown-item" data-type="pdf"> PDF </a></li>
+                    <li><a href="#" id="export_excel" class="dropdown-item" data-type="excel"> Excel </a></li>
+                    <li><a href="#" id="export_csv" class="dropdown-item" data-type="csv"> CSV </a></li>
+                    <li><a href="#" id="export_copy" data-clipboard-target="#default-table" class="dropdown-item" data-type="copy"> Copier </a></li>
+                </ul>
+            </button>
+            <!-- Button dropdown Champs à Afficher -->
+            <button class="theme-btn theme-btn-sm rounded" type="button" id="lancermodal_champs" data-toggle="modal" data-target="#modal_select_champs">Champs à afficher</button>
+        </div>
+        {% endif %}
+        {% if view == "chart" %}
+        <div class="view-graphique" style="">
+            <!-- Button dropdown Mesure -->
+            <button class="theme-btn-dropdown dropdown theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" >
+                <a class="dropdown-toggle" style="color:#ffffff!important;text-decoration: none!important;" data-toggle="dropdown" href="#">
+                    Mesure <i class="fa fa-caret-down"></i>
+                </a>
+                <ul id="dropdown-mesure" class="dropdown-menu o_dropdown_menu">
+                    {% for name, db_name, verbose_name in champs_nombre %}<li><a href="#" id="measure_{{db_name}}" class="dropdown-item measure" data-selected="false" data-title="{{verbose_name}}" data-name="{{db_name}}" data-id="input_measure_{{db_name}}"> {{verbose_name}} </a></li>{% endfor %}
+                    <li class="divider"></li>
+                    <li><a href="#" id="function_measure_count" class="dropdown-item function-measure" data-title="Nombre" data-name="COUNT" data-id="input_function_measure_count"> Nombre/Comptage </a></li>
+                    <li><a href="#" id="function_measure_aggr" class="dropdown-item function-measure" data-title="Aggregation" data-name="AGGR" data-id="input_function_measure_aggr"> Aggregation </a></li>
+                    <li><a href="#" id="function_measure_avg" class="dropdown-item function-measure" data-title="Moyenne" data-name="AVG" data-id="input_function_measure_avg"> Moyenne </a></li>
+                    <li><a href="#" id="function_measure_sum" class="dropdown-item function-measure" data-title="Total" data-name="SUM" data-id="input_function_measure_sum"> Somme </a></li>
+                </ul>
+            </button>
+            <!-- Button dropdown Dimension -->
+            <button class="theme-btn-dropdown dropdown theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" >
+                <a class="dropdown-toggle" style="color:#ffffff!important;text-decoration: none!important;" data-toggle="dropdown" href="#">
+                    Dimension <i class="fa fa-caret-down"></i>
+                </a>
+                <ul id="dropdown-dimension" class="dropdown-menu o_dropdown_menu">
+                    {% for name, db_name, verbose_name in champs_dimension %}<li><a href="#" id="dimension_{{db_name}}" class="dropdown-item" data-selected="false" data-title="{{verbose_name}}" data-name="{{db_name}}" data-id="input_dimension_{{db_name}}"> {{verbose_name}} </a></li>{% endfor %}
+                    <li class="divider"></li>
+                    <li id="li-dimension-perso"><a href="#" id="toggle-dimension-perso" class="dropdown-item li-toggle" data-selected="false" data-show="false">Plus de dimensions <i class="fa fa-caret-right" style="margin-left: 3px;"></i></a></li>
+                    <div id="dimension-perso" class="div-toggle">
+                </ul>
+            </button>
+                                            
+            <div id="select1" class="btn-group btn-group-toggle" data-toggle="buttons">
+                <button clicked="true" class="btn btn-default" onclick="showBarChart()" style="font-size: 15px!important;">
+                    <i class="fa fa-chart-bar" aria-hidden="true"></i>
+                </button>
+                <button class="btn btn-default" onclick="showPieChart()" style="font-size: 15px!important;">
+                    <i class="fa fa-chart-pie" aria-hidden="true"></i>
+                </button>
+
+                <button class="btn btn-default" onclick="showLineChart()" style="font-size: 15px!important;">
+                    <i class="fa fa-chart-area" aria-hidden="true"></i>
+                </button> 
+
+                <button class="btn btn-default" onclick="showMoreChart()" style="font-size: 15px!important;">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                </button> 
+            </div>
+        </div>
+        {% endif %}
+        {% if view == "card" %}
+        <div class="view-card" style="">
+            <!-- Button dropdown Fonction de traitement -->
+            <button class="theme-btn-dropdown dropdown theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" >
+                <a class="dropdown-toggle" style="color:#ffffff!important;text-decoration: none!important;" data-toggle="dropdown" href="#">
+                    Fonction de traitement <i class="fa fa-caret-down"></i>
+                </a>
+                <ul id="dropdown-fonction-card" class="dropdown-menu o_dropdown_menu">
+                    <li><a href="#" id="fonction_comptage" class="dropdown-item" data-title="Nombre" data-name="COUNT" data-id="input_function_card_count"> Comptage </a></li>
+                    <li><a href="#" id="fonction_somme" class="dropdown-item" data-title="Total" data-name="SUM" data-id="input_function_card_sum"> Somme </a></li>
+                    <li><a href="#" id="fonction_moyenne" class="dropdown-item" data-title="Moyenne" data-name="AVG" data-id="input_function_card_avg"> Moyenne </a></li>
+                </ul>
+            </button>
+            <!-- Button dropdown Champs card -->
+            <button class="theme-btn-dropdown dropdown theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click" >
+                <a class="dropdown-toggle" style="color:#ffffff!important;text-decoration: none!important;" data-toggle="dropdown" href="#">
+                    Champs <i class="fa fa-caret-down"></i>
+                </a>
+                <ul id="dropdown-champs-card" class="dropdown-menu o_dropdown_menu">
+                    {% for name, db_name, verbose_name in champs_nombre %}<li><a href="#" id="champs_{{db_name}}" class="dropdown-item" data-selected="false" data-title="{{verbose_name}}" data-name="{{db_name}}" data-id="input_card_{{db_name}}"> {{verbose_name}} </a></li>{% endfor %}
+                </ul>
+            </button>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-md-3">
+        <button class="theme-btn theme-btn-sm rounded" type="button" id="lancermodal_requete" data-toggle="modal" data-target="#modal_requete" style="display: block;">Resumé de la requête</button>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="dataTables_length">
+            <label>Nombre de résultats: <select id="nbre_item" name="nbre_item" class=""><option value="5">5</option><option value="10" selected="selected">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="200">200</option><option value="all">Tout</option></select> </label>
+            <div class="navigation_separator">|</div>
+            <!-- Button dropdown Champs card -->
+            <button class="theme-btn-dropdown dropdown theme-btn theme-btn-sm rounded chargement-au-click" >
+                <a class="dropdown-toggle" style="text-decoration: none!important;" data-toggle="dropdown" href="#">
+                    Par ordre de <i class="fa fa-caret-down"></i>
+                </a>
+                <ul id="dropdown-order-by" class="dropdown-menu o_dropdown_menu">
+                    {% for name, db_name, verbose_name, type, choices in champs %}<li><a href="#" id="order_by_{{db_name}}" class="dropdown-item {% if name == 'id' %}{{ "selected" }}{% else %}{{ "" }}{% endif %}" data-selected="{% if name == 'id' %}{{ "true" }}{% else %}{{ "false" }}{% endif %}" data-name="{{ db_name }}"> {{verbose_name}} </a></li>{% endfor %}
+                </ul>
+            </button>
+            <div class="navigation_separator">|</div>
+            <select id="order_sens" name="select_order_sens" class=""><option value="asc" selected="selected">ASC</option><option value="desc">DESC</option></select>
+        </div>
+    </div>
+</div>  

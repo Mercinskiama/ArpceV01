@@ -1,0 +1,136 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Article en Stock">
+        <meta name="author" content="MKman">
+    </head>
+    {% load account_filters %}{% load humanize %}
+    {% load inventaire_filter %}
+    {% load calculs %}
+    <body>
+        <div id="invoice">
+            <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+            <!-- <h2 class="align-center header">{{ title }}</h2> -->
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-12" style="text-align: right;">
+                    <h2><center><strong>{{title}}</strong></center></h2>
+                </div>
+                <div class="col-md-6">
+                    {% include 'ErpProject/ErpBackOffice/widget/organisation.html' %}
+                </div>
+                <div class="separ col-md-12" style="background-color: grey;opacity: 0.1;margin-bottom: 20px;"></div>
+            </div>
+            <br>
+            <table id="rapport" class="table bordered no-margin" style="width: 100%">
+                <tr style="background-color:#499672;color:#fff;font-weight:500">
+                    <td class="head">#</td>
+                    <td class="head">Article</td>
+                    <td class="head">Quantité</td>
+                    <td class="head">Unité de mesure</td>
+                    <td class="head">Lieu</td>
+                    <td class="head">Numéro de série</td>
+                    <td class="head">Valeur d'inventaire</td>
+                </tr>
+                {% for item in model %}
+                    {% if item.stockage != None %}
+                        <tr class="tr-toggle main" id="{{ item.article.id }}" style="background-color:#DCDDFB;font-weight:700!important;text-align:center;height: 30px;" data-toggle="collapse" data-target=".article{{ item.article.id }}" daria-expanded="false">
+                            <td class="td"><i class="fa fa-caret-right"></i></td>
+                            <td class="td">{{ item.article}}</td>
+                            <!-- <td ></td> -->
+                            <td class="td"> {% if emplacement == 0 %}{{ item.article.disponible | sep_float }}{% else %} {{item.qte | sep_float }} {% endif %} </td>
+                            <td class="td">{{ item.article.measure_unit }}</td>
+                            <td colspan="2" class="td"></td>
+                            <td class="td"> {% if emplacement == 0 %}{{ item.article.valeur_inventaire | sep_float }}{% else %}{{item.val_inventaire | sep_float}}{% endif %} </td>
+                        </tr>
+
+                        {% for item2 in item.stockage %}
+
+                            {% if item2.quantite != 0  %}
+                                <tr class="tr-toggle collapse article{{ item.article.id }}" style="background-color:#d8d6d6;font-weight:700!important;text-align:center;height: 25px;" data-toggle="collapse" data-target=".stockage{{ item2.id }}" daria-expanded="false">
+                                    <td class="td"><span style="margin-left: 10px;"><i class="fa fa-caret-right icon{{ item.article.id }}"></i></span></td>
+                                    <td class="td">{{item2.article}}</td>
+                                    <td class="td">{{ item2.quantite | sep_float }} </td>
+                                    <td class="td"></td>
+                                    <td class="td">{{item2.emplacement}}</td>
+                                    <td class="td"></td>
+                                    <td class="td">{% multiply item2.quantite item.article.amount %}</td>
+                                </tr>
+                                {% if item.article.checkAsset == True %}
+                                    {% for item3 in item2.series_emplacement %}
+                                        <tr class="collapse stockage{{ item2.id }} main{{ item.article.id }}" style="text-align:center;height: 22px;">
+                                            <td class="td"></td>
+                                            <td class="td">{{ item2.article.designation }} </td>
+                                            <td class="td" style="text-align: center" >{{item2.quantite}}</td>
+                                            <td class="td">{{ item.article.measure_unit }}</td>
+                                            <td class="td">{{ item3.emplacement.designation }}</td>
+                                            <td class="td">{{ item3.numero_serie }}</td>
+                                            <td class="td" style="text-align: center" >{{ item3.article.amount | sep_float  }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr class="collapse stockage{{ item2.id }} main{{ item.article.id }}" style="text-align:center;height: 22px;">
+                                        <td class="td"></td>
+                                        <td class="td">{{ item2.article.designation }} </td>
+                                        <td class="td" style="text-align: center" >{{ item2.quantite | sep_float }}</td>
+                                        <td class="td">{{ item.article.measure_unit }}</td>
+                                        <td class="td">{{ item2.emplacement.reference }}</td>
+                                        <td class="td"></td>
+                                        <td class="td" style="text-align: center" >{% multiply item2.quantite item.article.amount %}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endif %}
+
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+
+            </table>
+        </div>
+        <script>
+            $(document).ready(function(){
+
+                $("tr > td > i").removeClass("fa-caret-down");
+                $("tr > td > i").addClass("fa-caret-right");
+                $("tr > td > i").data("show", false);
+
+                $(".tr-toggle").click(function() {
+                    var icone = $(this).find("i");
+                    if (icone.data("show") === true) {
+                        icone.removeClass("fa-caret-down");
+                        icone.addClass("fa-caret-right");
+                        icone.data("show", false);
+
+                    } else {
+                        icone.removeClass("fa-caret-right");
+                        icone.addClass("fa-caret-down");
+                        icone.data("show", true);
+                    }
+                });
+
+                $(".main").click(function() {
+                    var icone = $(this).find("i");
+                    if (icone.data("show") === true) {
+
+                    }else {
+
+                        id = $(this).attr('id');
+
+                        el = $('.main'+id);
+                        el.removeClass('in');
+                        el.attr('aria-expanded','false');
+
+                        ic = $('.icon'+id);
+                        ic.removeClass("fa-caret-down");
+                        ic.addClass("fa-caret-right");
+                        ic.data("show", false);
+                    }
+                });
+
+            });
+        </script>
+    </body>
+</html>

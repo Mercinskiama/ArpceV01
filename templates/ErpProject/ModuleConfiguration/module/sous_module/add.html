@@ -1,0 +1,382 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+<div class="row">
+    <div class="col-xs-12">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_modules' %}">Liste des modules</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_sous_modules' nom_module.id %}">Liste des sous_modules</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Ajouter un menu dans {{nom_module}}</h2>
+        <strong class="hidden-xs" style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 15%;">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_list_sous_modules' nom_module.id %}')"  class="theme-btn theme-btn-sm rounded" style="width: 15%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+
+                <div class="row" style="margin-top: 10px">
+                    <div class="col-md-12">
+                        <form id="form" method="POST" action="{% url 'module_configuration_post_add_sous_module' nom_module.id %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <input name="module_id" type="hidden" value='{{ nom_module.id }}'>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Nom</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input id="nom_sous_module" name="nom_sous_module" type="text" data-validate-func="required" data-validate-hint="Entrez la désignation de ce nouveau rôle svp !">
+                                        <span class="input-state-error mif-warning"></span>
+                                        <span class="input-state-success mif-checkmark"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Url vers</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input id="url_vers" name="url_vers" type="text" placeholder="Ex: module_test_list_model" data-validate-func="required" data-validate-hint="Entrez la désignation de ce nouveau rôle svp !">
+                                        <span class="input-state-error mif-warning"></span>
+                                        <span class="input-state-success mif-checkmark"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Numéro d'ordre</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="numero_ordre" type="text" placeholder="Ex: 10" data-validate-func="required" data-validate-hint="Entrez la désignation de ce nouveau rôle svp !">
+                                        <span class="input-state-error mif-warning"></span>
+                                        <span class="input-state-success mif-checkmark"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Groupe</label>
+                                    <div class="input-control text full-size">                                
+                                        <select class="selectpicker form-control" data-live-search="true" title="Sélectionner une option" name="groupe_menu_id" id="groupe_menu_id">
+                                            <option value="">Sélectionnez un groupe</option>
+                                            {% for item in groupes %}<option value="{{item.id}}">{{item.designation}}</option>{% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="input-control checkbox small-check full-size">
+                                        <input value="1" name="est_actif" id="est_actif"  type="checkbox">
+                                        <span class="check"></span>
+                                        <span class="caption">Est Actif</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <br><br>
+                            <div class="row">
+                                <ul class="nav nav-tabs navtab-bg"> 
+                                    <li class="active"><a href="#frame_modele" data-toggle="tab" aria-expanded="false"><span>Modèle associé</span></a></li>
+                                    <li class=""><a href="#frame_action" data-toggle="tab" aria-expanded="false"><span>Permission et Action</span></a></li>
+                                    <li class=""><a href="#frame_autres" data-toggle="tab" aria-expanded="false"><span>Autres informations</span></a></li>
+                                </ul>
+                                <div class="tab-content"> 
+                                    <div class="tab-pane active" id="frame_modele">
+                                        <h4>Associez ce menu à un modèle</h4>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="input-control checkbox small-check full-size">
+                                                    <input value="1" name="est_model" id="est_model" type="checkbox">
+                                                    <span class="check"></span>
+                                                    <span class="caption">Est model</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div id="model_view" class="row" style="display:none;">
+                                            <div class="col-md-6">
+                                                <label>Model Associé</label>
+                                                <div class="input-control text full-size">                                
+                                                    <select class="selectpicker form-control" data-live-search="true" title="Sélectionner une option" name="model_principal_id" id="model_principal_id">
+                                                        <option value="">Sélectionnez un model</option>
+                                                        {% for item in modeles %}<option value="{{item.id}}">{{item.model}}</option>{% endfor %}
+                                                    </select>
+                                                </div>
+                                                <br>
+                                                <label>Relations du model Associé</label>
+                                                <div class="text full-size">
+                                                    <select class="ui search dropdown" multiple="" name="related_models" id="related_models">
+                                                        <option value="">Sélectionnez au moins un champ</option>
+                                                    </select>
+                                                </div>
+                                                <br>
+                                                <label class="input-control checkbox small-check full-size">
+                                                    <input value="1" name="generate_dao" id="generate_dao" type="checkbox">
+                                                    <span class="check"></span>
+                                                    <span class="caption">Générer fichier DAO dans le module</span>
+                                                </label>
+                                                <br>
+                                                <label class="input-control checkbox small-check full-size">
+                                                    <input value="1" name="generate_template" id="generate_template" type="checkbox">
+                                                    <span class="check"></span>
+                                                    <span class="caption">Générer templates à partir du modèlé</span>
+                                                </label>
+                                                <br>
+                                                <label class="input-control checkbox small-check full-size">
+                                                    <input value="1" name="generate_reporting" id="generate_reporting"  type="checkbox">
+                                                    <span class="check"></span>
+                                                    <span class="caption">Générer le reporting</span>
+                                                </label>
+                                                <br>
+                                                <label class="input-control checkbox small-check full-size">
+                                                    <input value="1" name="generate_bi" id="generate_bi"  type="checkbox">
+                                                    <span class="check"></span>
+                                                    <span class="caption">Générer le BI</span>
+                                                </label>
+                                                <br>
+                                                <label class="input-control checkbox small-check full-size">
+                                                    <input value="1" name="generate_api" id="generate_api"  type="checkbox">
+                                                    <span class="check"></span>
+                                                    <span class="caption">Générer les fonctions de l'API</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane" id="frame_action">
+                                        <h4>Configurer les permissions et actions associés à ce menu</h4>
+                                        <div class="row margin20 no-margin-left no-margin-right">
+                                            <table class="table no-margin">
+                                                <thead class="no-border">
+                                                    <tr>
+                                                        <th width="50%">Permission</th>
+                                                        <th width="45%">Action</th>
+                                                        <th width="5%"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="items">
+                                                    <tr id="ligne1">
+                                                        <td>
+                                                            <div class="input-control text full-size">
+                                                                <input maxlength="200" type="text" required="required" name="permission" id="action1" class="form-control" placeholder="Saisissez une permission" />
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="input-control text full-size">
+                                                                <input maxlength="200" type="text" required="required" name="action" id="action1" class="form-control" placeholder="Saisissez une action" />
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="pagination no-border">
+                                                                <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="row margin20 no-margin-left no-margin-right">
+                                            <button type="button" class="theme-btn theme-btn-sm rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                                        </div>
+                                        
+                                        <div id="action_model_sample_view" style="display:none;">
+                                            <br><br>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <h5 style="font-weight: bold;">Exemple Permissions/Actions réquises pour menu de type "Modèle"</h5>
+                                                    <table class="table no-margin striped border bordered">
+                                                        <tr><td>LISTER_MODELE</td><td>module_test_list_modele,module_test_detail_modele</td></tr>
+                                                        <tr><td>CREER_MODELE </td><td>module_test_add_modele</td></tr>
+                                                        <tr><td>MODIFIER_MODELE</td><td>module_test_update_modele</td></tr>
+                                                        <tr><td>ANALYSER_MODELE</td><td>module_test_get_generer_modele</td></tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane" id="frame_autres">
+                                        <div class="row margin20 no-margin-left no-margin-right">
+                                            <div class="col-md-6">
+                                                <label>Description</label>
+                                                <div class="input-control textarea full-size">
+                                                    <textarea name="description" id="description" ></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var nombreLignes = 1;
+    var compteur = 1;
+    $("#est_model").change(function() {
+        $("#model_principal_id").val("");
+        $("#model_principal_id").trigger('change');
+        $("#model_principal_id").selectpicker('refresh');
+
+        $("#related_models").children().remove();
+        $("#related_models").append("<option value=''>Sélectionnez au moins un champ</option>");
+        $("#related_models").trigger('change');
+        $("#related_models").dropdown('clear');
+        if(this.checked) {
+            $("#model_view").show();
+            $("#action_model_sample_view").show();
+        } else {
+            $("#model_view").hide();  
+            $("#action_model_sample_view").hide();
+        }
+    });
+
+    $("#model_principal_id").change(function() {        
+        var model_id = $(this).val();
+        var module_id = "{{nom_module.id}}";
+
+        if (model_id != 0) {
+            showDialog("chargement");
+            $.get("{% url 'ajax_get_related_models' %}", { model_id: model_id },
+                function(response) {
+                    $("#related_models").children().remove();
+                    $("#related_models").append("<option value=''>Sélectionnez au moins un champ</option>");
+
+                    for (var i = 0; i < response.length; i++) {
+                        var related = response[i];
+
+                        var option = "<option value='" + related.content_id + "," + related.field_name + "," + related.field_type + "'>" + related.model_class + " (Champ: " + related.field_name + ") </option>";
+                        $("#related_models").append(option);
+                    }
+                    showDialog("chargement");
+                    //$('.multi_select2').multiSelect();
+                    $("#related_models").trigger('change');
+                    $("#related_models").dropdown('clear');
+                },
+                "json"
+            );
+
+            showDialog("chargement");
+            $.get("{% url 'ajax_get_urls_names' %}", { model_id: model_id, module_id: module_id },
+                function(response) {
+                    console.log("response")
+                    nombreLignes = 1;
+                    compteur = 1;
+
+                    var action_lister = response.lister;
+                    var action_modifier = response.modifier;
+                    var action_creer = response.creer;
+                    var action_rapport = response.rapport;
+                    var nom_modele = response.nom_modele;
+                    var nom_plural = response.nom_plural;
+                    var url_list = response.url_list;
+
+                    $("#items").children().remove();
+                    var nouvelleLigne =`
+                        <tr id="ligne$$compteur">
+                            <td>
+                                <div class="input-control text full-size">
+                                    <input maxlength="200" value="$$permission" type="text" required="required" name="permission" id="permission$$compteur" class="form-control" placeholder="Saisissez une permission" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="input-control text full-size">
+                                    <input maxlength="200" value="$$action" type="text" required="required" name="action" id="action$$compteur" class="form-control" placeholder="Saisissez une action" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="pagination no-border">
+                                    <span class="item" title="Supprimer la ligne" onclick="supprimerLigne($$compteur)"><span class="mif-cross fg-red"></span></span>
+                                </div>
+                            </td>
+                        </tr>
+                    `; 
+                    //ACTION LISTER
+                    var nouvelleLigneLister = nouvelleLigne;
+                    nouvelleLigneLister = nouvelleLigneLister.replaceAll("$$compteur", compteur.toString());
+                    nouvelleLigneLister = nouvelleLigneLister.replaceAll("$$permission", "LISTER_"+nom_modele);
+                    nouvelleLigneLister = nouvelleLigneLister.replaceAll("$$action", action_lister);
+                    $("#items").append(nouvelleLigneLister);
+
+                    //ACTION CREER
+                    compteur++;
+                    var nouvelleLigneCreer = nouvelleLigne;
+                    nouvelleLigneCreer = nouvelleLigneCreer.replaceAll("$$compteur", compteur.toString());
+                    nouvelleLigneCreer = nouvelleLigneCreer.replaceAll("$$permission", "CREER_"+nom_modele);
+                    nouvelleLigneCreer = nouvelleLigneCreer.replaceAll("$$action", action_creer);
+                    $("#items").append(nouvelleLigneCreer);
+
+                    //ACTION MODIFIER
+                    compteur++;
+                    var nouvelleLigneModifier = nouvelleLigne;
+                    nouvelleLigneModifier = nouvelleLigneModifier.replaceAll("$$compteur", compteur.toString());
+                    nouvelleLigneModifier = nouvelleLigneModifier.replaceAll("$$permission", "MODIFIER_"+nom_modele);
+                    nouvelleLigneModifier = nouvelleLigneModifier.replaceAll("$$action", action_modifier);
+                    $("#items").append(nouvelleLigneModifier);
+                    
+
+                    //ACTION RAPPORT
+                    compteur++;
+                    var nouvelleLigneRapport = nouvelleLigne;
+                    nouvelleLigneRapport = nouvelleLigneRapport.replaceAll("$$compteur", compteur.toString());
+                    nouvelleLigneRapport = nouvelleLigneRapport.replaceAll("$$permission", "ANALYSER_"+nom_modele);
+                    nouvelleLigneRapport = nouvelleLigneRapport.replaceAll("$$action", action_rapport);
+                    $("#items").append(nouvelleLigneRapport);
+
+                    $("#nom_sous_module").val(nom_plural);
+                    $("#url_vers").val(url_list);
+                    $("#description").val("Menu "+nom_plural);
+
+                    showDialog("chargement");
+                },
+                "json"
+            );
+        } else {
+            $("#related_models").children().remove();
+            $("#related_models").append("<option value=''>Sélectionnez au moins un champ</option>");
+            $("#related_models").trigger('change');
+            $("#related_models").dropdown('clear');
+        }
+    });
+    
+    $("#btnAjouterLigne").on("click", function () {
+        nombreLignes++;
+        compteur++;
+        var nouvelleLigne =`
+            <tr id="ligne${compteur}">
+                <td>
+                    <div class="input-control text full-size">
+                        <input maxlength="200" type="text" required="required" name="permission" id="permission${compteur}" class="form-control" placeholder="Saisissez une permission" />
+                    </div>
+                </td>
+                <td>
+                    <div class="input-control text full-size">
+                        <input maxlength="200" type="text" required="required" name="action" id="action${compteur}" class="form-control" placeholder="Saisissez une action" />
+                    </div>
+                </td>
+                <td>
+                    <div class="pagination no-border">
+                        <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(${compteur})"><span class="mif-cross fg-red"></span></span>
+                    </div>
+                </td>
+            </tr>
+        `; 
+        $("#items").append(nouvelleLigne);
+    });
+    function supprimerLigne(indice) {
+        nombreLignes--;
+        $("#ligne" + indice).remove();    
+    }
+</script>
+
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

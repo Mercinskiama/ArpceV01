@@ -1,0 +1,306 @@
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+{% if not isPopup %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_list_bon_transfert' %}">Liste des Bons de Transferts</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    {% if not isPopup %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_get_upload_bon_transfert' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Importer les données à partir excel</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_list_bon_transfert' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                    {% endif %}
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <form id="form" method="POST" action="{% url 'module_stock_post_add_bon_transfert' %}"  enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    {% if isPopup %}<input id="isPopup" name="isPopup" value="1" type="text" style="display: none">{% endif %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Code transfert</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="code" id="code" value="{{reference}}" readonly style="background-color:#d9d9d9;" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Opération Stock</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size">                                
+                                <select name="operation_stock_id" id="operation_stock_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% comment %} <option class="create_option" value='-100' data-url="/stock/operation_stock/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/operation_stock/list?isPopup=1">Voir plus ...</option> {% endcomment %}
+                                    {% for item in operation_stocks %}
+                                        <option {% if item.id == 2 %} {{ "selected" }} {% endif %} value="{{ item.id }}">
+                                            {{ item }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Emplacement Origine</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size">                                
+                                <select name="emplacement_origine_id" id="emplacement_origine_id" onchange="charge_articles_from_emplacement()" class="selectpicker form-control" title="Sélectionner une option">
+                                    {% comment %} <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/stock/emplacement/add?isPopup=1">Créer nouveau...</option> {% endcomment %}
+                                    <option class="search_option" value='-200' data-url="/stock/emplacement/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in emplacements %}
+                                        <option value="{{ item.id }}">{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Emplacement Destination</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size">                                
+                                <select name="emplacement_destination_id" id="emplacement_destination_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>s
+                                    {% comment %} <option class="create_option" value='-100' data-url="/stock/emplacement/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/emplacement/list?isPopup=1">Voir plus ...</option> {% endcomment %}
+                                    {% for item in emplacements %}
+                                        <option value="{{ item.id }}">{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>                        
+                        
+                        <div class="col-md-6">
+                            <label>Responsable Transfert</label>
+                            <div class="input-control text full-size">                                
+                                <select name="responsable_transfert_id" id="responsable_transfert_id" class="ui search dropdown"title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% comment %} <option class="create_option" value='-100' data-url="/configuration/personne/add?isPopup=1">Créer nouveau...</option> {% endcomment %}
+                                    {% comment %} <option class="search_option" value='-200' data-url="/configuration/personne/list?isPopup=1">Voir plus ...</option> {% endcomment %}
+                                    {% for item in personnes %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Société</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size">                                
+                                <select name="societe_id" id="societe_id" class="selectpicker form-control griseinput" title="Sélectionner une option">
+                                    {% if societes %}
+                                        <option value="">Sélectionnez une option</option>
+                                        <option class="create_option" value='-100' data-url="/configuration/dashboard/societe/add?isPopup=1">Créer nouveau...</option>
+                                        <option class="search_option" value='-200' data-url="/configuration/dashboard/societe/list?isPopup=1">Voir plus ...</option>
+                                            {% for item in societes %}
+                                            <option {% if item.id == 1 %} {{ "selected" }} {% endif %} value="{{ item.id }}">{{ item }}</option>
+                                            {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Description Transfert</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <textarea name="description" id="description" type="text"></textarea>
+                            </div>
+                        </div>
+                    </div>     
+                    <br><br>
+                    <div class="row">
+                        <ul class="nav nav-tabs navtab-bg"> 
+                            <li class="active"><a href="#frame_autres" data-toggle="tab" aria-expanded="false"><span>Autres informations</span></a></li>
+                        </ul>
+                        <div class="tab-content"> 
+                            <div class="tab-pane active" id="frame_autres">
+                                <div class="row margin20 no-margin-left no-margin-right">                                
+                                <div class="col-md-9">
+                                    <div class="section-otm" data-compteur="1">
+                                        <table id="tbl_posts" class="table bordered">
+                                            <thead style="background-color: grey; color: white;">
+                                                <th width="40%" style="color: white;"># Articles</th>
+                                                <th style="color: white;">Quantité Transfert</th>
+                                                <th width="40%" style="color: white;">Description</th>
+                                                <th style="color: white;"></th>
+                                            </thead>
+                                            <tbody id="tbl_posts_body">
+                                                <tr id="rec-1">
+                                                    <td>
+                                                        <select id="article_1" name="articles" class="selectpicker2 form-control article" data-live-search="true" title="Choisir un article" required>
+                                                            {% for item in articles %}
+                                                                <option value="{{item.id}}"> {{item}} </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input id="quantite_1" name="quantites" step="0.00001" type="number" class="form-control" required>
+                                                    </td>
+                                                    <td>
+                                                        <input id="description_1" name="decriptions" class="form-control decription" required>
+                                                    </td>
+                                                    <td>
+                                                        <a class="btn btn-xs delete-record" onclick="supprimerLigne(1)" data-id="0">
+                                                            <i class="fa fa-trash" style="color:#E73E32"></i>
+                                                        </a>
+                                                    </td> 
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        {% comment %} <table class="table bordered no-margin" style="width:100%;">
+                                            <thead>	
+                                                <tr>
+                                                    <th width="90%">Line bon de Transfert</th>
+                                                    <th width="10%"></th>
+                                                </tr>
+                                            </thead>                
+                                            <tbody class="tbl_posts_body">
+                                                <tr>
+                                                    <td>
+                                                        <div class="input-control text full-size">                                
+                                                            <select class="selectpicker form-control" title="sélectionner une option" name="ligne_bon_transfert_bon_transfert_ids" id="ligne_bon_transfert_bon_transfert_ids-1">
+                                                                <option value="">Sélectionnez une nouvelle option Line bon de Transfert</option>
+                                                                <option class="create_option" value='-100' data-url="/stock/ligne_bon_transfert/add?isPopup=1">Créer nouveau...</option>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="pagination no-border">
+                                                            <span class="item delete-record" title="Supprimer la ligne"><span class="mif-cross fg-red"></span></span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>  {% endcomment %}
+                                        {% comment %} <button type="button" class="button rounded add-record">Ajouter</button> {% endcomment %}
+                                        <br>
+                                        <div class="row margin10 no-margin-left no-margin-right">
+                                            <button type="button" class="button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                                        </div>
+                                        {% comment %} <table class="sample_table" style="display:none;">       
+                                            <tr>
+                                                <td>
+                                                    <div class="input-control text full-size">                                
+                                                        <select class="form-control" title="Sélectionner une option" name="ligne_bon_transfert_bon_transfert_ids" id="">
+                                                            <option value="">Sélectionnez une nouvelle option Line bon de Transfert</option>
+                                                            <option class="create_option" value='-100' data-url="/stock/ligne_bon_transfert/add?isPopup=1">Créer nouveau...</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="pagination no-border">
+                                                        <span class="item delete-record" title="Supprimer la ligne"><span class="mif-cross fg-red"></span></span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table> {% endcomment %}
+                                    </div>                                
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+    <!-- Partie D'ajout Tableau -->
+    {% comment %} <div style="display:none;">
+        <table id="sample_table">
+            <tr id ='rec-1'>
+                <td><span class="sn"></span>.</td>
+                <td>
+                    <select id="article" name="article_id" class="selectpicker2 form-control article" data-container="body" data-live-search="true" title="Choisir un article" data-hide-disabled="true" required>
+                        {% for item in articles %}
+                            <option value="{{item.id}}"> {{item.name}} </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <input id="quantite" name="quantite_id" step="0.00001" type="number" class="form-control" required>
+                </td>
+                <td>
+                    <input id="description" name="decription_id" class="form-control decription" required>
+                </td>
+                <td>
+                    <a class="btn btn-xs delete-record" data-id="0">
+                        <i class="fa fa-trash" style="color:#E73E32"></i>
+                    </a>
+                </td>
+            </tr>
+       </table>
+    </div> {% endcomment %}
+</div>
+<script>
+    url_item = "{% url 'module_stock_select_bon_transfert' '100' %}";    
+</script>
+<script>
+    var nombreLignes = 1;
+    var compteur = 1;
+    $("#btnAjouterLigne").on("click", function () {
+        nombreLignes++;
+        compteur++;
+
+        //Debut nouvelle ligne
+        var nouvelleLigne = '<tr id="rec-' + compteur + '">';
+        nouvelleLigne += '<td> <select id="article_'+ compteur+'" name="articles" class="selectpicker2 form-control article" data-container="body" data-live-search="true" title="Choisir un article" data-hide-disabled="true" required>';
+        nouvelleLigne += '{% for item in articles %}<option value="{{item.id}}"> {{item}} </option>{% endfor %}</select></td>';
+        nouvelleLigne += '<td><input id="quantite_'+compteur+'" name="quantites" step="0.00001" type="number" class="form-control" required></td>';
+        nouvelleLigne += '<td><input id="description_'+compteur+'" name="decriptions" class="form-control decription" required></td>' ;
+        nouvelleLigne += '<td><a class="btn btn-xs delete-record" onclick="supprimerLigne('+ compteur +')" data-id="'+ compteur +'"><i class="fa fa-trash" style="color:#E73E32"></i></a></td>';
+        nouvelleLigne += '</tr>';
+        
+        $("#tbl_posts_body").append(nouvelleLigne);
+    });
+
+    
+    // The above code is a JavaScript function that is used to delete a row from an HTML table. It
+    // takes an argument "indice" which represents the index of the row to be deleted. The function
+    // decreases the value of a variable "nombreLignes" by 1 and then removes the row with the id
+    // "rec-" + indice from the HTML table using jQuery's remove() method. -->
+    function supprimerLigne(indice) {
+        nombreLignes--;
+        $("#rec-" + indice).remove();
+    }
+</script>
+
+<script>
+    // This function return articles from Emplacement whom make choice
+    function charge_articles_from_emplacement(){
+        var emplacement_id = $("#emplacement_origine_id").val();
+        if(emplacement_id != "0"){
+            $.get(
+                "", {ref: emplacement_id},
+                function(data){
+                    if(data){
+                        lesArticles = new Array();
+                        for(var i = 0; i < data.length; i++)
+                        {
+                            var article = data[i];
+                            lesArticles.push(article);
+                            //chargerArticles();
+                            console.log('Article Chargé', article)
+                        }
+                    }
+                },"json"
+            );
+        }
+    }
+
+</script>
+
+{% include 'ErpProject/ErpBackOffice/widget/create_view.html' %}
+{% endblock %}

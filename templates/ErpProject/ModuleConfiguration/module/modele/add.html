@@ -1,0 +1,309 @@
+    {% extends "ErpProject/ModuleConfiguration/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <div class="col-xs-12">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_modules' %}">Module Configuration</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_modules' %}">Liste des modules</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_details_module' model.id %}">{{ model.nom_module }}</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{title}}</h2>
+        <strong class="hidden-xs" style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()"  class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 15%;">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_list_modules' %}')"  class="theme-btn theme-btn-sm rounded" style="width: 15%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                <div class="row" style="margin-top: 10px">
+                    <div class="col-xs-12">
+                        <form id="form" method="POST" action="{% url 'module_configuration_post_add_modele' model.id %}"
+                            data-role="validator" 
+                            data-show-required-state="false"
+                            data-hint-mode="line"
+                            data-hint-background="bg-red"
+                            data-hint-color="fg-white"
+                            data-hide-error="5000"
+                            novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput"
+                            data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Nom du modèle</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="nom_modele" type="text" data-validate-func="required" data-validate-hint="Entrez la désignation de ce nouveau rôle svp !">
+                                        <span class="input-state-error mif-warning"></span>
+                                        <span class="input-state-success mif-checkmark"></span>
+                                    </div>
+                                </div>   
+                                <div class="col-md-6">
+                                    <label>Nom de la table</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="db_table" type="text">
+                                    </div>
+                                </div>   
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Nom d'affichage</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="verbose_name" type="text">
+                                    </div>
+                                </div>   
+                                <div class="col-md-6">
+                                    <label>Nom d'affichage au pluriel</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input name="verbose_name_plural" type="text">
+                                    </div>
+                                </div>   
+                            </div>
+                            <br><br>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table class="dataTable display nowrap border bordered striped" style="overflow: auto; position: relative; display: inline-block" style="width:100%">
+                                        <thead class="no-border">
+                                            <tr>
+                                                <th style="min-width: 180px">Nom du champ</th>
+                                                <th style="min-width: 150px">Nom d'affichage</th>
+                                                <th style="min-width: 100px">Type de données</th>
+                                                <th style="min-width: 30px">Taille</th>
+                                                <th style="min-width: 100px">Default</th>
+                                                <th style="min-width: 30px">Nullable</th>
+                                                <th style="min-width: 100px">/Case FK</th>
+                                                <th style="min-width: 30px">On delete</th>
+                                                <th style="min-width: 30px">Choix ?</th>
+                                                <th style="min-width: 100px">Nom Liste de Choix</th>
+                                                <th style="min-width: 100px">Valeur Liste de Choix</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="items">
+                                            <tr id="ligne1">
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control text full-size">
+                                                        <input name="nom_champ" id="nom_champ1" type="text" placeholder="Renseignez le nom de votre champ">
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control text full-size">
+                                                        <input name="nom_verbose" id="nom_verbose1" type="text">
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control select full-size">
+                                                        <select name="type_champ" id="type_champ1">
+                                                            <option value="">Sélectionnez le type souhaité</option>
+                                                            <option value="CharField">CharField</option>
+                                                            <option value="IntegerField">IntegerField</option>
+                                                            <option value="DateTimeField">DateTimeField</option>
+                                                            <option value="DateField">DateField</option>
+                                                            <option value="FloatField">FloatField</option>
+                                                            <option value="BooleanField">BooleanField</option>
+                                                            <option value="ForeignKey">ForeignKey</option>
+                                                            <option value="OneToOneField">OneToOneField</option>
+                                                            <option value="ManyToManyField">ManyToManyField</option>
+                                                            <option value="EmailField">EmailField</option>
+                                                            <option value="ImageField">ImageField</option>
+                                                            <option value="FileField">FileField</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control text full-size">
+                                                        <input name="taille" id="taille1" type="text" placeholder="Ex: 500">
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control text full-size">
+                                                        <input name="default" id="default1" type="text" placeholder="Ex: 10">
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control select full-size">
+                                                        <select name="nullable" id="nullable1">
+                                                            <option value="0">Sélectionnez</option>
+                                                            <option value="1">True</option>
+                                                            <option value="2">False</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control text full-size">
+                                                        <input name="foreign" id="foreign1" type="text" placeholder="Ex: Model_Personne">
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control select full-size">
+                                                        <select id="ondelete1" name="ondelete">
+                                                            <option value="DO_NOTHING">DO_NOTHING</option>
+                                                            <option value="SET_NULL">SET_NULL</option>
+                                                            <option value="CASCADE">CASCADE</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control select full-size">
+                                                        <select id="choix1" name="choix">
+                                                            <option value="0">Sélectionnez</option>
+                                                            <option value="1">Oui</option>
+                                                            <option value="2">Non</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control text full-size">
+                                                        <input id="nom_choix1" name="nom_choix" type="text" placeholder="Ex: Test">
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="input-control text full-size">
+                                                        <input id="valeur_choix1" name="valeur_choix" type="text" placeholder="Ex: ((1, 'Test1'),(2, 'Test2'))">
+                                                    </div>
+                                                </td>
+                                                <td class="no-padding-top no-padding-bottom">
+                                                    <div class="pagination no-border">
+                                                        <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(1)"><span class="mif-cross fg-red"></span></span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <div class="row margin10 no-margin-left no-margin-right">
+                                        <button type="button" class="theme-btn theme-btn-sm rounded" id="btnAjouterLigne">Ajouter un ligne</button>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        var nombreLignes = 1;
+        var compteur = 1;
+
+        $("#btnAjouterLigne").on("click", function () {
+            nombreLignes++;
+            compteur++;
+            var nouvelleLigne =` 
+            <tr id="ligne${compteur}">
+                <td class="no-padding-top no-padding-bottom">
+                    <div class="input-control text full-size">
+                        <input name="nom_champ" id="nom_champ${compteur}" type="text" placeholder="Renseignez le nom de votre champ">
+                    </div>
+                </td>
+                <td class="no-padding-top no-padding-bottom">
+                    <div class="input-control text full-size">
+                        <input name="nom_verbose" id="nom_verbose${compteur}" type="text">
+                    </div>
+                </td>
+                <td class="no-padding-top no-padding-bottom">
+                    <div class="input-control select full-size">
+                        <select name="type_champ" id="type_champ${compteur}">
+                            <option value="">Sélectionnez le type souhaité</option>
+                            <option value="CharField">CharField</option>
+                            <option value="IntegerField">IntegerField</option>
+                            <option value="DateTimeField">DateTimeField</option>
+                            <option value="DateField">DateField</option>
+                            <option value="FloatField">FloatField</option>
+                            <option value="BooleanField">BooleanField</option>
+                            <option value="ForeignKey">ForeignKey</option>
+                            <option value="OneToOneField">OneToOneField</option>
+                            <option value="ManyToManyField">ManyToManyField</option>
+                            <option value="EmailField">EmailField</option>
+                            <option value="ImageField">ImageField</option>
+                            <option value="FileField">FileField</option>
+                        </select>
+                    </div>
+                </td>
+                <td class="no-padding-top no-padding-bottom">
+                    <div class="input-control text full-size">
+                        <input name="taille" id="taille${compteur}" type="text" placeholder="Ex: 10">
+                    </div>
+                </td>
+                <td class="no-padding-top no-padding-bottom">
+                    <div class="input-control text full-size">
+                        <input name="default" id="default${compteur}" type="text" placeholder="Ex: 10">
+                    </div>
+                </td>
+                <td class="no-padding-top no-padding-bottom">
+                    <div class="input-control select full-size">
+                        <select name="nullable" id="nullable${compteur}">
+                            <option value="0">Sélectionnez</option>
+                            <option value="1">True</option>
+                            <option value="2">False</option>
+                        </select>
+                    </div>
+                </td>
+                <td class="no-padding-top no-padding-bottom">
+                    <div class="input-control text full-size">
+                        <input name="foreign" id="foreign${compteur}" type="text" placeholder="Ex: Model_Personne">
+                    </div>
+                </td>
+                <td class="no-padding-top no-padding-bottom">
+                    <div class="input-control text full-size">
+                        <select id="ondelete${compteur}" name="ondelete">
+                            <option value="DO_NOTHING">DO_NOTHING</option>
+                            <option value="SET_NULL">SET_NULL</option>
+                            <option value="CASCADE">CASCADE</option>
+                        </select>
+                    </div>
+                </td>
+                <td class="no-padding-top no-padding-bottom">
+                    <div class="input-control select full-size">
+                        <select id="choix${compteur}" name="choix">
+                            <option value="0">Sélectionnez</option>
+                            <option value="1">Oui</option>
+                            <option value="2">Non</option>
+                        </select>
+                    </div>
+                </td>
+                <td class="no-padding-top no-padding-bottom">
+                    <div class="input-control text full-size">
+                        <input id="nom_choix${compteur}" name="nom_choix" type="text" placeholder="Ex: Test">
+                    </div>
+                </td>
+                <td class="no-padding-top no-padding-bottom">
+                    <div class="input-control text full-size">
+                        <input id="valeur_choix${compteur}" name="valeur_choix" type="text" placeholder="Ex: ((1, 'Test1'),(2, 'Test2'))">
+                    </div>
+                </td>
+                <td class="no-padding-top no-padding-bottom">
+                    <div class="pagination no-border">
+                        <span class="item" title="Supprimer la ligne" onclick="supprimerLigne(${compteur})"><span class="mif-cross fg-red"></span></span>
+                    </div>
+                </td>
+            </tr>            
+            `;     
+            $("#items").append(nouvelleLigne);
+        });
+
+        function supprimerLigne(indice) {
+            nombreLignes--;
+            $("#ligne" + indice).remove();
+        }
+    </script>
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

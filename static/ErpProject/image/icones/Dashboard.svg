@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="44" viewBox="0 0 28 44">
+  <g id="Dashboard" transform="translate(-50 132)">
+    <circle id="椭圆形" cx="2" cy="2" r="2" transform="translate(62 -112)" fill="#fff"/>
+    <path id="圆角矩形" d="M2,.889A15.8,15.8,0,0,1,0,8H16A15.8,15.8,0,0,1,14,.889a20.694,20.694,0,0,0-12,0Z" transform="translate(56 -130)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <path id="圆角矩形-2" data-name="圆角矩形" d="M2,7.111A15.8,15.8,0,0,0,0,0H16a15.8,15.8,0,0,0-2,7.111A20.588,20.588,0,0,1,8,8,20.588,20.588,0,0,1,2,7.111Z" transform="translate(56 -98)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <path id="路径" d="M0,16V5A5,5,0,0,1,5,0H19a5,5,0,0,1,5,5V19a5,5,0,0,1-5,5H4" transform="translate(52 -122)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+  </g>
+</svg>

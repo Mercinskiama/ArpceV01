@@ -1,0 +1,302 @@
+
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<style type="text/css">
+    .kanban_image {
+        width: 70px;
+        height: 70px;
+        display: inline-block;
+        position: relative;
+        text-align: center;
+        background-size: contain;
+    }
+    .kanban_image[data-mimetype='application/pdf'] {
+        background-image: url({% static 'ErpProject/image/mimetypes/pdf.svg' %});
+    }
+</style>
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_index' %}">Module Configuration</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_list_societe' %}">Liste des Sociétés</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        
+        <!-- GESTION DU WORKFLOW -->
+        {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_configuration_add_societe" url_detail="module_configuration_detail_societe" csrf_token=csrf_token module=module type_doc="Société" only %}
+        <!--FIN GESTION DU WORKFLOW--> 
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    {% if user_actions.can_update is True %}<button onclick="javascript:window.location.assign('{% url 'module_configuration_update_societe' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Modifier</button>{% endif %}
+                    {% if user_actions.can_create is True %}<button onclick="javascript:window.location.assign('{% url 'module_configuration_duplicate_societe' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded chargement-au-click">Dupliquer</button>{% endif %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_print_societe' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded success chargement-au-click">Imprimer</button>
+                    {% if user_actions.can_delete is True %}<button id="supprimer" class="validate-btn theme-btn theme-btn-sm rounded danger chargement-au-click">Supprimer</button>{% endif %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_list_societe' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>Code :<br>
+                            <span class="sub-alt-header">{{ model.code }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Nom de la société :<br>
+                            <span class="sub-alt-header">{{ model.name }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Logo de la société :<br>
+                            {% if model.picture_icon %}
+                            <a data-magnify="gallery" href="{% static model.picture_icon.url %}">
+                                <img class="" src="{% static model.picture_icon.url %}" style="height: 100px; width: 100px;">
+                            </a>                           
+                            {% else %}
+                            <img src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 100px; width: 100px;">
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Type :<br>
+                            <span class="sub-alt-header">{{ model.type }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Société mère :<br>
+                            {% if model.societe is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% else %}
+                            <span class="sub-alt-header"><a class="link chargement-au-click" href="{% url 'module_configuration_detail_societe' model.societe_id %}">{{ model.societe }}</a></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Devise de référence :<br>
+                            {% if model.devise is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% else %}
+                            <span class="sub-alt-header"><a class="link chargement-au-click" href="{% url 'module_comptabilite_detail_devise' model.devise_id %}">{{ model.devise }}</a></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Type de période :<br>
+                            {% if model.type_periode is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% else %}
+                            <span class="sub-alt-header"><a class="link chargement-au-click" href="{% url 'module_configuration_detail_type_periode' model.type_periode_id %}">{{ model.type_periode }}</a></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Email :<br>
+                            <span class="sub-alt-header">{{ model.adress_email }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Genre :<br>
+                            <span class="sub-alt-header">{{ model.siteweb }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Pays :<br>
+                            {% if model.pays is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% else %}
+                            <span class="sub-alt-header"><a class="link chargement-au-click" href="{% url 'module_configuration_detail_pays' model.pays_id %}">{{ model.pays }}</a></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Nom Pays :<br>
+                            <span class="sub-alt-header">{{ model.pays_adress }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Province :<br>
+                            {% if model.province is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% else %}
+                            <span class="sub-alt-header"><a class="link chargement-au-click" href="{% url 'module_configuration_detail_province' model.province_id %}">{{ model.province }}</a></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Nom Province :<br>
+                            <span class="sub-alt-header">{{ model.province_adress }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Ville :<br>
+                            {% if model.ville is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% else %}
+                            <span class="sub-alt-header"><a class="link chargement-au-click" href="{% url 'module_configuration_detail_ville' model.ville_id %}">{{ model.ville }}</a></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Nom Ville :<br>
+                            <span class="sub-alt-header">{{ model.ville_adress }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Commune :<br>
+                            {% if model.commune is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% else %}
+                            <span class="sub-alt-header"><a class="link chargement-au-click" href="{% url 'module_configuration_detail_commune' model.commune_id %}">{{ model.commune }}</a></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Adresse ligne 1 :<br>
+                            <span class="sub-alt-header">{{ model.adresse_line1 }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Adresse ligne 2 :<br>
+                            <span class="sub-alt-header">{{ model.adresse_line2 }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Téléphone 1 :<br>
+                            <span class="sub-alt-header">{{ model.telephone_1 }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Téléphone 2 :<br>
+                            <span class="sub-alt-header">{{ model.telephone_2 }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Nombre période Comptabilité :<br>
+                            <span class="sub-alt-header">{{ model.nbr_periode_gl }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Nombre période Comptabilité Client :<br>
+                            <span class="sub-alt-header">{{ model.nbr_periode_ar }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Nombre période Comptabilité Fournisseur :<br>
+                            <span class="sub-alt-header">{{ model.nbr_periode_ap }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Nombre période Comptabilité Trésorerie  :<br>
+                            <span class="sub-alt-header">{{ model.nbr_periode_cm }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Nombre période Comptabilité Immobilisation :<br>
+                            <span class="sub-alt-header">{{ model.nbr_periode_fa }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Nombre période Budget :<br>
+                            <span class="sub-alt-header">{{ model.nbr_periode_bgt }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Nombre période Paie :<br>
+                            <span class="sub-alt-header">{{ model.nbr_periode_py }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Début exercice en cours :<br>
+                            <span class="sub-alt-header">{{model.period_begin_date|date:"d/m/Y H:i"}}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Fin Exercice en cours :<br>
+                            <span class="sub-alt-header">{{model.period_end_date|date:"d/m/Y H:i"}}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Description :<br>
+                            <span class="sub-alt-header">{{ model.description }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="fg-gray">
+                            <label>Autres adresse :</label><br>
+                            {% for item in model.autres_adresses.all %}
+                                <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                            {% endfor %}                     
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="fg-gray">
+                            <label>Contacts :</label><br>
+                            {% for item in model.contacts.all %}
+                                <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                            {% endfor %}                     
+                        </p>
+                    </div>
+                </div>     
+                <br><br>
+                <div class="row">
+                    <ul class="nav nav-tabs navtab-bg"> 
+                        <li class="active"><a href="#frame_autres" data-toggle="tab" aria-expanded="false"><span>Autres informations</span></a></li>
+                        <li class=""><a href="#frame_documents" data-toggle="tab" aria-expanded="false"><span>Documents associés</span></a></li>
+                    </ul>
+                    <div class="tab-content"> 
+                        <div class="tab-pane active" id="frame_autres">
+                            <div class="row margin20 no-margin-left no-margin-right">
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="frame_documents">
+                            <div class="row margin20 no-margin-left no-margin-right">
+                                {% for item in documents %}
+                                <div class="col-md-4">
+                                    <div class="card-item" style="margin-top: 10px; margin-bottom: 15px">
+                                        <div class="card-item-content" style="margin: 10px">
+                                            <div class="thumb kanban_image" data-mimetype="application/pdf">
+                                            </div>
+                                            <div class="texts">
+                                                <div class="texts-record_selector">
+                                                    <a class="link chargement-au-click" href="{% if item.fichier %}{% static item.fichier.url %}{% else %}{% url 'module_archivage_detail_document' item.id %}{% endif %}" style="float: left;">{{ item.designation }}</a>
+                                                </div>
+                                                <br>
+                                                <div class="mt-2"></div>
+                                                <span class="inner-text">{{ item.dossier.designation }}</span><br>
+                                                <div class="texts-favorite">
+                                                    <span class="inner-text" style="float: left;">{{ item.creation_date|date:'d/m/Y' }}</span>
+                                                </div>
+                                                <br>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //-------  Deux variables pour la suppression  ---------------
+    var modele = "Model_Societe"
+    var the_url = "module_configuration_list_societe"
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/item_view.html' %}
+{% endblock %}

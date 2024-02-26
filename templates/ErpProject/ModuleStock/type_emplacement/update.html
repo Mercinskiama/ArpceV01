@@ -1,0 +1,73 @@
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_list_type_emplacement' %}">Liste des Types d'emplacement</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_detail_type_emplacement' model.id %}">{{ model }}</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_detail_type_emplacement' model.id %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <form id="form" method="POST" action="{% url 'module_stock_post_update_type_emplacement' %}"  enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    <input type="text"  id="ref" name="ref" value ="{{ model.id }}" style="display: none">
+                    {% if isPopup %}<input id="isPopup" name="isPopup" value="1" type="text" style="display: none">{% endif %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Code</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.code }}" name="code" id="code" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Designation</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size" data-role="input">
+                                <input value="{{ model.designation }}" name="designation" id="designation" type="text" data-validate-func="required" data-validate-hint="Saisissez le champ Designation SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Société</label>
+                            <div class="input-control text full-size">                                
+                                <select class="selectpicker form-control" title="Sélectionner une option" name="societe_id" id="societe_id">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/configurationdashboard/societe/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/configurationdashboard/societe/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in societes %}<option {% if model.societe_id == item.id %}{{ "selected" }}{% endif %} value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<script>
+    url_item = "{% url 'module_stock_select_type_emplacement' '100' %}";    
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/update_view.html' %}
+{% endblock %}

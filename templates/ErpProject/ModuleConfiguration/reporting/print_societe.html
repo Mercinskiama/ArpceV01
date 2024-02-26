@@ -1,0 +1,218 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Code :<br>
+                        <span class="sub-alt-header">{{ model.code }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Nom de la société :<br>
+                        <span class="sub-alt-header">{{ model.name }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Logo de la société :<br>
+                        {% if model.picture_icon %}
+                        <img class="" src="{% static model.picture_icon.url %}" style="height: 100px; width: 100px;">
+                        {% else %}
+                        <img src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 100px; width: 100px;">
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Type :<br>
+                        <span class="sub-alt-header">{{ model.type }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Société mère :<br>
+                        {% if model.societe is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.societe }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Devise de référence :<br>
+                        {% if model.devise is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.devise }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Type de période :<br>
+                        {% if model.type_periode is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.type_periode }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Email :<br>
+                        <span class="sub-alt-header">{{ model.adress_email }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Genre :<br>
+                        <span class="sub-alt-header">{{ model.siteweb }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Pays :<br>
+                        {% if model.pays is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.pays }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Nom Pays :<br>
+                        <span class="sub-alt-header">{{ model.pays_adress }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Province :<br>
+                        {% if model.province is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.province }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Nom Province :<br>
+                        <span class="sub-alt-header">{{ model.province_adress }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Ville :<br>
+                        {% if model.ville is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.ville }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Nom Ville :<br>
+                        <span class="sub-alt-header">{{ model.ville_adress }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Commune :<br>
+                        {% if model.commune is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.commune }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Adresse ligne 1 :<br>
+                        <span class="sub-alt-header">{{ model.adresse_line1 }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Adresse ligne 2 :<br>
+                        <span class="sub-alt-header">{{ model.adresse_line2 }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Téléphone 1 :<br>
+                        <span class="sub-alt-header">{{ model.telephone_1 }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Téléphone 2 :<br>
+                        <span class="sub-alt-header">{{ model.telephone_2 }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Nombre période Comptabilité :<br>
+                        <span class="sub-alt-header">{{ model.nbr_periode_gl }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Nombre période Comptabilité Client :<br>
+                        <span class="sub-alt-header">{{ model.nbr_periode_ar }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Nombre période Comptabilité Fournisseur :<br>
+                        <span class="sub-alt-header">{{ model.nbr_periode_ap }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Nombre période Comptabilité Trésorerie  :<br>
+                        <span class="sub-alt-header">{{ model.nbr_periode_cm }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Nombre période Comptabilité Immobilisation :<br>
+                        <span class="sub-alt-header">{{ model.nbr_periode_fa }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Nombre période Budget :<br>
+                        <span class="sub-alt-header">{{ model.nbr_periode_bgt }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Nombre période Paie :<br>
+                        <span class="sub-alt-header">{{ model.nbr_periode_py }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Début exercice en cours :<br>
+                        <span class="sub-alt-header">{{model.period_begin_date|date:"d/m/Y H:i"}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Fin Exercice en cours :<br>
+                        <span class="sub-alt-header">{{model.period_end_date|date:"d/m/Y H:i"}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Description :<br>
+                        <span class="sub-alt-header">{{ model.description }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <label>Autres adresse :</label><br>
+                        {% for item in model.autres_adresses.all %}
+                            <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                        {% endfor %}                     
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="fg-gray">
+                        <label>Contacts :</label><br>
+                        {% for item in model.contacts.all %}
+                            <span class="sub-alt-header badge badge-light"> {{ item }} </span><br>
+                        {% endfor %}                     
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

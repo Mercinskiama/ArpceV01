@@ -1,0 +1,38 @@
+{% load static %}
+<script type="text/javascript" src="{% static 'ErpProject/js/FileSaver.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ErpProject/js/xlsx.full.min.js' %}"></script> 
+<script>
+    function enregistrer(){
+        document.getElementById('submit').click();
+    }
+    
+    function selectFile() {
+        $('input[id=input-excel]').click();
+    }
+    
+    //Import excel
+    $('#input-excel').change(function(e){
+        var reader = new FileReader();
+        reader.readAsArrayBuffer(e.target.files[0]);
+        reader.onload = function(e) {
+            var data = new Uint8Array(reader.result);
+            var wb = XLSX.read(data,{type:'array'});
+            var ws_name = wb.SheetNames[0];
+            console.log(ws_name);
+            $("#sheet").val(ws_name);
+            $("#upload_wrapper").children().remove();
+            var sheet = wb.Sheets[ws_name];
+            var htmlstr = XLSX.write(wb,{sheet: ws_name, type:'binary',bookType:'html'});
+            htmlstr = decodeURIComponent(escape(htmlstr));
+            $('#upload_wrapper')[0].innerHTML += htmlstr;
+            $('#upload_wrapper table').addClass("display nowrap border bordered striped table-overflow");
+            $('#upload_wrapper table').css('overflow', 'auto');
+            $('#upload_wrapper table').css('position', 'relative');
+            $('#upload_wrapper table').css('display', 'inline-block');
+            $('#upload_wrapper table').css('width', '100%');
+            
+            $('#bg').css('display', 'none');
+            $('#btn-register').css('display', 'inline');
+        }
+    });
+</script>

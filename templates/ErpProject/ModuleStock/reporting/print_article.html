@@ -1,0 +1,99 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Designation :<br>
+                        <span class="sub-alt-header">{{ model.name }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Code :<br>
+                        <span class="sub-alt-header">{{ model.code }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Prix unitaire :<br>
+                        <span class="sub-alt-header">{{model.amount|monetary}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Devise :<br>
+                        {% if model.devise is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.devise }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Type d'article :<br>
+                        {% if model.type_article is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.type_article }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Image :<br>
+                        {% if model.picture_icon %}
+                        <img class="" src="{% static model.picture_icon.url %}" style="height: 100px; width: 100px;">
+                        {% else %}
+                        <img src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 100px; width: 100px;">
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Société :<br>
+                        {% if model.societe is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.societe }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Quantité seuil :<br>
+                        <span class="sub-alt-header">{{ model.quota_quantity }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Catégorie :<br>
+                        {% if model.category is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.category }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Unité de mesure :<br>
+                        {% if model.measure_unit is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.measure_unit }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Description :<br>
+                        <span class="sub-alt-header">{{ model.description }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

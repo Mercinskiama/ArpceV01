@@ -1,0 +1,236 @@
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<style type="text/css">
+    .kanban_image {
+        width: 70px;
+        height: 70px;
+        display: inline-block;
+        position: relative;
+        text-align: center;
+        background-size: contain;
+    }
+    .kanban_image[data-mimetype='application/pdf'] {
+        background-image: url({% static 'ErpProject/image/mimetypes/pdf.svg' %});
+    }
+    .badge_green {  
+        align-items: center;
+        background-color: #0ac213;
+        border-radius: 10%;
+        color: rgba(255, 255, 255, 0.87);
+        display: flex;
+        font-size: 0.8em;
+        height: 20px;
+        justify-content: center;
+        left: 7%;
+        pointer-events: none;
+        position: absolute;
+        top: 52px;
+        transform: translate(-50%, -50%);
+        width: 50px;
+    }
+    .badge_red{
+        align-items: center;
+        background-color: #c70606;
+        border-radius: 10%;
+        color: rgba(255, 255, 255, 0.87);
+        display: flex;
+        font-size: 0.8em;
+        height: 20px;
+        justify-content: center;
+        left: 7%;
+        pointer-events: none;
+        position: absolute;
+        top: 52px;
+        transform: translate(-50%, -50%);
+        width: 50px;
+    }
+</style>
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_list_bon_reception' %}">Liste des Bons de Receptions</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }} </h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        
+        <!-- GESTION DU WORKFLOW -->
+        {% include 'ErpProject/ErpBackOffice/widget/workflow.html' with utilisateur=utilisateur model=model content_type_id=content_type_id historique=historique roles=roles etapes_suivantes=etapes_suivantes url_add="module_stock_add_bon_reception" url_detail="module_stock_detail_bon_reception" csrf_token=csrf_token module=module type_doc="Bon de Reception" only %}
+        <!--FIN GESTION DU WORKFLOW--> 
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_print_bon_reception' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded success chargement-au-click">Imprimer</button>
+                    <!-- Button send to Bon de reception Partielle -->
+                    {% if model.status.id ==  2 %}
+                        <button onclick="javascript:window.location.assign('{% url 'module_stock_get_complete_commande_bon_reception' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Complèter la commande</button>
+                    {% endif %}
+                    <!-- {% if user_actions.can_update is True %}<button onclick="javascript:window.location.assign('{% url 'module_stock_update_bon_reception' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Modifier</button>{% endif %}
+                    {% if user_actions.can_delete is True %}<button id="supprimer" class="validate-btn theme-btn theme-btn-sm rounded danger chargement-au-click">Supprimer</button>{% endif %}
+                    {% if user_actions.can_create is True %}<button onclick="javascript:window.location.assign('{% url 'module_stock_duplicate_bon_reception' model.id %}')" class="validate-btn theme-btn theme-btn-sm rounded chargement-au-click">Dupliquer</button>{% endif %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_list_bon_reception' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button> -->
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                 <div class="row">
+                    <div class="col-md-6">
+                         <p>ETAT LIVRAISON  :<br>
+                            <span style="font-weight:700;">{{model.etat_livraison}}</span>
+                        </p> 
+                    </div>    
+                 </div>   
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>Code reception :<br>
+                            <span class="sub-alt-header">{{ model.code }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Date Livraison Prévue :<br>
+                            <span class="sub-alt-header">{{model.date_prevue|date:"d/m/Y"}}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Description :<br>
+                            <span class="sub-alt-header">{{ model.description }}</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Emplacement Destination :<br>
+                            {% if model.emplacement_destination is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% else %}
+                            <span class="sub-alt-header"><a class="link chargement-au-click" href="{% url 'module_stock_detail_emplacement' model.emplacement_destination_id %}">{{ model.emplacement_destination }}</a></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Emplacement Origine :<br>
+                            {% if model.emplacement_origine is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% else %}
+                            <span class="sub-alt-header"><a class="link chargement-au-click" href="{% url 'module_stock_detail_emplacement' model.emplacement_origine_id %}">{{ model.emplacement_origine }}</a></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Opération Stock :<br>
+                            {% if model.operation_stock is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% else %}
+                            <span class="sub-alt-header"><a class="link chargement-au-click" href="">{{ model.operation_stock }}</a></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Livré :<br>
+                            {% if model.status is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% elif model.status.id == 1 %}
+                                    <span style="font-weight:700;">{{model.status}}</span> <br> <span class="badge_green rounded-pill text-bg-primary">En cours</span> 
+                            {% elif model.status.id == 2 %}
+                                    <span style="font-weight:700;">{{model.status}}</span> <br> <span class="badge_yellow rounded-pill text-bg-primary">En cours</span>
+                            {% else %}
+                                    <span style="font-weight:700;">{{model.status}}</span> <br> <span class="badge_red rounded-pill text-bg-primary">Livré</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Bon de Livraison :<br>
+                            {% if model.bon_livraison %}
+                            <a href="{% static model.bon_livraison.url %}"><img src="{% static 'ErpProject/image/document.png' %}" style="height: 70px; width: 70px;"></a>
+                            <br><span style=" color: #000; font-size: 9px;">{{model.bon_livraison.name|truncatechars:25}}</span>                          
+                            {% else %}<span class="sub-alt-header">Aucun document attaché</span>{% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Employé :<br>
+                            {% if model.employe is None %}
+                            <span class="sub-alt-header"> - </span>
+                            {% else %}
+                            <span class="sub-alt-header"><a class="link chargement-au-click" href="">{{ model.employe }}</a></span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>     
+                <br><br>
+                <div class="row">
+                    <ul class="nav nav-tabs navtab-bg"> 
+                        <li class="active"><a href="#frame_autres" data-toggle="tab" aria-expanded="false"><span>Autres informations</span></a></li>
+                        <li class=""><a href="#frame_documents" data-toggle="tab" aria-expanded="false"><span>Documents associés</span></a></li>
+                    </ul>
+                    <div class="tab-content"> 
+                        <div class="tab-pane active" id="frame_autres">
+                            <div class="row margin20 no-margin-left no-margin-right">                                
+                                <div class="col-md-9">
+                                    <table class="table bordered no-margin" style="width:100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>Lines Bons de Receptions</th>
+                                                <th>Quantité reçuee</th>
+                                            </tr>
+                                        </thead>                
+                                        <tbody class="tbl_posts_body">
+                                            {% for item in model.lignes_bon_reception.all %}
+                                                <tr>
+                                                    <td>
+                                                        <span class="sub-alt-header">{{ item }}</span>
+                                                    </td>
+                                                    <td><span class="sub-alt-header">{{ item.quantite_fait }} {{ item.unite.short_name }}</span></td>
+                                                </tr>
+                                            {% endfor %}  
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="frame_documents">
+                            <div class="row margin20 no-margin-left no-margin-right">
+                                {% for item in documents %}
+                                <div class="col-md-4">
+                                    <div class="card-item" style="margin-top: 10px; margin-bottom: 15px">
+                                        <div class="card-item-content" style="margin: 10px">
+                                            <div class="thumb kanban_image" data-mimetype="application/pdf">
+                                            </div>
+                                            <div class="texts">
+                                                <div class="texts-record_selector">
+                                                    <a class="link chargement-au-click" href="{% if item.fichier %}{% static item.fichier.url %}{% else %}{% url 'module_archivage_detail_document' item.id %}{% endif %}" style="float: left;">{{ item.designation }}</a>
+                                                </div>
+                                                <br>
+                                                <div class="mt-2"></div>
+                                                <span class="inner-text">{{ item.dossier.designation }}</span><br>
+                                                <div class="texts-favorite">
+                                                    <span class="inner-text" style="float: left;">{{ item.creation_date|date:'d/m/Y' }}</span>
+                                                </div>
+                                                <br>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //-------  Deux variables pour la suppression  ---------------
+    var modele = "Model_Bon_reception"
+    var the_url = "module_stock_list_bon_reception"
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/item_view.html' %}
+{% endblock %}

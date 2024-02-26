@@ -1,0 +1,698 @@
+@font-face {
+    font-family: 'Inconsolata';
+    src: url('../fonts/Inconsolata-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.ticket {
+    font-family: 'Inconsolata'!important;
+}
+
+.erp-hidden {
+    display: none!important;
+}
+
+.price-tag {
+    /*position: absolute;*/
+    float: right;
+    top: 2px;
+    right: 2px;
+    vertical-align: top;
+    color: white;
+    line-height: 13px;
+    background: #7f82ac;
+    padding: 2px 5px;
+    border-radius: 2px;
+}
+
+.leftpane {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    /*position: absolute;*/
+    left: 0;
+    /*width: 440px;*/
+    top: 0px;
+    bottom: 0;
+    border-right: solid 1px #CECBCB;
+    border-right: solid 3px #787878;
+    background: #e2e2e2;
+}
+
+.order-container {
+    /*position: absolute;*/
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background: white;
+}
+
+.order-scroller {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.order {
+    background: white;
+    padding-bottom: 8px;
+    padding-top: 8px;
+    font-size: 16px;
+    text-align: left;
+    max-width: 500px;
+    -webkit-transform: translate3d(0, 0, 0);
+}
+
+.order .orderline {
+    width: 100%;
+    margin: 0px;
+    padding-top: 3px;
+    padding-bottom: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    cursor: pointer;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-transition: background 250ms ease-in-out;
+    -moz-transition: background 250ms ease-in-out;
+    transition: background 250ms ease-in-out;
+    display: list-item;
+    text-align: -webkit-match-parent;
+    list-style-type: none;
+}
+
+.order li {
+    list-style-type: none!important;
+}
+
+.order ul,
+ol {
+    margin-left: -2rem!important;
+}
+
+.order .orderline.selected {
+    background: rgba(140, 143, 183, 0.2);
+    -webkit-transition: background 250ms ease-in-out;
+    -moz-transition: background 250ms ease-in-out;
+    transition: background 250ms ease-in-out;
+    cursor: default;
+}
+
+.order .orderline .article-name {
+    padding: 0;
+    display: inline-block;
+    font-weight: bold;
+    width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.order .orderline .price-order {
+    padding: 0;
+    font-weight: bold;
+    float: right;
+}
+
+.order .orderline .info-list {
+    color: #888;
+    margin-left: 10px;
+}
+
+.order .orderline .info-list em {
+    color: #777;
+    font-weight: bold;
+    font-style: normal;
+}
+
+.order .summary {
+    width: 100%;
+    text-align: right;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.order .summary .line {
+    float: right;
+    margin-right: 15px;
+    margin-left: 15px;
+    padding-top: 5px;
+    border-top: solid 2px;
+    border-color: #777;
+}
+
+.order .summary .line .subentry {
+    font-size: 16px;
+    font-weight: normal;
+    text-align: center;
+}
+
+.order .summary .total {
+    font-size: 18px;
+}
+
+.leftpane .pads {
+    border-top: solid 3px #1ba1e2;
+}
+
+.actionpad {
+    display: inline-block;
+    float: left;
+    padding: 0;
+    margin-right: 0;
+    text-align: center;
+    vertical-align: top;
+    border: none;
+    border-radius: 0;
+    border-top: 1px solid;
+    border-left: 1px solid;
+    border-color: #bfbfbf;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.actionpad .button {
+    position: relative;
+    display: block;
+    height: 54px;
+    width: 100%;
+    font-weight: bold;
+    vertical-align: middle;
+    color: #555555;
+    font-size: 14px;
+    border-radius: 0;
+    border: none;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+    border-color: #bfbfbf;
+    transition: all 150ms linear;
+}
+
+.actionpad .pay {
+    height: 155px;
+    text-align: center;
+    padding-top: 1.531rem;
+    background: white;
+    position: relative;
+    display: block;
+    width: 100%;
+    font-weight: bold;
+    vertical-align: middle;
+    color: #555555;
+    font-size: 14px;
+    border-radius: 0;
+    border: none;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+    border-color: #bfbfbf;
+    transition: all 150ms linear;
+}
+
+.numpad {
+    display: inline-block;
+    float: right;
+    text-align: center;
+    margin-top: 8px;
+    margin-left: 0px;
+    border: none;
+    border-radius: 0;
+    border-top: 1px solid;
+    border-color: #bfbfbf;
+    border-top-right-radius: 4px;
+}
+
+.numpad button {
+    float: left;
+    height: 54px;
+    width: 54px;
+    font-weight: bold;
+    vertical-align: middle;
+    color: #555555;
+    border-radius: 0;
+    border: none;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+    border-color: #bfbfbf;
+    transition: all 150ms linear;
+}
+
+.numpad button:hover {
+    background: #efefef;
+}
+
+.numpad button:active {
+    background: black;
+    color: white;
+    border-color: transparent;
+}
+
+.numpad button:nth-child(4) {
+    border-top-right-radius: 4px;
+}
+
+.numpad button:last-child {
+    border-bottom-right-radius: 4px;
+}
+
+.numpad .input-button {
+    font-size: 24px;
+}
+
+.mode-button.selected-mode {
+    color: white;
+    background: #1ba1e2;
+    border-color: transparent;
+}
+
+.mode-button {
+    font-size: 14px;
+}
+
+.mode-button.selected-mode:hover {
+    background: #1ba1e2;
+    color: white;
+    border-color: transparent;
+}
+
+.screen-content {
+    margin: 0px auto;
+    max-width: 1024px;
+    text-align: left;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+@media screen and (min-width: 1024px) {
+    .screen-content {
+        border-left: dashed 1px rgb(215, 215, 215);
+        border-right: dashed 1px rgb(215, 215, 215);
+    }
+}
+
+.top-content {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    height: 64px;
+    border-bottom: dashed 1px rgb(215, 215, 215);
+    text-align: center;
+}
+
+.full-content {
+    position: absolute;
+    right: 0%;
+    top: 65px;
+    bottom: 0px;
+    left: 0%;
+}
+
+.subwindow-container-fix {
+    max-height: 500px;
+    height: 100%;
+    position: relative;
+}
+
+.scrollable-y {
+    overflow: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+
+/* The Client List Screen */
+
+.clientlist-screen .client-list {
+    font-size: 16px;
+    width: 100%;
+    line-height: 40px;
+}
+
+.clientlist-screen .client-list th,
+.clientlist-screen .client-list td {
+    padding: 0px 8px;
+}
+
+.clientlist-screen .client-list tr {
+    transition: all 150ms linear;
+    background: rgb(230, 230, 230);
+}
+
+.clientlist-screen .client-list thead>tr,
+.clientlist-screen .client-list tr:nth-child(even) {
+    background: rgb(247, 247, 247);
+}
+
+.clientlist-screen .client-list tr.highlight {
+    transition: all 150ms linear;
+    background: #1ba1e2!important;
+    color: white;
+}
+
+.clientlist-screen .client-list tr.lowlight {
+    transition: all 150ms linear;
+    background: rgb(216, 238, 227);
+}
+
+.clientlist-screen .client-list tr.lowlight:nth-child(even) {
+    transition: all 150ms linear;
+    background: rgb(227, 246, 237);
+}
+
+.clientlist-screen .client-details {
+    padding: 16px;
+    border-top: solid 5px #1ba1e2;
+    border-bottom: solid 5px #1ba1e2;
+    background: rgb(255, 255, 255);
+}
+
+.clientlist-screen .client-picture {
+    height: 64px;
+    width: 64px;
+    border-radius: 32px;
+    overflow: hidden;
+    text-align: center;
+    float: left;
+    margin-right: 16px;
+    background: white;
+    position: relative;
+}
+
+.clientlist-screen .client-picture>img {
+    position: absolute;
+    top: -9999px;
+    bottom: -9999px;
+    right: -9999px;
+    left: -9999px;
+    max-height: 64px;
+    margin: auto;
+}
+
+.clientlist-screen .client-picture>.fa {
+    line-height: 64px;
+    font-size: 32px;
+}
+
+.clientlist-screen .client-picture .image-uploader {
+    position: absolute;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.clientlist-screen .client-name {
+    font-size: 32px;
+    line-height: 64px;
+    margin-bottom: 16px;
+}
+
+.clientlist-screen .undo {
+    right: 80px!important;
+}
+
+.clientlist-screen .edit-buttons {
+    position: absolute;
+    right: 16px;
+    top: 10px;
+}
+
+.clientlist-screen .edit-buttons .button {
+    display: inline-block;
+    margin-left: 16px;
+    color: rgb(128, 128, 128);
+    cursor: pointer;
+    font-size: 36px;
+}
+
+.clientlist-screen .client-details-box {
+    position: relative;
+    font-size: 16px;
+}
+
+.clientlist-screen .client-details-left {
+    width: 50%;
+    float: left;
+}
+
+.clientlist-screen .client-details-right {
+    width: 50%;
+    float: right;
+}
+
+.clientlist-screen .client-detail {
+    line-height: 24px;
+}
+
+.clientlist-screen .client-detail>.label {
+    font-weight: bold;
+    display: inline-block;
+    width: 75px;
+    text-align: right;
+    margin-right: 8px;
+}
+
+.clientlist-screen .client-details input,
+.clientlist-screen .client-details select {
+    padding: 4px;
+    border-radius: 3px;
+    border: solid 1px #cecbcb;
+    margin-bottom: 4px;
+    background: white;
+    font-family: "Lato", "Lucida Grande", Helvetica, Verdana, Arial;
+    color: #555555;
+    width: 340px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.clientlist-screen .client-details input.client-name {
+    font-size: 24px;
+    line-height: 24px;
+    margin: 18px 6px;
+    width: 340px;
+}
+
+.clientlist-screen .client-detail>.empty {
+    opacity: 0.3;
+}
+
+.clientlist-screen .searchbox {
+    right: auto;
+    margin-left: -90px;
+    margin-top: 8px;
+    left: 50%;
+}
+
+.clientlist-screen .searchbox input {
+    width: 120px;
+}
+
+.clientlist-screen .button.new-customer {
+    left: 50%;
+    margin-left: 120px;
+}
+
+
+/* The receipt screen */
+
+.receipt-screen .centered-content .button {
+    line-height: 40px;
+    padding: 3px 13px;
+    font-size: 20px;
+    text-align: center;
+    background: rgb(230, 230, 230);
+    margin: 16px;
+    margin-bottom: 0px;
+    border-radius: 3px;
+    border: solid 1px rgb(209, 209, 209);
+    cursor: pointer;
+}
+
+.pos-receipt-container {
+    font-size: 0.75em;
+    text-align: center;
+}
+
+.pos-sale-ticket {
+    text-align: left;
+    width: 300px;
+    background-color: white;
+    /*margin: 20px;*/
+    /*padding: 15px;*/
+    font-size: 14px;
+    padding-bottom: 30px;
+    display: inline-block;
+    font-family: "Inconsolata";
+    /*border: solid 1px rgb(220,220,220);*/
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.pos-sale-ticket pre {
+    font-family: "Inconsolata";
+}
+
+.pos-sale-ticket .emph {
+    font-size: 20px;
+    margin: 5px;
+}
+
+.pos-sale-ticket table {
+    width: 100%;
+    border: 0;
+    table-layout: fixed;
+}
+
+.pos-sale-ticket table td {
+    border: 0;
+    word-wrap: break-word;
+}
+
+@media (min-width: 320px) {
+    .numpad {
+        width: 17rem;
+    }
+    .actionpad {
+        width: 6rem;
+        margin-top: 0.5rem;
+        margin-left: 0.25rem;
+    }
+}
+
+@media (min-width: 360px) {
+    .numpad {
+        width: 16rem;
+    }
+    .actionpad {
+        width: 7.5rem;
+        margin-top: 0.5rem;
+        margin-left: 1rem;
+    }
+}
+
+@media (min-width: 375px) {
+    .numpad {
+        width: 16rem;
+    }
+    .actionpad {
+        width: 7.5rem;
+        margin-top: 0.5rem;
+        margin-left: 2rem;
+    }
+}
+
+@media (min-width: 568px) {
+    .numpad {
+        width: 17rem;
+    }
+    .actionpad {
+        width: 14.5rem;
+        margin-top: 0.5rem;
+        margin-left: 2rem;
+    }
+}
+
+@media (min-width: 667px) {
+    .numpad {
+        width: 16rem;
+    }
+    .actionpad {
+        width: 14rem;
+        margin-top: 0.5rem;
+        margin-left: 4rem;
+    }
+}
+
+@media (min-width: 731px) {
+    .numpad {
+        width: 14rem;
+    }
+    .actionpad {
+        width: 6.5rem;
+        margin-top: 0.5rem;
+        margin-left: 0.5rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .numpad {
+        width: 14rem;
+    }
+    .actionpad {
+        width: 7rem;
+        margin-top: 0.5rem;
+        margin-left: 1.5rem;
+    }
+}
+
+@media (min-width: 812px) {
+    .numpad {
+        width: 15rem;
+    }
+    .actionpad {
+        width: 10rem;
+        margin-top: 0.5rem;
+        margin-left: 3.5rem;
+    }
+}
+
+@media (min-width: 823px) {
+    .numpad {
+        width: 15rem;
+    }
+    .actionpad {
+        width: 12rem;
+        margin-top: 0.5rem;
+        margin-left: 3rem;
+    }
+}
+
+@media (min-width: 900px) {
+    .numpad {
+        width: 16.5rem;
+    }
+    .actionpad {
+        width: 12rem;
+        margin-top: 0.5rem;
+        margin-left: 4rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .numpad {
+        width: 13.5rem;
+    }
+    .actionpad {
+        width: 7rem;
+        margin-top: 0.5rem;
+        margin-left: 0.5rem
+    }
+    #items-panel-articles {
+        float: right;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        height: 36rem;
+    }
+}
+
+@media (min-width: 1224px) {
+    .numpad {
+        width: 13.5rem;
+    }
+    .actionpad {
+        width: 9.5rem;
+        margin-top: 0.5rem;
+        margin-left: 0.5rem
+    }
+}

@@ -1,0 +1,60 @@
+
+<!-- data-validate-func="min" data-validate-arg="1" data-validate-hint="{{ hint }}" -->
+<select name="{{ name }}" id="{{ id }}"  onclick="remplirSelect()">
+    <option value="0">{{hint}}</option>
+    
+    <script>
+        $('select').on('focus',
+            function remplirSelect(){
+                var choix = '{{ model }}';
+                var model_choix = choix;
+
+                if ($(this).val() == '0'){
+                    $('#{{ id }}').find('option').remove().end();
+                    $.get(
+                        "{% url 'backoffice_list_model' %}",
+                        {model_choix : choix},
+                        
+                        function (data) {
+                            if(data.length == 0){
+                                var option = "<option value='-100'>Créer nouveau...</option>";
+                                var option_1 = "<option value='0'>{{ hint }}</option>";
+                                $("#{{ id }}").append(option_1);
+                                $("#{{ id }}").append(option);
+                            }
+                            else{
+                                var option_1 = "<option value='0'>{{ hint }}</option>";
+                                //var option = "<option value='-100'>Créer nouveau...</option>";
+                                $("#{{ id }}").append(option_1);
+                                $("#{{ id }}").append(option);
+                                for (var i = 0; i < data.length; i++) {
+                                    var leModel = data[i];
+
+                                    var option = "<option value='" + leModel.id + "'>" + leModel.designation + "</option>";
+                                    $("#{{ id }}").append(option);
+                                }
+                            }
+                        },
+                        'json'
+                    );
+                }else{
+                    var myurl = "{{ url }}"
+                    if ($(this).val() == '-100'){
+                        $('#{{id}}').val('0')
+                        console.log(window)
+                        var newwindow = window.open(myurl, '','_blank, height = 690, width = 850');
+                        console.log(newwindow)
+                    }
+
+                }
+            }
+
+        );
+        $('submit').click(function(){
+            var openW = window.opener.location.href = "/";
+            var closeW = window.close();
+        });   
+        
+    </script>
+        
+</select>

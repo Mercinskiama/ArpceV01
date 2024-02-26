@@ -1,0 +1,144 @@
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+{% if not isPopup %}
+<style>
+    .griseinput{
+        background-color: #d9d9d9;
+    }
+</style>
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_list_rebut' %}">Liste des Rebuts</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    {% if not isPopup %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_get_upload_rebut' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Importer les données à partir excel</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_list_rebut' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                    {% endif %}
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <form id="form" method="POST" action="{% url 'module_stock_post_add_rebut' %}"  enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    {% if isPopup %}<input id="isPopup" name="isPopup" value="1" type="text" style="display: none">{% endif %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Numéro</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="numero" class="griseinput" id="numero" type="text" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Date</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size datetimepicker">
+                                <input type="text" name="date" id="date" placeholder="jj/mm/aaaa hh:mm">
+                                <div class="button"><span class="glyphicon glyphicon-screenshot far fa-calendar" style="margin-right:3px;"></span><span class="glyphicon glyphicon-screenshot far fa-clock"></span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Article</label>
+                            <div class="input-control text full-size">                                
+                                <select name="article_id" id="article_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% comment %} <option class="create_option" value='-100' data-url="/stock/article/add?isPopup=1">Créer nouveau...</option> {% endcomment %}
+                                    <option class="search_option" value='-200' data-url="/stock/article/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in articles %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Quantité</label>
+                            <div class="input-control number full-size" data-role="input">
+                                <input name="quantite" id="quantite" type="number" step="0.01" data-validate-func="number" data-validate-hint="Saisissez un nombre valide sur le champ Quantité SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Société</label>
+                            <div class="input-control text full-size">                                
+                                <select name="societe_id" id="societe_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% comment %} <option class="create_option" value='-100' data-url="/configuration/societe/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/configuration/societe/list?isPopup=1">Voir plus ...</option> {% endcomment %}
+                                    {% for item in societes %}
+                                        <option {% if item.id == 1 %} {{ "selected" }} {% endif %} value="{{ item.id }}">{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Emplacement d'origine</label>
+                            <div class="input-control text full-size">                                
+                                <select name="emplacement_origine_id" id="emplacement_origine_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% comment %} <option class="create_option" value='-100' data-url="/stock/emplacement/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/emplacement/list?isPopup=1">Voir plus ...</option> {% endcomment %}
+                                    {% for item in emplacements_origine %}
+                                        <option value="{{ item.id }}" selected>{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Emplacement rébut</label>
+                            <div class="input-control text full-size">                                
+                                <select name="emplacement_rebut_id" id="emplacement_rebut_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% comment %} <option class="create_option" value='-100' data-url="/stock/emplacement/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/emplacement/list?isPopup=1">Voir plus ...</option> {% endcomment %}
+                                    {% for item in emplacement_rebut %}
+                                        <option value="{{ item.id }}" selected>{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Explication Article mise en Rébut</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <textarea name="document" id="document" data-validate-func="required" data-validate-hint="Saisissez le champ Explication SVP !"></textarea>
+                            </div>
+                        </div>
+                    </div>     
+                    <br><br>
+                    <div class="row">
+                        <ul class="nav nav-tabs navtab-bg"> 
+                            <li class="active"><a href="#frame_autres" data-toggle="tab" aria-expanded="false"><span>Autres informations</span></a></li>
+                        </ul>
+                        <div class="tab-content"> 
+                            <div class="tab-pane active" id="frame_autres">
+                                <div class="row margin20 no-margin-left no-margin-right">                                                                
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<script>
+    url_item = "{% url 'module_stock_select_rebut' '100' %}";    
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/create_view.html' %}
+{% endblock %}

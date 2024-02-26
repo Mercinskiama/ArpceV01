@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_607" data-name="Rectangle 607" width="24" height="24" transform="translate(68 413)" fill="#fff" stroke="#707070" stroke-width="1"/>
+    </clipPath>
+  </defs>
+  <g id="Tableau_de_bord" data-name="Tableau de bord" transform="translate(-5387 -4150)">
+    <g id="Groupe_de_masques_8" data-name="Groupe de masques 8" transform="translate(5319 3737)" clip-path="url(#clip-path)">
+      <g id="dashboard-level" transform="translate(68 413)">
+        <path id="Tracé_332" data-name="Tracé 332" d="M17.022,6.913a.522.522,0,0,0,.522-.522V4.826a.522.522,0,0,0-1.043,0V6.391A.522.522,0,0,0,17.022,6.913Z" transform="translate(-5.022 -1.696)" fill="#fff"/>
+        <path id="Tracé_333" data-name="Tracé 333" d="M23.754,9.874a.522.522,0,0,0,.738,0L25.6,8.768a.522.522,0,0,0-.738-.738L23.754,9.137A.522.522,0,0,0,23.754,9.874Z" transform="translate(-6.959 -2.67)" fill="#fff"/>
+        <path id="Tracé_334" data-name="Tracé 334" d="M26.543,17.022a.522.522,0,0,0,.522.522H28.63a.522.522,0,0,0,0-1.043H27.065a.522.522,0,0,0-.522.521Z" transform="translate(-7.761 -5.022)" fill="#fff"/>
+        <path id="Tracé_335" data-name="Tracé 335" d="M9.874,9.874a.522.522,0,0,1-.738,0L8.03,8.768a.522.522,0,0,1,.738-.738L9.874,9.137a.522.522,0,0,1,0,.737Z" transform="translate(-2.67 -2.67)" fill="#fff"/>
+        <path id="Tracé_336" data-name="Tracé 336" d="M6.913,17.022a.522.522,0,0,1-.522.522H4.826a.522.522,0,0,1,0-1.043H6.391A.522.522,0,0,1,6.913,17.022Z" transform="translate(-1.696 -5.022)" fill="#fff"/>
+        <path id="Tracé_337" data-name="Tracé 337" d="M13.816,10.1a51.229,51.229,0,0,0,1.061,5.853A1.565,1.565,0,1,0,17.7,14.6a51.329,51.329,0,0,0-3.884-4.5Z" transform="translate(-4.29 -3.275)" fill="#fff"/>
+        <path id="Tracé_338" data-name="Tracé 338" d="M12.717.717a12,12,0,1,0,12,12A12,12,0,0,0,12.717.717ZM2.589,16.891a10.957,10.957,0,1,1,20.257,0Z" transform="translate(-0.717 -0.717)" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>

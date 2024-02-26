@@ -1,0 +1,1850 @@
+{% load humanize %} {% load static %} {% load account_filters %}
+<form id="form" method="GET" action="{% url 'back_office_data_request' %}" >
+    <input id="submit" type="submit" style="display: none">
+    <input name="view" type="text" value="{{view}}" style="display: none">
+    <input id="model_id" name="model_id" type="text" value="{{model_id}}" style="display: none">
+    <input id="input_order_by" name="order_by" value="id" style="display: none"/>
+    <input id="input_order_sens" name="order_sens" value="asc" style="display: none"/>
+    <input id="input_limit" name="limit" value="10" style="display: none"/>
+    <input id="chart_view" name="chart_view" value="bar-chart" style="display: none"/>
+    <!-- Modal Résumé de la requête -->
+    <div id="modal_requete" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Résumé de la requête</h4>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        <div class="row">
+                            <table id="table-resume" class="table nowrap border bordered striped" cellspacing="0" style="overflow: auto; position: relative;width:100%">
+                            </table>
+                        </div>
+                    </center>
+                    <hr>
+                    <center>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Fermer</button>
+                    </center>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Champs à afficher -->
+    <div id="modal_select_champs" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Sélectionner les champs</h4>
+                </div>
+                <div class="modal-body">
+                    <center>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Champs</label>
+                                <div class="text full-size">
+                                    <select multiple="multiple" class="multi-select multi_select2" name="champs_afficher" id="champs_afficher">
+                                        {% for name, db_name, verbose_name, type, choices in champs %}<option value="{% if type == 'ForeignKey' %}{{ name }}_id{% else %}{{ name }}{% endif %}"  data-type="{{type}}">{{verbose_name}}</option>{% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </center>
+                    <hr>
+                    <center>
+                        <div id="btnAchifferChamps" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" data-dismiss="modal">Appliquer</div>
+                        <button type="button" class="theme-btn theme-btn-sm rounded" data-dismiss="modal">Annuler</button>
+                    </center>
+                </div>
+            </div>
+        </div>
+    </div> 
+    </form>
+    
+    {% if view == "pivot" or view == "chart"%}
+    <script type="text/javascript" src="{% static 'ErpProject/js/Chart.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/pivottable/pivot.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/pivottable/pivot.fr.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/pivottable/export_renderers.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/pivottable/plotly.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/pivottable/plotly_renderers.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/pivottable/jquery.ui.touch-punch.min.js' %}"></script>
+    {% elif view == "table" %}
+    <script type="text/javascript" src="{% static 'ErpProject/js/pdf/print.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.debug.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/cell.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/jspdf.plugin.autotable.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/from_html.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/pdf/libs/html2canvas.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/clipboard.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/FileSaver.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ErpProject/js/xlsx.full.min.js' %}"></script> 
+    {% endif %}
+    <script src="{% static 'ErpProject/js/sweetalert2.all.js' %}"></script>
+    <script src="{% static 'ErpProject/js/jquery.multi-select.js' %}"></script>
+    <script src="{% static 'ErpProject/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <style type="text/css">
+        @import url({% static 'ErpProject/css/sweetcss.css' %});
+        @import url({% static 'ErpProject/css/multi-select.css' %});
+        @import url({% static 'ErpProject/css/bootstrap-datetimepicker.min.css' %});
+    </style>
+    <script>
+    
+        //VARIABLE ET INITIALISATION	
+        var champs = new Array();
+        var champsNombre = new Array();
+        var champsTexte = new Array();
+        var champsDate = new Array();
+        var compteur = 0;
+        var idFiltre = 0;
+        var idRegrouper = 0;
+    
+        {% for name, db_name, verbose_name, type, choices in champs %}
+            var choices = new Array();
+            {% for ch in choices %}
+                choices.push({id:"{{ ch.id }}", designation:"{{ ch.designation }}"});
+            {% endfor %}
+            champs.push({name:"{{ name }}", db_name:"{{ db_name }}", verbose_name:"{{ verbose_name }}", type:"{{ type }}", choices:choices});
+        {% endfor %}
+    
+        {% for name, db_name, verbose_name in champs_nombre %}
+            champsNombre.push({name:"{{ name }}", db_name:"{{ db_name }}", verbose_name:"{{ verbose_name }}"});
+        {% endfor %}
+    
+        {% for name, db_name, verbose_name in champs_texte %}
+            champsTexte.push({name:"{{ name }}", db_name:"{{ db_name }}", verbose_name:"{{ verbose_name }}"});
+        {% endfor %}
+    
+        {% for name, db_name, verbose_name in champs_date %}
+            champsDate.push({name:"{{ name }}", db_name:"{{ db_name }}", verbose_name:"{{ verbose_name }}"});
+        {% endfor %}
+    
+        $(document).ready(function(){
+            $('.multi_select2').multiSelect();
+    
+            $('.datetimepicker').datetimepicker({
+                "allowInputToggle": true,
+                "showClose": true,
+                "showClear": true,
+                "showTodayButton": true,
+                "format": "DD/MM/YYYY HH:mm:ss",
+                "locale": "fr",
+            });
+    
+            $('.show-bar-chart').show();
+            $('#show-pie-chart').hide();
+            $('#show-line-chart').hide();
+            $('#show-more-chart').hide();
+    
+            $('#btn-favoris').show();
+    
+    
+            $(".li-toggle > i").removeClass("fa-caret-down");
+            $(".li-toggle > i").addClass("fa-caret-right");
+            $(".li-toggle > i").data("show", false);
+    
+            $(document).delegate('.dropdown-menu', 'click', function(e) {  
+                e.preventDefault();
+                e.stopPropagation();
+            });
+    
+            //GESTION FILTRE
+            $(document).delegate('#dropdown-filtre .dropdown-item', 'click', function(e) {  
+                e.preventDefault();
+                console.log(".dropdown-item cliquer");
+                if ($(this).hasClass("li-toggle") != true) {
+                    console.log("li-toggle != true");
+                    if ($(this).hasClass("selected") === true) { 
+                        //Quand c'est sélectionné, Désélectionner 
+                        console.log("hasClass selected");
+                        $(this).removeClass("selected");
+                        $(this).data("selected", false); 
+    
+                        //Supprimer la requête 
+                        var id_filtre = $(this).data("id");
+                        $("#"+id_filtre).remove();
+                    } else {
+                        //Quand c'est pas sélectionné, On sélectionne
+                        console.log("hasClass not selected");
+                        $(this).addClass("selected");
+                        $(this).data("selected", true);
+    
+                        //Enregistrer la requête 
+                        var type_filtre = $(this).data("type");
+                        var id_filtre = $(this).data("id");
+                        if(type_filtre == "perso") {
+                            console.log("type_filtre == perso");
+                            var filter_perso_name = $(this).data("name");
+                            var tr_requete =`
+                                <tr data-type="filtre" id="${id_filtre}">
+                                    <td class="primary_color_{{module.name|lower}}">
+                                        <center>
+                                            <i class="fa fa-filter" style="color:#fff;font-size:15px;"></i>
+                                        <center>
+                                    </td>
+                                    <td>${filter_perso_name}</td>
+                                    <td><span class="item" title="Supprimer la Requête" id="btnSupprimerRequete"><span class="mif-cross fg-red"></span></span></td>
+                                </tr>  
+                            `; 
+                            $("#table-resume").append(tr_requete);
+    
+                            var content = $(this).parent().find("div").clone(); 
+                            $('#'+id_filtre).append(content);
+    
+                        }else if(type_filtre == "value") {
+                            console.log("type_filtre == value");
+                            var logic = $(this).data("logic");
+                            var item = $(this).data("item");
+                            var operateur = $(this).data("operateur");
+                            var value = $(this).data("value");
+    
+                            var tr_requete =`
+                                <tr data-type="filtre" id="${id_filtre}">
+                                    <td class="primary_color_{{module.name|lower}}">
+                                        <center>
+                                            <i class="fa fa-filter" style="color:#fff;font-size:15px;"></i>
+                                        <center>
+                                    </td>
+                                    <td>${$(this).text()}</td>
+                                    <td><span class="item" title="Supprimer la Requête" id="btnSupprimerRequete"><span class="mif-cross fg-red"></span></span></td>
+                                    <input type="hidden" id="filter_logic" name="filter_logic" value="${logic}" />
+                                    <input type="hidden" id="filter_item" name="filter_item" value="${item}" />
+                                    <input type="hidden" id="filter_operateur" name="filter_operateur" value="${operateur}" />
+                                    <input type="hidden" id="filter_valeur" name="filter_valeur" value="${value}" />
+                                </tr>  
+                            `; 
+                            $("#table-resume").append(tr_requete);                        
+                        }
+                    }
+                    //Requete Ajax
+                    document.getElementById('submit').click();
+                }
+            });
+    
+            $(document).delegate('#btnAjouterFiltre', 'click', function(e) {  
+                e.preventDefault();
+                console.log("#btnAjouterFiltre cliquer");
+                idFiltre++;
+                var nouvelleLigne =`
+                <li>
+                    <a href="#" id="filter_personnalise_${idFiltre}" class="dropdown-item selected" data-id="filter_perso_${idFiltre}" data-selected="true" data-type="perso" data-name="x"> Filtre personnalisé ${idFiltre} </a>
+                    <div id="form_filter_personnalise_${idFiltre}"></div>
+                </li>
+                `; 
+                $(nouvelleLigne).insertBefore("#li-filtre-perso");
+    
+                //On rapporte les variables
+                var filter_perso_name = "";
+                $("#lignes_filtres").find("input, select").map(function(){
+                    if($(this).is("select")){
+                        filter_perso_name = filter_perso_name + $('option:selected',this).text() + " ";
+                    }else{
+                        element = null;    
+                        element = $(this);
+                        element.css("display", "none");
+                        $('#form_filter_personnalise_'+idFiltre).append(element);
+    
+                        if($(this).is("#filter_valeur")){
+                            filter_perso_name = filter_perso_name + $(this).val() + " ";
+                        }                   
+                    }               
+                });
+                filter_perso_name = filter_perso_name.substring(3, filter_perso_name.length);
+                $('#filter_personnalise_'+idFiltre).data("name",filter_perso_name);
+    
+                var values = $('#form_filter_personnalise_'+idFiltre).find("input")
+                  .map(function(){return $(this).val();}).get();
+                console.log(values);
+    
+                //TODO Action dans résumé requête
+                var tr_requete =`
+                    <tr data-type="filtre" id="filter_perso_${idFiltre}">
+                        <td class="primary_color_{{module.name|lower}}">
+                            <center>
+                                <i class="fa fa-filter" style="color:#fff;font-size:15px;"></i>
+                            <center>
+                        </td>
+                        <td>${filter_perso_name}</td>
+                        <td><span class="item" title="Supprimer la requête" id="btnSupprimerRequete"><span class="mif-cross fg-red"></span></span></td>
+                    </tr>  
+                `; 
+                $("#table-resume").append(tr_requete);
+    
+                var content = $('#form_filter_personnalise_'+idFiltre).clone(); 
+                $('#filter_perso_'+idFiltre).append(content);
+    
+                var icone = $("#toggle-filtre-perso").find("i");
+                icone.removeClass("fa-caret-down");
+                icone.addClass("fa-caret-right");
+                icone.data("show", false); 
+                $("#filtre-perso").children().remove(); 
+                //compteur = 0;
+    
+                //Requete Ajax
+                document.getElementById('submit').click();
+            });
+    
+            $(document).delegate('#btnSupprimerLigneFiltre', 'click', function(e) {  
+                e.preventDefault();
+                var indice = $(this).data("compteur");
+                $("#ligne_filtre" + indice).remove();
+            });
+    
+            $(document).delegate('#btnSupprimerRequete', 'click', function(e) {  
+                e.preventDefault();
+                $(this).parent().parent().remove();
+                document.getElementById('submit').click();
+            });
+    
+            $(document).delegate('#toggle-filtre-perso', 'click', function(e) {  
+                e.preventDefault();
+                var icone = $(this).find("i");
+                if (icone.data("show") === true) {  
+                    icone.removeClass("fa-caret-down");
+                    icone.addClass("fa-caret-right");
+                    icone.data("show", false); 
+                    $("#filtre-perso").children().remove(); 
+                    //compteur = 0;              
+                } else {
+                    icone.removeClass("fa-caret-right");
+                    icone.addClass("fa-caret-down");
+                    icone.data("show", true);
+                    compteur++;
+                    var filtre_perso_init =`
+                                <div class="lignes_filtres" id="lignes_filtres">
+                                    <div class="ligne_filtre" id="ligne_filtre${compteur}">
+                                        <li>
+                                            <div class="col-md-3" style="padding-right: 5px!important;padding-left: 5px!important;">
+                                                <div class="input-control text full-size" style="display:none;">
+                                                    <select name="filter_logic" onchange="choix_champ_logic(${compteur})" id="select_filter_logic${compteur}">
+                                                        <option value="OR" selected="selected">OR</option>
+                                                        <option value="AND">AND</option>
+                                                    </select>
+                                                    <input type="hidden" id="input_filter_logic${compteur}" name="filter_logic" value="OR" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8" style="padding-right: 5px!important;padding-left: 5px!important;">
+                                                <div class="input-control text full-size">
+                                                    <select name="champ_filtrage" class="champ_filtrage" id="champ_filtrage${compteur}" data-compteur="${compteur}" data-relationel="False">
+                                                        <option value="">Sélectionnez un champ</option>
+                                                        ${renvoyerOptionsChamps()}
+                                                    </select>
+                                                    <input type="hidden" id="filter_item" name="filter_item" value="" />
+                                                </div>
+                                            </div> 
+                                            <div class="col-md-1" style="padding-right: 5px!important;padding-left: 5px!important;">
+                                            </div>
+                                        </li>
+                                        <li id="li-operateur-${compteur}">
+                                            <div class="col-md-3" style="padding-right: 5px!important;padding-left: 5px!important;"></div>
+                                            <div class="col-md-8" style="padding-right: 5px!important;padding-left: 5px!important;">
+                                                <div class="input-control text full-size">
+                                                    <select class="operateur" id="operateur${compteur}" name="operateur" onchange="choix_champ_operateur(${compteur})">
+                                                        <option value="">Sélectionnez un opérateur</option>
+                                                        <option value="=">Egal</option>
+                                                        <option value=">">Supérieur</option>
+                                                        <option value="<">Inférieur</option>
+                                                        <option value=">=">Supérieur ou Egal</option>
+                                                        <option value="<=">Inferieur ou Egal</option>
+                                                        <option value="<>">Différent</option>
+                                                    </select>
+                                                    <input type="hidden" id="filter_operateur" name="filter_operateur" value="" />
+                                                </div> 
+                                            <div class="col-md-1" style="padding-right: 5px!important;padding-left: 5px!important;"></div>
+                                        </li>
+                                        <li>
+                                            <div class="col-md-3" style="padding-right: 5px!important;padding-left: 5px!important;"></div>
+                                            <div class="col-md-8" style="padding-right: 5px!important;padding-left: 5px!important;">
+                                                <div class="input-control text full-size">
+                                                    <input type="text" id="filter_valeur" name="filter_valeur" class="valeur${compteur}" placeholder="Saisissez une valeur de comparaison" />
+                                                </div>   
+                                            </div> 
+                                            <div class="col-md-1" style="padding-right: 5px!important;padding-left: 5px!important;"></div>
+                                        </li>
+                                    </div>
+                                </div>
+                                <li class="col-md-12"> 
+                                    <div onclick="ajouterLigneFiltre()" class="button small-button rounded"><i class="fa fa-plus"></i> Ajouter condition </div> 
+                                </li>
+                                </br>
+                                <li class="divider"></li>
+                                <li class="col-md-12">
+                                    <div id="btnAjouterFiltre" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Appliquer</div> 
+                                </li>
+                    `; 
+                    $("#filtre-perso").append(filtre_perso_init);
+                }
+            });	
+    
+            //Si le champs du filtre de la fonction date change
+            $(document).delegate('.function_date_filtre', 'change', function(e) {  
+                e.preventDefault();
+                console.log(".champ_filtrage cliquer");
+    
+                var compteur = $(this).data('compteur');
+    
+                var function_date_filtre = $(this).val();
+                var champ_filtrage = $("#champ_filtrage"+compteur).val();
+                var est_relationel = $("#champ_filtrage"+compteur).data('relationel');
+                var typeChoixFiltrage = $("#champ_filtrage"+compteur+" option:selected").data("type");
+                var dbn_champ_filtrage = $("#champ_filtrage"+compteur+" option:selected").data('dbn');
+                if(typeChoixFiltrage == "ForeignKey" || typeChoixFiltrage == "OneToOneField"){
+                    champ_filtrage = $("#champ_filtrage"+compteur+"_fk").val();
+                    est_relationel = $("#champ_filtrage"+compteur+"_fk").data('relationel');
+                }
+    
+                //On initialise la valeur du champs choisi dans le select avec son input
+                var input = $("#champ_filtrage"+compteur).parent().find('input');
+                var filter_item_val = champ_filtrage;
+                if(est_relationel == 'False') { filter_item_val = dbn_champ_filtrage; }
+    
+    
+                //On initialise avec fonction choisie
+                filter_item_val = filter_item_val+";"+function_date_filtre;
+    
+                $(".valeur"+compteur).val("");
+                var today = new Date();
+                var month = ("0" + (today.getMonth() + 1)).slice(-2);
+                var date = ("0" + today.getDate()).slice(-2);
+                if(function_date_filtre == "year"){
+                    var datetime = today.getFullYear();
+                }else if(function_date_filtre == "month"){
+                    var datetime = month+"/"+today.getFullYear();
+                }else if(function_date_filtre == "date"){
+                    var datetime = date+"/"+month+"/"+today.getFullYear();
+                }            
+                $(".valeur"+compteur).val(datetime);
+    
+                console.log('filter_item_val: '+filter_item_val);
+                input.val(filter_item_val);  
+    
+            });
+    
+            //GESTION REGROUPEMENT
+            $(document).delegate('#dropdown-regrouper .dropdown-item', 'click', function(e) {  
+                if ($(this).hasClass("li-toggle") != true) { 
+                    //On supprime la requete 
+                    $('.requete_regroupement').remove();   
+    
+                    if ($(this).data("selected") === true) {  
+                        //Quand s'est sélectionné,on déselectionne
+                        $(this).removeClass("selected");
+                        $(this).data("selected", false);                                   
+                    } else {
+                        //Si c'est pas sélectionner,on déselectionne tous, pour selectionner que l'option cliquez
+                        $('#dropdown-regrouper .dropdown-item').removeClass("selected");
+                        $('#dropdown-regrouper .dropdown-item').data("selected", false);
+                        $(this).addClass("selected");
+                        $(this).data("selected", true);
+    
+                        //Enregistrer la requête 
+                        var value = $(this).data("value");
+                        var funct = $(this).data("function");
+                        var item = value;
+                        if(funct != false){
+                            item = value + ";" + funct;
+                        }
+    
+                        var tr_requete =`
+                            <tr data-type="regrouper" class="requete_regroupement">
+                                <td class="primary_color_{{module.name|lower}}">
+                                    <center>
+                                        <i class="fa fa-bars" style="color:#fff;font-size:15px;"></i>
+                                    <center>
+                                </td>
+                                <td>${$(this).text()}</td>
+                                <td><span class="item" title="Supprimer la Requête" id="btnSupprimerRequete"><span class="mif-cross fg-red"></span></span></td>
+                                <input type="hidden" id="regrouper_item" name="regrouper_item" value="${item}" />
+                            </tr>  
+                        `; 
+                        $("#table-resume").append(tr_requete);                  
+    
+                    }
+                    //Requete Ajax
+                    document.getElementById('submit').click();
+                }
+            });
+    
+            $(document).delegate('#btnAjouterRegrouper', 'click', function(e) {  
+                e.preventDefault();
+                console.log("#btnAjouterRegrouper cliquer");
+    
+                //On déselectionne tous, pour selectionner que l'option choisie
+                $('#dropdown-regrouper .dropdown-item').removeClass("selected");
+                $('#dropdown-regrouper .dropdown-item').data("selected", false);
+    
+                var choixRegrouper = $("#champ_regroupage").val();
+                var textChoixRegrouper = $("#champ_regroupage option:selected").text();
+                var typeChoixRegrouper = $("#champ_regroupage option:selected").data("type");
+                var funct = false;
+                if(typeChoixRegrouper == 'DateTimeField' || typeChoixRegrouper == 'DateField'){
+                    var funct = $("#function_regroupage").val();
+                    var funct_text = $("#function_regroupage option:selected").text();
+                    textChoixRegrouper = `${textChoixRegrouper} (${funct_text})`;
+                }
+                var nouvelleLigne =`
+                <li><a href="#" id="regr_perso_${choixRegrouper}" class="dropdown-item selected" data-selected="true" data-value="${choixRegrouper}" data-function="${funct}"> ${textChoixRegrouper} </a></li>
+                `; 
+                $(nouvelleLigne).insertBefore("#li-regrouper-perso");
+    
+    
+                //On replie le formulaire du regroupement personnalisé
+                var icone = $("#toggle-regrouper-perso").find("i");
+                icone.removeClass("fa-caret-down");
+                icone.addClass("fa-caret-right");
+                icone.data("show", false); 
+                $("#regrouper-perso").children().remove(); 
+    
+                //On supprime la requete 
+                $('.requete_regroupement').remove(); 
+    
+                //Enregistrer la nouvelle requête 
+                var item = choixRegrouper;
+                if(funct != false){
+                    item = choixRegrouper + ";" + funct;
+                }
+    
+                var tr_requete =`
+                    <tr data-type="regrouper" class="requete_regroupement">
+                        <td class="primary_color_{{module.name|lower}}">
+                            <center>
+                                <i class="fa fa-bars" style="color:#fff;font-size:15px;"></i>
+                            <center>
+                        </td>
+                        <td>${textChoixRegrouper}</td>
+                        <td><span class="item" title="Supprimer la Requête" id="btnSupprimerRequete"><span class="mif-cross fg-red"></span></span></td>
+                        <input type="hidden" id="regrouper_item" name="regrouper_item" value="${item}" />
+                    </tr>  
+                `; 
+                $("#table-resume").append(tr_requete); 
+    
+                //Requete Ajax
+                document.getElementById('submit').click();
+            });
+    
+            $(document).delegate('#toggle-regrouper-perso', 'click', function(e) {  
+                e.preventDefault();
+                var icone = $(this).find("i");
+                if (icone.data("show") === true) {  
+                    icone.removeClass("fa-caret-down");
+                    icone.addClass("fa-caret-right");
+                    icone.data("show", false); 
+                    $("#regrouper-perso").children().remove();              
+                } else {
+                    icone.removeClass("fa-caret-right");
+                    icone.addClass("fa-caret-down");
+                    icone.data("show", true);
+                    var regrouper_perso_init =`
+                            <li class="col-md-12">
+                                <div class="input-control text full-size">
+                                    <select name="item" id="champ_regroupage">
+                                    ${renvoyerOptionsChamps()}
+                                    </select>
+                                </div>                           
+                            </li>
+                            <li id="li-divider-regroup" class="divider"></li>
+                            <li class="col-md-12">
+                                <div id="btnAjouterRegrouper" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Appliquer</div> 
+                            </li>   
+                    `; 
+                    $("#regrouper-perso").append(regrouper_perso_init);
+                }
+            });	
+    
+            $(document).delegate('#champ_regroupage', 'change', function(e) {  
+                e.preventDefault();
+    
+                $("#li-function-regroup").remove();
+    
+                var choixRegrouper = $(this).val();
+                var textChoixRegrouper = $("#champ_regroupage option:selected").text();
+                var typeChoixRegrouper = $("#champ_regroupage option:selected").data("type");
+    
+                if(typeChoixRegrouper == 'DateTimeField' || typeChoixRegrouper == 'DateField'){
+                    var select_function =`
+                        <li id="li-function-regroup" class="col-md-12">
+                            <div class="input-control text full-size">
+                                <select name="item" id="function_regroupage">
+                                    <option value="year">Année</option>
+                                    <option value="month">Mois</option>
+                                    <option value="date">Jour</option>
+                                </select>
+                            </div>                           
+                        </li>   
+                    `; 
+                    $(select_function).insertBefore("#li-divider-regroup");
+                }
+            });	
+    
+            $(document).delegate('.tr-toggle', 'click', function(e) {  
+                var icone = $(this).find("i");
+                var value = icone.data("value");
+                console.log("value "+value);
+                var count = icone.data("count");
+                console.log("count "+count);
+                if (icone.data("show") === true) {  
+                    icone.removeClass("fa-caret-down");
+                    icone.addClass("fa-caret-right");
+                    icone.data("show", false);  
+    
+                    $(".sous_element"+count).remove();              
+                } else {
+                    icone.removeClass("fa-caret-right");
+                    icone.addClass("fa-caret-down");
+                    icone.data("show", true);
+    
+                    //On enregistre la requête
+                    var input_request =`
+                        <input type="hidden" id="regroupe_elements" name="regroupe_elements" value="${count};;${value}" />
+                    `; 
+                    $("#form").append(input_request);
+    
+                    //Requete Ajax
+                    document.getElementById('submit').click();
+    
+                    setTimeout(function(){ $("#regroupe_elements").remove(); }, 2000);
+                }
+            });
+    
+    
+            //GESTION PLAGES TEMPS
+            $(document).delegate('#btnAjouterTemps', 'click', function(e) {  
+                e.preventDefault();
+                console.log("#btnAjouterTemps cliquer");
+    
+                var choixItem = $("#item_plage").val();
+                var textChoixItem = $("#item_plage option:selected").text();
+                var choixOperateur = $("#operateur_plage").val();
+                var textChoixOperateur = $("#operateur_plage option:selected").text();
+    
+                //Supprimer ancienne requete
+                $("#tr-requete-plage").remove(); 
+    
+                //Enregistrer la nouvelle requête 
+                var tr_requete =`
+                    <tr id="tr-requete-plage" data-type="plage" class="requete_regroupement">
+                        <td class="primary_color_{{module.name|lower}}">
+                            <center>
+                                <i class="far fa-calendar-alt" style="color:#fff;font-size:15px;"></i>
+                            <center>
+                        </td>
+                        <td>${textChoixItem}: ${textChoixOperateur}</td>
+                        <td><span class="item" title="Supprimer la Requête" id="btnSupprimerRequete"><span class="mif-cross fg-red"></span></span></td>
+                        <input type="hidden" id="plage_item" name="plage_item" value="${choixItem}" />
+                        <input type="hidden" id="plage_valeur" name="plage_valeur" value="${choixOperateur}" />
+                    </tr>  
+                `; 
+                $("#table-resume").append(tr_requete); 
+    
+                //Requete Ajax
+                document.getElementById('submit').click();
+            });
+    
+            //GESTION FAVORIS
+            $(document).delegate('#btnAjouterFavoris', 'click', function(e) {  
+                e.preventDefault();
+                console.log("#btnAjouterFavoris cliquer");
+    
+                var favoris_name = $("#favoris_name").val();
+                var favoris_numero = $("#favoris_numero").val();
+                var favoris_visibilite = $("#favoris_visibilite").val();
+                var nouvelleLigne =`
+                <li><a href="#" id="favoris_${favoris_name}" class="dropdown-item"> ${favoris_name} </a></li>
+                `; 
+                $(nouvelleLigne).insertBefore("#li-favoris");
+    
+    
+                var icone = $("#toggle-favoris").find("i");
+                icone.removeClass("fa-caret-down");
+                icone.addClass("fa-caret-right");
+                icone.data("show", false); 
+                $("#favoris-perso").children().remove(); 
+    
+    
+                //On enregistre la nouvelle requête 
+                var input_favoris =`
+                    <input type="hidden" class="input_favoris" name="favoris_name" value="${favoris_name}" />
+                    <input type="hidden" class="input_favoris" name="favoris_numero" value="${favoris_numero}" />
+                    <input type="hidden" class="input_favoris" name="favoris_visibilite" value="${favoris_visibilite}" />
+                `; 
+                $("#form").append(input_favoris);
+    
+                //Requete Ajax
+                document.getElementById('submit').click();
+            });
+    
+            $(document).delegate('#toggle-favoris', 'click', function(e) {  
+                e.preventDefault();
+                var icone = $(this).find("i");
+                if (icone.data("show") === true) {  
+                    icone.removeClass("fa-caret-down");
+                    icone.addClass("fa-caret-right");
+                    icone.data("show", false); 
+                    $("#favoris-perso").children().remove();              
+                } else {
+                    icone.removeClass("fa-caret-right");
+                    icone.addClass("fa-caret-down");
+                    icone.data("show", true);
+                    compteur++;
+                    var favoris_init =`
+                            <li class="col-md-12">
+                                <div class="input-control text full-size">
+                                    <input maxlength="200" type="text" required="required" name="favoris_numero" id="favoris_numero" class="" placeholder="Saisissez le numéro du favoris" />
+                                </div>                           
+                            </li>
+                            <li class="col-md-12">
+                                <div class="input-control text full-size">
+                                    <input maxlength="200" type="text" required="required" name="favoris_name" id="favoris_name" class="" placeholder="Saisissez la désignation du favoris" />
+                                </div>                           
+                            </li>
+                            <li class="col-md-12">
+                                <div class="input-control text full-size">
+                                    <select name="favoris_visibilite" id="favoris_visibilite">
+                                        <option value="1">Partager avec tous les utilisateurs</option>
+                                        <option value="2">Partager pour mon rôle utilisateur</option>
+                                        <option value="3">Seulement pour moi</option>
+                                    </select>
+                                </div>                           
+                            </li>
+                            <li class="divider"></li>
+                            <li class="col-md-12">
+                                <br><br>
+                                <div id="btnAjouterFavoris" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Sauvegarder</div> 
+                            </li>   
+                    `; 
+                    $("#favoris-perso").append(favoris_init);
+                }
+            });	
+    
+    
+            //GESTION MESURE
+            $(document).delegate('#dropdown-mesure .dropdown-item', 'click', function(e) {
+                var id_measure = $(this).data("id");
+                var value_measure = $(this).data("name");
+                var title_measure = $(this).data("title");
+                var name_measure = "";
+                if ($(this).data("selected") === true) {
+                    //Quand s'est sélectionné,on déselectionne  
+                    $(this).removeClass("selected");
+                    $(this).data("selected", false);  
+    
+                    //Supprimer la requête 
+                    $("."+id_measure).remove();              
+                } else {
+                    if ($(this).hasClass("function-measure") != true) {    
+                        $('#dropdown-mesure .measure ').removeClass("selected");
+                        $('#dropdown-mesure .measure').data("selected", false);
+                        var name_measure = "measure_attribute";
+                    }else{
+                        $('#dropdown-mesure .function-measure ').removeClass("selected");
+                        $('#dropdown-mesure .function-measure').data("selected", false);
+                        var name_measure = "measure_function";
+                    }
+                    $(this).addClass("selected");
+                    $(this).data("selected", true);
+    
+                    //On enregistre la requête
+                    var input_mesure =`
+                        <input type="hidden" class="${id_measure}" name="${name_measure}" value="${value_measure}" />
+                        <input type="hidden" class="${id_measure}" name="${name_measure}_title" value="${title_measure}" />
+                    `; 
+                    $("#form").append(input_mesure);
+                }
+                //Requete Ajax
+                document.getElementById('submit').click();
+            });
+    
+            //GESTION DIMENSION
+            $(document).delegate('#dropdown-dimension .dropdown-item', 'click', function(e) {
+                if ($(this).hasClass("li-toggle") != true) { 
+                    var id_dimension = $(this).data("id");
+                    var value_dimension = $(this).data("name");
+                    var title_dimension = $(this).data("title");
+    
+                    //On Supprime la requête 
+                    $("."+id_dimension).remove(); 
+                    if ($(this).data("selected") === true) {
+                        //Quand s'est sélectionné,on déselectionne   
+                        $(this).removeClass("selected");
+                        $(this).data("selected", false);
+     
+                    } else {
+                        $('#dropdown-dimension .dropdown-item').removeClass("selected");
+                        $('#dropdown-dimension .dropdown-item').data("selected", false);
+                        $(this).addClass("selected");
+                        $(this).data("selected", true);
+    
+                        //On enregistre la requête
+                        var input_dimension =`
+                            <input type="hidden" class="${id_dimension}" name="dimension" value="${value_dimension}" />
+                            <input type="hidden" class="${id_dimension}" name="dimension_title" value="${title_dimension}" />
+                        `; 
+                        $("#form").append(input_dimension);
+                    }
+                    //Requete Ajax
+                    document.getElementById('submit').click();
+                }
+            });
+    
+            $(document).delegate('#toggle-dimension-perso', 'click', function(e) {  
+                e.preventDefault();
+                var icone = $(this).find("i");
+                if (icone.data("show") === true) {  
+                    icone.removeClass("fa-caret-down");
+                    icone.addClass("fa-caret-right");
+                    icone.data("show", false); 
+                    $("#dimension-perso").children().remove();              
+                } else {
+                    icone.removeClass("fa-caret-right");
+                    icone.addClass("fa-caret-down");
+                    icone.data("show", true);
+                    var dimension_perso_init =`
+                            <li class="col-md-12">
+                                <div class="input-control text full-size">
+                                    <select name="item" id="champ_dimension" style="color:#000;">
+                                    ${renvoyerOptionsChamps()}
+                                    </select>
+                                </div>                           
+                            </li>
+                            <li id="li-divider-dimension" class="divider"></li>
+                            <li class="col-md-12">
+                                <div id="btnAjouterDimension" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}} chargement-au-click">Appliquer</div> 
+                            </li>   
+                    `; 
+                    $("#dimension-perso").append(dimension_perso_init);
+                }
+            });	
+    
+            $(document).delegate('#champ_dimension', 'change', function(e) {  
+                e.preventDefault();
+    
+                $("#li-function-dimension").remove();
+    
+                var choixDimension = $(this).val();
+                var textChoixDimension = $("#champ_dimension option:selected").text();
+                var typeChoixDimension = $("#champ_dimension option:selected").data("type");
+    
+                if(typeChoixDimension == 'DateTimeField' || typeChoixDimension == 'DateField'){
+                    var select_function =`
+                        <li id="li-function-dimension" class="col-md-12">
+                            <div class="input-control text full-size" style="color:#000;">
+                                <select name="item" id="function_dimension">
+                                    <option value="year">Année</option>
+                                    <option value="month">Mois</option>
+                                    <option value="date">Jour</option>
+                                </select>
+                            </div>                           
+                        </li>   
+                    `; 
+                    $(select_function).insertBefore("#li-divider-dimension");
+                }
+            });	
+    
+            $(document).delegate('#btnAjouterDimension', 'click', function(e) {  
+                e.preventDefault();
+                console.log("#btnAjouterDimension cliquer");
+    
+                //On déselectionne tous, pour selectionner que l'option choisie
+                $('#dropdown-dimension .dropdown-item').removeClass("selected");
+                $('#dropdown-dimension .dropdown-item').data("selected", false);
+    
+                var choixDimension = $("#champ_dimension").val();
+                var textChoixDimension = $("#champ_dimension option:selected").text();
+                var typeChoixDimension = $("#champ_dimension option:selected").data("type");
+                var funct = false;
+                if(typeChoixDimension == 'DateTimeField' || typeChoixDimension == 'DateField'){
+                    var funct = $("#function_dimension").val();
+                    var funct_text = $("#function_dimension option:selected").text();
+                    textChoixDimension = `${textChoixDimension} (${funct_text})`;
+                }
+                var nouvelleLigne =`
+                <li><a href="#" id="dimension_${choixDimension}" class="dropdown-item selected" data-selected="true" data-title="${textChoixDimension}" data-name="${choixDimension}" data-id="input_dimension_${choixDimension}" data-value="${choixDimension}" data-function="${funct}"> ${textChoixDimension} </a></li>
+                `; 
+                $(nouvelleLigne).insertBefore("#li-dimension-perso");
+    
+    
+                //On replie le formulaire de dimension personnalisé
+                var icone = $("#toggle-dimension-perso").find("i");
+                icone.removeClass("fa-caret-down");
+                icone.addClass("fa-caret-right");
+                icone.data("show", false); 
+                $("#dimension-perso").children().remove(); 
+    
+                //On supprime la requete 
+                $(`.input_dimension_${choixDimension}`).remove(); 
+    
+    
+                //On enregistre la nouvelle requête 
+                var item = choixDimension;
+                if(funct != false){
+                    item = choixDimension + ";" + funct;
+                }
+                var input_dimension =`
+                    <input type="hidden" class="input_dimension_${choixDimension}" name="dimension" value="${item}" />
+                    <input type="hidden" class="input_dimension_${choixDimension}" name="dimension_title" value="${textChoixDimension}" />
+                `; 
+                $("#form").append(input_dimension);
+    
+                //Requete Ajax
+                document.getElementById('submit').click();
+            });
+    
+            //GESTION EXPORTER
+            $(document).delegate('#dropdown-exporter .dropdown-item', 'click', function(e) {  
+                e.preventDefault();
+                showDialog("chargement");
+                var title = "{{title}}";
+                var type_export = $(this).data("type");            
+                /*if ($(this).data("selected") === true) {  
+                    //Quand s'est sélectionné,on déselectionne   
+                    $(this).removeClass("selected");
+                    $(this).data("selected", false);                
+                } else {
+                    $('#dropdown-exporter .dropdown-item').removeClass("selected");
+                    $('#dropdown-exporter .dropdown-item').data("selected", false);
+                    $(this).addClass("selected");
+                    $(this).data("selected", true);
+                }*/
+                if(type_export == "excel"){
+                    //Exporter en Excel
+                    //=================
+                    showDialog("chargement");
+                    var wb = XLSX.utils.table_to_book(document.getElementById('default-table'), {sheet: title});
+                    var wopts = { bookType:'xlsx', bookSST:true, type: 'binary' };
+                    var wbout = XLSX.write(wb, wopts);
+                    function s2ab(s) {
+                        var buf = new ArrayBuffer(s.length);
+                        var view = new Uint8Array(buf);
+                        for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                        return buf;
+                    }
+                    saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), title+'.xlsx');
+                }else if(type_export == "csv"){
+                    //Exporter en CSV
+                    //===============
+                    showDialog("chargement");
+                    var wb = XLSX.utils.table_to_book(document.getElementById('default-table'), {sheet: title});
+                    var wopts = { bookType:'csv', bookSST:true, type: 'binary' };
+                    var wbout = XLSX.write(wb, wopts);
+                    function s2ab(s) {
+                        var buf = new ArrayBuffer(s.length);
+                        var view = new Uint8Array(buf);
+                        for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                        return buf;
+                    }
+                    saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), title+'.csv');
+                }else if(type_export == "pdf"){
+                    //Exporter en pdf
+                    //===============
+                    showDialog("chargement");
+                    var doc = new jsPDF({orientation: 'l'});
+                    
+                    doc.autoTable({ html: '#default-table', margin:{top:15}, 
+                        beforePageContent: function (data) {
+                            doc.setFont('arial')
+                            doc.setFontType('bolditalic')
+                            doc.setFontSize(20)
+                            doc.text(title, 50, 10);
+                        },
+                        afterPageContent: function (data) {
+    
+                        }
+                    });                       
+                    var total_pages = doc.internal.getNumberOfPages();
+                    console.log("total_pages: "+ total_pages);
+    
+                    var page_info = doc.internal.getCurrentPageInfo();
+                    console.log("page_info: "+ page_info);
+    
+                    var current_page = page_info.pageNumber;
+                    console.log("current_page: "+ current_page);
+    
+                    if(total_pages == current_page){
+                        doc.addPage();
+                        doc.fromHTML($('#pagetotal1').html(), 10, 10);
+                        doc.fromHTML($('#pagetotal2').html(), 120, 10);
+                        doc.fromHTML($('#pagetotal3').html(), 215, 10);
+                    }
+                    doc.save(title+'.pdf');
+                }else if(type_export == "copy"){
+                    //Exporter en copiant
+                    //===================
+                    showDialog("chargement");
+                    var btn = document.getElementById('export_copy');
+                    var clipboard = new ClipboardJS(btn);
+                    clipboard.on('success', function(e) {
+                        /*console.info('Action:', e.action);
+                        console.info('Text:', e.text);
+                        console.info('Trigger:', e.trigger);
+    
+                        e.clearSelection();
+                        console.log(e);*/
+                        var not = $.Notify({
+                            caption: "Copie dans le presse-papier",
+                            content: "Les données du tableau ont été copiées avec succès!",
+                            timeout: 5000 // 5 seconds
+                        });
+                    });
+    
+                    clipboard.on('error', function(e) {
+                        /*console.error('Action:', e.action);
+                        console.error('Trigger:', e.trigger);
+                        console.log(e);*/
+                    });
+                }
+            });
+    
+            //GESTION FONCTION CARD
+            $(document).delegate('#dropdown-fonction-card .dropdown-item', 'click', function(e) {   
+                var id_fonction_card = $(this).data("id");
+                var value_fonction_card = $(this).data("name");
+                var title_fonction_card = $(this).data("title");
+                if ($(this).data("selected") === true) {  
+                    //Quand s'est sélectionné,on déselectionne   
+                    $(this).removeClass("selected");
+                    $(this).data("selected", false);  
+    
+                    //Supprimer la requête 
+                    $("#"+id_fonction_card).remove();
+                    $("#"+id_fonction_card+"_value").remove();
+                } else {
+                    $('#dropdown-fonction-card .dropdown-item').removeClass("selected");
+                    $('#dropdown-fonction-card .dropdown-item').data("selected", false);
+                    $(this).addClass("selected");
+                    $(this).data("selected", true);
+                    //On enregistre la requête
+                    var input_fonction_card =`
+                        <input type="hidden" id="${id_fonction_card}" name="fonction_card" value="${value_fonction_card}" />
+                        <input type="hidden" id="${id_fonction_card}_value" name="fonction_card_title" value="${title_fonction_card}" />
+                    `; 
+                    $("#form").append(input_fonction_card);
+                }
+                //Requete Ajax
+                document.getElementById('submit').click();
+            });
+    
+            //GESTION CHAMPS CARD
+            $(document).delegate('#dropdown-champs-card .dropdown-item', 'click', function(e) {  
+                var id_champs_card = $(this).data("id");
+                var value_champs_card = $(this).data("name");
+                var title_champs_card = $(this).data("title");
+                if ($(this).data("selected") === true) { 
+                    //Quand s'est sélectionné,on déselectionne  
+                    $(this).removeClass("selected");
+                    $(this).data("selected", false);  
+    
+                    //Supprimer la requête 
+                    $("#"+id_champs_card).remove(); 
+                    $("#"+id_champs_card+"_value").remove();
+                } else {
+                    $('#dropdown-champs-card .dropdown-item').removeClass("selected");
+                    $('#dropdown-champs-card .dropdown-item').data("selected", false);
+                    $(this).addClass("selected");
+                    $(this).data("selected", true);
+                    //On enregistre la requête
+                    var input_champs_card =`
+                        <input type="hidden" id="${id_champs_card}" name="champs_card" value="${value_champs_card}" />
+                        <input type="hidden" id="${id_champs_card}_value" name="champs_card_title" value="${title_champs_card}" />
+                    `; 
+                    $("#form").append(input_champs_card);
+                }
+                //Requete Ajax
+                document.getElementById('submit').click();
+            });
+    
+            //GESTION CHAMPS A AFFICHER
+            $(document).delegate('#btnAchifferChamps', 'click', function(e) {  
+                e.preventDefault();
+                console.log("#btnAchifferChamps cliquer");
+    
+    
+                //Requete Ajax
+                document.getElementById('submit').click();
+            });
+    
+            //GESTION ORDER BY
+            $(document).delegate('#dropdown-order-by .dropdown-item', 'click', function(e) {  
+                var value_champs = $(this).data("name");
+    
+                //On déselectionne tout
+                $('#dropdown-order-by .dropdown-item').removeClass("selected");
+                $('#dropdown-order-by .dropdown-item').data("selected", false);
+                $(this).addClass("selected");
+                $(this).data("selected", true);
+    
+                //On enregistre la nouvelle requête
+                $("#input_order_by").val(value_champs);
+    
+                //Requete Ajax
+                document.getElementById('submit').click();
+            });
+    
+            //GESTION NBRE ITEM
+            $(document).delegate('#nbre_item', 'change', function(e) {  
+                var value_champs = $(this).val();
+    
+                //On enregistre la nouvelle requête
+                $("#input_limit").val(value_champs);
+    
+                //Requete Ajax
+                document.getElementById('submit').click();
+            });
+    
+            //GESTION ORDER SENS
+            $(document).delegate('#order_sens', 'change', function(e) {  
+                var value_champs = $(this).val();
+    
+                //On enregistre la nouvelle requête
+                $("#input_order_sens").val(value_champs);
+    
+                //Requete Ajax
+                document.getElementById('submit').click();
+            });
+    
+            //APPEL AJAX
+            $("form").on("submit", function(e) {
+                e.preventDefault();
+                console.log($(this).serialize());
+                showDialog("chargement");
+                $.ajax({
+                    type: $(this).attr('method'),
+                    url: $(this).attr('action'),
+                    data: $(this).serialize(),
+                    success: function (data) {
+                        console.log('Submission was successful.');
+                        console.log(data);
+                        showDialog("chargement");
+                        if(data.error === false) { 
+                            if(data.est_favoris == true) {$(".input_favoris").remove();}
+                            //Si Analyse Tableau
+                            if(data.view === "table") {
+                                if(data.regr_count == -1) {                            
+                                    $("#default-table").children().remove();
+                                    var table_data = "";
+                                    if(data.model.length > 0){
+                                        if(data.est_regroupe == false){
+                                            var tr = "";
+                                            var th = "";
+                                            for(var i = 0; i < data.model.length; i++){
+                                                var item = data.model[i];
+                                                var td = "";
+                                                for(var j = 0; j < item.length; j++){
+                                                    var table_value = item[j];
+                                                    var type_value = data.field_datas[j].type;
+                                                    var name_value = data.field_datas[j].name;
+                                                    var choices_value = data.field_datas[j].choices;
+    
+                                                    //On format la vue des données
+                                                    var obj = formatTableValue(table_value, type_value, name_value, choices_value);
+                                                    td += `<td class="td"> ${obj} </td>`;                                        
+                                                }
+                                                tr += '<tr> ' + td + ' </tr>';
+                                            }
+                                            table_data = tr;
+                                        }else{
+                                            var tr = "";
+                                            for(var i = 0; i < data.model.length; i++){
+                                                var item = data.model[i];
+                                                var count = i + 1;
+                                                tr += `<tr id="tr-toggle-${count}" class="tr-toggle" style="background-color:#cdcdcd;font-weight:700!important;" data-target=".sous_element${count}" daria-expanded="false">
+                                                    <td colspan="${data.field_datas.length}"><i class="fa fa-caret-right" data-value="${item[0]}" data-count="${count}"></i> <span style="padding-left: 10px !important;"> ${item[0]} </span> (<span>${item[1]}</span>)</td>
+                                                </tr>`;
+                                            }
+                                            table_data = tr;
+                                        }
+                                    }else{
+                                        table_data = `<tr><td colspan="${data.field_datas.length}" class="td"><center><strong>Aucune donnée trouvée</strong></center></td></tr>`;
+                                    }
+                                    for(var i = 0; i < data.field_datas.length; i++){
+                                        var header = data.field_datas[i].verbose_name;
+                                        th += '<th class="head"> ' + header + ' </th>';
+                                    }
+                                    var table_content =`
+                                        <thead>
+                                            <tr>
+                                                ${th}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${table_data}
+                                        </tbody> 
+                                    `; 
+                                    $("#default-table").append(table_content);
+                                }else{
+                                    var tr = "";
+                                    for(var i = 0; i < data.model.length; i++){
+                                        var item = data.model[i];
+                                        var td = "";
+                                        for(var j = 0; j < item.length; j++){
+                                            var table_value = item[j];
+                                            var type_value = data.field_datas[j].type;
+                                            var name_value = data.field_datas[j].name;
+                                            var choices_value = data.field_datas[j].choices;
+    
+                                            //On format la vue des données
+                                            var obj = formatTableValue(table_value, type_value, name_value, choices_value);
+                                            td += `<td class="td"> ${obj} </td>`;                                        
+                                        }
+                                        tr += `<tr class="sous_element${data.regr_count}"> ${td} </tr>`;
+                                    }
+                                    $(tr).insertAfter("#tr-toggle-"+data.regr_count);
+                                }
+                            //Si Analyse Chart
+                            }else if(data.view === "chart") {
+                                if(data.chart_type == "1"){
+                                    var derivers = $.pivotUtilities.derivers;
+                                    var renderers = $.extend($.pivotUtilities.plotly_renderers, $.pivotUtilities.export_renderers);
+    
+                                    $("#more-chart").pivotUI(data.model, {
+                                        renderers: renderers,
+                                        cols: ["Party"], rows: ["Province"],
+                                        rendererName: "Horizontal Stacked Bar Chart",
+                                        rowOrder: "value_a_to_z", colOrder: "value_z_to_a",
+                                    }, false, "fr");
+    
+                                    $(".pvtTable thead tr th").addClass("head");
+                                }else{
+    
+                                    var xValues = data.model.categories;
+                                    var yValues = data.model.datasets;
+                                    var barColors = ["red", "green","blue","orange","brown", "#8e5ea2", "#e8c3b9","#c45850"];
+    
+                                    // Bar chart
+                                    new Chart(document.getElementById("bar-chart").getContext("2d"), {
+                                        type: "bar",
+                                        data: {
+                                            labels: xValues,
+                                            datasets: [{
+                                                label: data.legend_dataset,
+                                                backgroundColor: barColors,
+                                                data: yValues
+                                            }]
+                                        },
+                                        options: {
+                                            title: {
+                                                display: false
+                                            },
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            scales: {
+                                                yAxes: [{
+                                                    ticks: {
+                                                        beginAtZero: true
+                                                    }
+                                                }]
+                                            },
+                                            font: {
+                                                family: 'Poppins'
+                                            }
+                                        }
+                                    });
+    
+                                    // Pie chart
+                                    new Chart(document.getElementById("pie-chart").getContext("2d"), {
+                                        type: 'pie',
+                                        data: {
+                                            labels: xValues,
+                                            datasets: [{
+                                                label: data.legend_dataset,
+                                                backgroundColor: barColors,
+                                                data: yValues
+                                            }]
+                                        },
+                                        options: {
+                                            title: {
+                                                display: false
+                                            },
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            font: {
+                                                family: 'Poppins'
+                                            }
+                                        }
+                                    });
+    
+                                    // Horizontal bar chart
+                                    new Chart(document.getElementById("horizontalbar-chart").getContext("2d"), {
+                                        type: "horizontalBar",
+                                        data: {
+                                            labels: xValues,
+                                            datasets: [{
+                                                label: data.legend_dataset,
+                                                backgroundColor: barColors,
+                                                data: yValues
+                                            }]
+                                        },
+                                        options: {
+                                            title: {
+                                                display: false
+                                            },
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            scales: {
+                                                xAxes: [{
+                                                    ticks: {
+                                                        beginAtZero: true
+                                                    }
+                                                }]
+                                            },
+                                            font: {
+                                                family: 'Poppins'
+                                            }
+                                        }
+                                    });
+    
+                                    // Line chart
+                                    new Chart(document.getElementById("line-chart").getContext("2d"), {
+                                        type: "line",
+                                        data: {
+                                            labels: xValues,
+                                            datasets: [{
+                                                label: data.legend_dataset,
+                                                backgroundColor: "blue",
+                                                borderColor: "rgba(0,0,0,0.1)",
+                                                data: yValues
+                                            }]
+                                        },
+                                        options: {
+                                            title: {
+                                                display: false
+                                            },
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            scales: {
+                                                yAxes: [{
+                                                    ticks: {
+                                                        beginAtZero: true
+                                                    }
+                                                }]
+                                            },
+                                            font: {
+                                                family: 'Poppins'
+                                            }
+                                        }
+                                    });
+                                }
+                            }else if(data.view === "card") {
+                                var title_card = data.title_card;
+                                var value_card = data.model;
+    
+                                $("#title_card").text(title_card);
+                                $("#value_card").text(value_card);
+    
+                            }else if(data.view === "pivot") {
+                                console.log("Vue pivot");
+    
+                                var renderers = $.extend($.pivotUtilities.renderers, $.pivotUtilities.export_renderers);
+                                $("#pivot_output").pivotUI(data.model,
+                                    { renderers: renderers, rows: ["Province"], cols: ["Party"] },
+                                    false, "fr"
+                                );
+    
+                                $(".pvtTable thead tr th").addClass("head");
+                            }
+    
+                        }
+                        
+                    },
+                    error: function (data) {
+                        console.log('An error occurred.');
+                        console.log(data);
+                        showDialog("chargement");
+                    },
+                });
+            });
+    
+        });
+    
+        //Si le champs du filtre change
+        $(document).delegate('.champ_filtrage', 'change', function(e) {  
+            e.preventDefault();
+            console.log(".champ_filtrage cliquer");
+    
+            var compteur = $(this).data('compteur');
+            $(".valeur"+compteur).show();
+            $(".valeur"+compteur).val("");
+            $("#select_filter_valeur"+compteur).remove(); 
+    
+    
+            var champ_filtrage = $(this).val();
+            var type_champ_filtrage = $(this).find(':selected').data('type');
+            var dbn_champ_filtrage = $(this).find(':selected').data('dbn');
+            var choices_champ_filtrage = $(this).find(':selected').data('choices');
+            var est_relationel = $(this).data('relationel');
+            var model_id = $("#model_id").val();
+    
+            //On initialise la valeur du champs choisi dans le select avec son input
+            var input = $("#champ_filtrage"+compteur).parent().find('input');
+            var filter_item_val = champ_filtrage;
+            if(est_relationel == 'False') { filter_item_val = dbn_champ_filtrage; }
+    
+            //on supprime le select de la fonction de la date
+            $("#li-fdate-"+compteur).remove();
+    
+            if(champ_filtrage != '' || champ_filtrage != '0') {
+                //Si c'est un champs du model,on supprime le select du relationel
+                if(est_relationel == 'False') {
+                    $("#li-fk-"+compteur).remove(); 
+                }
+    
+                if(type_champ_filtrage == "IntegerField" || type_champ_filtrage == "FloatField" || type_champ_filtrage == "AutoField"){
+                    if(choices_champ_filtrage.length > 0){
+                        //TODO use Ajax to get list of choices
+                        showDialog("chargement");
+                        console.log(choices_champ_filtrage);
+    
+                        var contenu = `<select id="select_filter_valeur${compteur}" name="select_filter_valeur" class="select_valeur${compteur}" onchange="choix_champ_choice(${compteur})"><option value=""> Sélectionnez une option </option>`;
+                        for(var i = 0; i < choices_champ_filtrage.length; i++){
+                            var choix = choices_champ_filtrage[i]
+                            contenu += `<option value="${choix.id}">${choix.designation}</option>`;
+                        }
+                        contenu += '</select>';
+                        $(".valeur"+compteur).before(contenu);
+                        $(".valeur"+compteur).hide();                                                             
+    
+                        showDialog("chargement");
+    
+                        var opt = `
+                            <option value="">Sélectionnez un opérateur</option>
+                            <option value="=">est égale à</option>
+                            <option value="<>">est différent de</option>
+                            <option value="defini">est défini</option>
+                            <option value="pas_defini">n'est pas défini</option>                    
+                        `;
+                        $("#operateur"+compteur).children().remove(); 
+                        $("#operateur"+compteur).append(opt);
+                        $(".valeur"+compteur).val("");
+                    }else{
+                        var opt = `
+                            <option value="">Sélectionnez un opérateur</option>
+                            <option value="=">est égale à</option>
+                            <option value="<>">est différent de</option>
+                            <option value=">">est supérieur à</option>
+                            <option value="<">est inférieur à</option>
+                            <option value=">=">est supérieur ou Egal à</option>
+                            <option value="<=">est inferieur ou Egal à</option>
+                            <option value="defini">est défini</option>
+                            <option value="pas_defini">n'est pas défini</option>                                             
+                        `;
+                        $("#operateur"+compteur).children().remove(); 
+                        $("#operateur"+compteur).append(opt);
+                        $(".valeur"+compteur).val("");
+                    }
+                }else if(type_champ_filtrage == "CharField" || type_champ_filtrage == "EmailField"){
+                    if(choices_champ_filtrage.length > 0){
+    
+                        var contenu = `<select id="select_filter_valeur${compteur}" name="select_filter_valeur" class="select_valeur${compteur}" onchange="choix_champ_choice(${compteur})"><option value=""> Sélectionnez une option </option>`;
+                        for(var i = 0; i < choices_champ_filtrage.length; i++){
+                            var choix = choices_champ_filtrage[i]
+                            contenu += `<option value="${choix.id}">${choix.designation}</option>`;
+                        }
+                        contenu += '</select>';
+                        $(".valeur"+compteur).before(contenu);
+                        $(".valeur"+compteur).hide();   
+    
+                        var opt = `
+                            <option value="">Sélectionnez un opérateur</option>
+                            <option value="contient">contient</option>
+                            <option value="contient_pas">ne contient pas</option>
+                            <option value="=">est égale à</option>
+                            <option value="<>">est différent de</option>
+                            <option value="defini">est défini</option>
+                            <option value="pas_defini">n'est pas défini</option>                   
+                        `;
+                        $("#operateur"+compteur).children().remove(); 
+                        $("#operateur"+compteur).append(opt);
+                        $(".valeur"+compteur).val("");
+                    }else{
+                        var opt = `
+                            <option value="">Sélectionnez un opérateur</option>
+                            <option value="contient">contient</option>
+                            <option value="contient_pas">ne contient pas</option>
+                            <option value="=">est égale à</option>
+                            <option value="<>">est différent de</option>
+                            <option value="defini">est défini</option>
+                            <option value="pas_defini">n'est pas défini</option>                    
+                        `;
+                        $("#operateur"+compteur).children().remove(); 
+                        $("#operateur"+compteur).append(opt);
+                        $(".valeur"+compteur).val("");
+                    }
+                }else if(type_champ_filtrage == "DateTimeField" || type_champ_filtrage == "DateField"){
+                        var contenu =`
+                        <li id="li-fdate-${compteur}">
+                            <div class="col-md-3" style="padding-right: 5px!important;padding-left: 5px!important;"></div>
+                            <div class="col-md-8" style="padding-right: 5px!important;padding-left: 5px!important;">
+                                <div class="input-control text full-size">
+                                    <select name="function_date_filtre" class="function_date_filtre" id="function_date_filtre${compteur}_fk" data-compteur="${compteur}">
+                                        <option value="year">Année</option>
+                                        <option value="month">Mois</option>
+                                        <option value="date">Jour</option>                            
+                                    </select>
+                                </div>   
+                            </div>
+                            <div class="col-md-1" style="padding-right: 5px!important;padding-left: 5px!important;"></div>
+                        </li>`;
+    
+                        $("#li-operateur-"+compteur).before(contenu);
+    
+                        var opt = `
+                            <option value="">Sélectionnez un opérateur</option>
+                            <option value="=">est égale au</option>
+                            <option value="<>">est différent du</option>
+                            <option value=">">est après le</option>
+                            <option value="<">est avant le</option>
+                            <option value=">=">est après ou Egal au</option>
+                            <option value="<=">est avant ou Egal au</option>
+                            <option value="defini">est défini</option>
+                            <option value="pas_defini">n'est pas défini</option>                                             
+                        `;
+                        $("#operateur"+compteur).children().remove(); 
+                        $("#operateur"+compteur).append(opt);
+    
+                        //On initialise avec l'année comme fonction
+                        filter_item_val = filter_item_val+";year";
+    
+                        $(".valeur"+compteur).val("");
+                        var today = new Date();
+                        var datetime = today.getFullYear();
+                        $(".valeur"+compteur).val(datetime);
+                }else if(type_champ_filtrage == "BooleanField"){
+                        var opt = `
+                            <option value="">Sélectionnez un opérateur</option>
+                            <option value="vrai">est vrai</option>
+                            <option value="faux">est faux</option>
+                            <option value="defini">est défini</option>
+                            <option value="pas_defini">n'est pas défini</option>                    
+                        `;
+                        $("#operateur"+compteur).children().remove(); 
+                        $("#operateur"+compteur).append(opt);
+                        $(".valeur"+compteur).val("");
+                }else if(type_champ_filtrage == "ForeignKey" || type_champ_filtrage == "OneToOneField"){  
+                    if(est_relationel == "True"){
+                        var opt = `
+                            <option value="">Sélectionnez un opérateur</option>
+                            <option value="=">est égale à</option>
+                            <option value="<>">est différent de</option>
+                            <option value=">">est supérieur à</option>
+                            <option value="<">est inférieur à</option>
+                            <option value=">=">est supérieur ou Egal à</option>
+                            <option value="<=">est inferieur ou Egal à</option>
+                            <option value="defini">est défini</option>
+                            <option value="pas_defini">n'est pas défini</option>                                             
+                        `;
+                        $("#operateur"+compteur).children().remove(); 
+                        $("#operateur"+compteur).append(opt);
+                        $(".valeur"+compteur).val(""); 
+                      
+                    }else{
+                        showDialog("chargement");
+                        $.ajax({
+                            type: "GET",
+                            url: "{% url 'back_office_data_related_field' %}",
+                            data: {model_id: model_id, field: champ_filtrage},
+                            success: function (data) {
+                                console.log('Submission was successful.');
+                                console.log(data);
+                                showDialog("chargement");
+                                if(data.error === false) {
+                                    console.log(data.fields);
+    
+                                    var contenu =`
+                                    <li id="li-fk-${compteur}">
+                                        <div class="col-md-3" style="padding-right: 5px!important;padding-left: 5px!important;"></div>
+                                        <div class="col-md-8" style="padding-right: 5px!important;padding-left: 5px!important;">
+                                            <div class="input-control text full-size">`;
+    
+                                    contenu += `<select name="champ_filtrage" class="champ_filtrage" id="champ_filtrage${compteur}_fk" data-compteur="${compteur}" data-relationel="True"><option value=""> Sélectionnez un champ </option>`;
+                                    for(var i = 0; i < data.fields.length; i++){
+                                        var field = data.fields[i]
+                                        /*if(field[2] == "ForeignKey" || field[2] == "OneToOneField"){
+                                            field[0] = field[0] + '_id';
+                                        }*/
+                                        var choices = JSON.stringify(field[3]);
+                                        contenu += `<option value='${data.table}.${field[0]}'  data-type='${field[2]}'  data-choices='${choices}'> ${field[1]} </option>`;
+                                    }
+                                    contenu += '';
+    
+                                    contenu +=`
+                                                </select>
+                                            </div>   
+                                        </div>
+                                        <div class="col-md-1" style="padding-right: 5px!important;padding-left: 5px!important;"></div>
+                                    </li>`;
+                                    $("#li-operateur-"+compteur).before(contenu);
+                                }                    
+                            },
+                            error: function (data) {
+                                console.log('An error occurred.');
+                                console.log(data);
+                                showDialog("chargement");
+                            },
+                        });
+                    }
+                }else{
+                    var opt = `
+                        <option value="">Sélectionnez un opérateur</option>
+                        <option value="contient">contient</option>
+                        <option value="contient_pas">ne contient pas</option>
+                        <option value="=">est égale à</option>
+                        <option value="<>">est différent de</option>
+                        <option value="defini">est défini</option>
+                        <option value="pas_defini">n'est pas défini</option>                    
+                    `;
+                    $("#operateur"+compteur).children().remove(); 
+                    $("#operateur"+compteur).append(opt);
+                    $(".valeur"+compteur).val("");
+                }
+    
+                console.log('filter_item_val: '+filter_item_val);
+                input.val(filter_item_val);           
+            }   
+        });
+    
+    
+        //FONCTIONS
+        function formatTableValue(table_value, type_value, field_name, choices) {
+            let txt_val = "";
+            
+            if(type_value == "DateTimeField"){
+                let datetime = new Date(table_value);
+                var month = ("0" + (datetime.getMonth() + 1)).slice(-2);
+                var date = ("0" + datetime.getDate()).slice(-2);
+                txt_val = date+"/"+month+"/"+datetime.getFullYear()+" "+datetime.getHours()+":"+datetime.getMinutes();                                        
+            }else if(type_value == "DateField"){
+                let datetime = new Date(table_value);
+                var month = ("0" + (datetime.getMonth() + 1)).slice(-2);
+                var date = ("0" + datetime.getDate()).slice(-2);
+                txt_val = date+"/"+month+"/"+datetime.getFullYear();   
+            }else if(type_value == "BooleanField"){
+                if(table_value == "0" || table_value == false){
+                    txt_val = "Faux";
+                } else if (table_value == "1" || table_value == true){
+                    txt_val = "Vrai";
+                } else if (table_value == null) {
+                    txt_val = "-";
+                }
+                
+            }else if(type_value == "FloatField"){
+                if (choices.length > 0) {
+                    for(var i = 0; i < choices.length; i++){
+                        var choice = choices[i];
+                        if (parseFloat(choice.id) == parseFloat(table_value)){
+                            txt_val = choice.designation;
+                            break;
+                        }
+                    }
+                }else{
+                    if (isNaN(parseFloat(table_value))) {
+                        txt_val = "";
+                    } else {
+                        num = table_value.toFixed(2);
+                        num = parseFloat(num);
+                        txt_val = num.toLocaleString('fr-FR');
+                    }
+                }
+            }else if(type_value == "IntegerField" || type_value == "AutoField"){
+                if (choices.length > 0) {
+                    console.log("choices "+choices);
+                    for(var i = 0; i < choices.length; i++){
+                        var choice = choices[i];
+                        console.log(`choice.id = ${choice.id} table_value = ${table_value}`);
+                        if (parseInt(choice.id) == parseInt(table_value)){
+                            txt_val = choice.designation;
+                            console.log("choices designation"+choice.designation);
+                            break;
+                        }
+                    }
+                    console.log("txt_val "+txt_val);
+                }else{
+                    if (isNaN(parseInt(table_value))) {
+                        txt_val = "";
+                    } else {
+                        txt_val = parseInt(table_value);
+                    }
+                }
+            }else if(type_value == "CharField" || type_value == "EmailField"){
+                if (choices.length > 0) {
+                    console.log("choices "+choices);
+                    for(var i = 0; i < choices.length; i++){
+                        var choice = choices[i];
+                        if (choice.id == table_value){
+                            txt_val = choice.designation;
+                            break;
+                        }
+                    }
+                    console.log("txt_val "+txt_val);
+                }else{
+                    if (table_value) {
+                        if (table_value.length > 26) {
+                            txt_val = table_value.substring(1, 22).concat(" ...");
+                        } else {
+                            txt_val = table_value.toString();
+                        }
+                    } else {
+                        txt_val = "";
+                    }
+                }
+            }else if(type_value == "ForeignKey" || type_value == "OneToOneField"){
+                if (table_value == null) {
+                    txt_val = "-";
+                } else {
+                    txt_val = table_value;
+                }
+            }else{
+                txt_val = table_value;
+            }
+            return txt_val;
+        }
+    
+        function ajouterLigneFiltre() {
+            compteur++;
+            var nouvelleLigne =`
+                <div class="ligne_filtre" id="ligne_filtre${compteur}">
+                    <li>
+                        <div class="col-md-3" style="padding-right: 5px!important;padding-left: 5px!important;">
+                            <div class="input-control text full-size">
+                                <select name="filter_logic" onchange="choix_champ_logic(${compteur})" id="select_filter_logic${compteur}">
+                                    <option value="OR" selected="selected">OR</option>
+                                    <option value="AND">AND</option>
+                                </select>
+                                <input type="hidden" id="input_filter_logic${compteur}" name="filter_logic" value="OR" />
+                            </div>
+                        </div>
+                        <div class="col-md-8" style="padding-right: 5px!important;padding-left: 5px!important;">
+                            <div class="input-control text full-size">
+                                <select name="champ_filtrage" class="champ_filtrage" id="champ_filtrage${compteur}" data-compteur="${compteur}" data-relationel="False">
+                                    <option value="">Sélectionnez un champ</option>
+                                    ${renvoyerOptionsChamps()}
+                                </select>
+                                <input type="hidden" id="filter_item" name="filter_item" value=""  />
+                            </div>
+                        </div> 
+                        <div class="col-md-1" style="padding-right: 5px!important;padding-left: 5px!important;">
+                            <span class="mif-cross fg-red" style="font-size:11px!important;" title="Supprimer la ligne" id="btnSupprimerLigneFiltre" data-compteur="${compteur}"></span>
+                        </div>
+                    </li>
+                    <li id="li-operateur-${compteur}">
+                        <div class="col-md-3" style="padding-right: 5px!important;padding-left: 5px!important;"></div>
+                        <div class="col-md-8" style="padding-right: 5px!important;padding-left: 5px!important;">
+                            <div class="input-control text full-size">
+                                <select class="operateur" id="operateur${compteur}" name="operateur" onchange="choix_champ_operateur(${compteur})">
+                                    <option value="">Sélectionnez un opérateur</option>
+                                    <option value="=">Egal</option>
+                                    <option value=">">Supérieur</option>
+                                    <option value="<">Inférieur</option>
+                                    <option value=">=">Supérieur ou Egal</option>
+                                    <option value="<=">Inferieur ou Egal</option>
+                                    <option value="<>">Différent</option>
+                                </select>
+                                <input type="hidden" id="filter_operateur" name="filter_operateur" value="" />
+                            </div>   
+                        </div>
+                        <div class="col-md-1" style="padding-right: 5px!important;padding-left: 5px!important;"></div>
+                    </li>
+                    <li>
+                        <div class="col-md-3" style="padding-right: 5px!important;padding-left: 5px!important;"></div>
+                        <div class="col-md-8" style="padding-right: 5px!important;padding-left: 5px!important;">
+                            <div class="input-control text full-size">
+                                <input type="text" id="filter_valeur" name="filter_valeur" class="valeur${compteur}" placeholder="Saisissez une valeur de comparaison" />
+                            </div>     
+                        </div>
+                        <div class="col-md-1" style="padding-right: 5px!important;padding-left: 5px!important;"></div>
+                    </li>
+                </div>
+            `; 
+            $("#lignes_filtres").append(nouvelleLigne);
+        }
+    
+        function choix_champ_logic(compteur){
+            var select_filter_logic = $("#select_filter_logic"+compteur).val();
+            console.log('select_filter_logic: '+select_filter_logic);
+            $("#input_filter_logic"+compteur).val(select_filter_logic);
+            console.log('input.val(): '+$("#input_filter_logic"+compteur).val());
+        }
+    
+        function choix_champ_choice(compteur){
+            var select_filter_valeur = $("#select_filter_valeur"+compteur).val();
+            console.log('select_filter_valeur: '+select_filter_valeur);
+            $(".valeur"+compteur).val(select_filter_valeur);
+            console.log('input.val(): '+$(".valeur"+compteur).val());
+        }
+    
+        function choix_champ_operateur(compteur){
+            var input = $("#operateur"+compteur).parent().find('input');
+            input.val($("#operateur"+compteur).val());
+        }
+    
+        function renvoyerOptionsChamps(){
+            var ligne = "";
+            for(var i = 0; i < champs.length; i++){
+                var champ = champs[i];
+                var choices = JSON.stringify(champ.choices);
+                ligne += `<option value='${champ.name}'  data-type='${champ.type}'  data-dbn='${champ.db_name}' data-choices='${choices}'> ${champ.verbose_name} </option>`;
+            }
+            return ligne;
+        }
+    
+        function showBarChart(){
+            $('.show-bar-chart').show();
+            $('#show-pie-chart').hide();
+            $('#show-line-chart').hide();
+            $('#show-more-chart').hide();
+    
+            $('#btn-favoris').show();
+            $('#more_chart').remove();
+            $('#chart_view').val("bar-chart");
+        }
+        function showPieChart(){
+            $("#show-pie-chart").removeClass("col-md-6");
+            $("#show-pie-chart").addClass("col-md-12");
+    
+            $("#show-line-chart").removeClass("col-md-6");
+            $("#show-line-chart").addClass("col-md-12");
+    
+            $('.show-bar-chart').hide();
+            $('#show-pie-chart').show();
+            $('#show-line-chart').hide();
+            $('#show-more-chart').hide();
+    
+            $('#btn-favoris').show();
+            $('#more_chart').remove();
+            $('#chart_view').val("pie-chart");
+        }
+        function showLineChart(){
+            $("#show-line-chart").removeClass("col-md-6");
+            $("#show-line-chart").addClass("col-md-12");
+    
+            $("#show-pie-chart").removeClass("col-md-6");
+            $("#show-pie-chart").addClass("col-md-12");
+    
+            $('.show-bar-chart').hide();
+            $('#show-pie-chart').hide();
+            $('#show-line-chart').show();
+            $('#show-more-chart').hide();
+    
+            $('#btn-favoris').show();
+            $('#more_chart').remove();
+            $('#chart_view').val("line-chart");
+        }
+        function showMoreChart(){
+            $('.show-bar-chart').hide();
+            $('#show-pie-chart').hide();
+            $('#show-line-chart').hide();
+            $('#show-more-chart').show();
+    
+            $('#btn-favoris').hide();
+    
+            //On enregistre la requête
+            var input_request =`
+                <input type="hidden" id="more_chart" name="more_chart" value="1" />
+            `; 
+            $("#form").append(input_request);
+    
+            //Requete Ajax
+            document.getElementById('submit').click();
+        }
+    </script>
+  
+    

@@ -1,0 +1,218 @@
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="leaf chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+<!-- Appel de la fonction message -->           
+{% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+<div class="panel panel-default" style="border: none;">
+    <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;"> 
+
+        {% include 'ErpProject/ErpBackOffice/widget/bi_header_view.html' %}
+
+        <br><hr class="hr-ligne">
+        
+        <div class="row">
+            <div class="col-md-9 col-xs-12">
+                <!-- Button dropdown Filtre -->
+                <button class="theme-btn-dropdown dropdown theme-btn theme-btn-sm rounded chargement-au-click" >
+                    <a class="dropdown-toggle" style="text-decoration: none!important;" data-toggle="dropdown" href="#">
+                        <i class="fa fa-filter"></i> Filtres <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul id="dropdown-filtre" class="dropdown-menu dropdown-user o_dropdown_menu">
+                        <li><a href="#" data-id="filter_own" class="dropdown-item" data-selected="false" data-type="value" data-logic="OR" data-item="auteur_id" data-operateur="=" data-value="{{utilisateur.id}}"> Mes Articles </a></li>
+                        <li class="divider"></li>
+                        <li id="li-filtre-perso"><a href="#" id="toggle-filtre-perso" class="dropdown-item li-toggle" data-selected="false" data-show="false">Personnaliser <i class="fa fa-caret-right" style="margin-left: 3px;"></i></a></li>
+                        <div id="filtre-perso" class="div-toggle">
+                        </div>
+                    </ul>
+                </button>
+                {% if view == "table" %}
+                <!-- Button dropdown Grouper -->
+                <button class="theme-btn-dropdown dropdown theme-btn theme-btn-sm rounded chargement-au-click" >
+                    <a class="dropdown-toggle" style="text-decoration: none!important;" data-toggle="dropdown" href="#">
+                        <i class="fa fa-bars"></i> Regrouper par <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul id="dropdown-regrouper" class="dropdown-menu dropdown-user o_dropdown_menu">
+                        <li><a href="#" id="regroupe_name" class="dropdown-item" data-selected="false" data-value="name" data-function="false"> Designation </a></li>
+                        <li class="divider"></li>
+                        <li id="li-regrouper-perso"><a href="#" id="toggle-regrouper-perso" class="dropdown-item li-toggle" data-selected="false" data-show="false">Personnaliser <i class="fa fa-caret-right" style="margin-left: 3px;"></i></a></li>
+                        <div id="regrouper-perso" class="div-toggle">
+                        </div>
+                    </ul>
+                </button>
+                {% endif %}
+                <!-- Buttons dropdown Temps and Favoris -->
+                {% include 'ErpProject/ErpBackOffice/widget/bi_temps_favoris_view.html' %}
+            </div>
+            <div class="col-md-3 col-xs-12">
+                <div id="btn-view" data-role="group" data-group-type="one-state">
+                    <button id="btn-table" onclick="javascript:window.location.assign('{% url 'module_stock_bi_article' %}?view=table')" class="button btn-typeview btn-secondary {% if view == "table" %}{{ "active" }}{% endif %}"><span class="mif-list"></span></button>
+                    <button id="btn-chart" onclick="javascript:window.location.assign('{% url 'module_stock_bi_article' %}?view=chart')" class="button btn-typeview btn-secondary {% if view == "chart" %}{{ "active" }}{% endif %}"><span class="mif-chart-dots"></span></button>
+                    <button id="btn-card" onclick="javascript:window.location.assign('{% url 'module_stock_bi_article' %}?view=card')" class="button btn-typeview btn-secondary {% if view == "card" %}{{ "active" }}{% endif %}"><span class="mif-apps"></span></button>
+                    <button id="btn-pivot" onclick="javascript:window.location.assign('{% url 'module_stock_bi_article' %}?view=pivot')" class="button btn-typeview btn-secondary {% if view == "pivot" %}{{ "active" }}{% endif %}"><span class="mif-table"></span></button>
+                </div>
+            </div>
+        </div>
+        <hr class="hr-ligne">
+        <div id="divToPrint" class="row item-content" style="margin-top: 20px" style="padding-top: 30px">
+            <div class="col-lg-12">
+                <p class="align-center header">{{ title }}</p>
+                {% if view == "table" %}
+                <div id="list-view" class="row" style="margin-top: 10px;overflow: auto; position: relative; display: inline-block;">        
+                    <table id="default-table" class="table nowrap border bordered striped" cellspacing="0" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th class="head">Designation</th>
+                                <th class="head">Code</th>
+                                <th class="head">Prix unitaire</th>
+                                <th class="head">Devise</th>
+                                <th class="head">Type d'article</th>
+                                <th class="head">Société</th>
+                                <th class="head">Quantité seuil</th>
+                                <th class="head">Catégorie</th>
+                                <th class="head">Unité de mesure</th>
+                                <th class="head">Description</th>
+                                <th class="head">Date de création</th>
+                                <th class="head">Créé par</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in model %}
+                            <tr>
+                                <td>
+                                    <a class="lien chargement-au-click" href="{% url 'module_stock_detail_article' item.id %}{% if isPopup %}?isPopup=1{% endif %}">{{ item.name }}</a>
+                                </td>
+                                <td>{{item.code|truncatechars:22}}</td>
+                                <td>{{item.amount|monetary}}</td>
+                                <td>{{item.devise}}</td>
+                                <td>{{item.type_article}}</td>
+                                <td>{{item.societe}}</td>
+                                <td>{{item.quota_quantity}}</td>
+                                <td>{{item.category}}</td>
+                                <td>{{item.measure_unit}}</td>
+                                <td>{{item.description|truncatechars:22}}</td>
+                                <td>{{item.creation_date|date:'d/m/Y'}}</td>
+                                <td>{{item.auteur.nom_complet}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% elif view == "chart" %}
+                <div id="chart-view" style="margin-top: 10px;">
+                    <div class="row">
+                        <div class="col-md-6" style="padding-top: 15px!important;" id="show-pie-chart">
+                            <div class="card-item" style="background-color: white;padding: 0!important;margin-bottom: 2%;">
+                                <div class="" style="height: 5px;background-color:#ACE5FE;"></div>
+                                <div class="row">
+                                    <!-- Show Pie Chart -->
+                                    <div class="col-md-12">
+                                        <div style="width: 600px;height: 500px;text-align:center;margin: auto;"> 
+                                            <p id="title-chart"></p>
+                                            <canvas id="pie-chart" height="400"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6" style="padding-top: 15px!important;" id="show-line-chart">
+                            <div class="card-item" style="background-color: white;padding: 0!important;margin-bottom: 2%;">
+                                <div class="" style="height: 5px;background-color:#ACE5FE;"></div>
+                                <div class="row">
+                                    <!-- Show Line Chart -->
+                                    <div class="col-md-12">
+                                        <div style="width: 750px;height: 400px;text-align:center;margin: auto;"> 
+                                            <p id="title-chart"></p>
+                                            <canvas id="line-chart" height="400"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 show-bar-chart" style="padding-top: 15px!important;">
+                            <div class="card-item" style="background-color: white;padding: 0!important;margin-bottom: 2%;">
+                                <div class="" style="height: 5px;background-color:#ACE5FE;"></div>
+                                <div class="row">
+                                    <!-- Show Bar Chart -->
+                                    <div class="col-md-12">
+                                        <div style="width: 700px;height: 400px;text-align:center;margin: auto;"> 
+                                            <p id="title-chart"></p>
+                                            <canvas id="bar-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 show-bar-chart" style="padding-top: 15px!important;">
+                            <div class="card-item" style="background-color: white;padding: 0!important;margin-bottom: 2%;">
+                                <div class="" style="height: 5px;background-color:#ACE5FE;"></div>
+                                <div class="row">
+                                    <!-- Show Dough Chart -->
+                                    <div class="col-md-12">
+                                        <div style="width: 700px;height: 400px;text-align:center;margin: auto;"> 
+                                            <p id="title-chart"></p>
+                                            <canvas id="horizontalbar-chart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="show-more-chart" class="row" style="margin-top: 10px;overflow: auto; position: relative; display: inline-block;"> 
+                    <!-- More Chart -->
+                    <div id="more-chart"></div>
+                </div>
+                {% elif view == "card" %}
+                <div id="card-view" class="row" style="margin-top: 10px;overflow: auto; position: relative; display: inline-block;">
+                    <!-- Show Card -->
+                    <div class="row" id="show-card">
+                        <div class="col-md-4">
+                        </div>
+                        <div class="col-md-4">
+                            <div class="panel panel-success p3" style="border-radius: 0px;border-bottom: none;">
+                                <div class="panel-heading" style="background-color: transparent;color: white;">
+                                    <div class="row">
+                                        <div class="col-xs-7 text-left">
+                                            <div id="title_card" class="" style=""></div>
+                                            <p id="value_card" style="font-weight: 800;font-size: 25px;font-family: 'Poppins Bold'"></p>
+                                        </div>
+                                        <div class="col-xs-3 text-right fond">
+                                            <span class="mif-stack" style="float: left;font-size:25px"></span>
+                                        </div>
+                                        <br><br>
+                                        <div>
+                                            <p style="float: left;font-size:80%;color:#fff;"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                        </div>
+                    </div>
+                </div>
+                {% elif view == "pivot" %}           
+                <div id="pivot-view" class="row" style="margin-top: 10px;overflow: auto; position: relative; display: inline-block;"> 
+                    <!-- Show Pivot -->
+                    <div id="pivot_output" style="margin: 30px;"></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'ErpProject/ErpBackOffice/widget/bi_view.html' %}
+{% endblock %}

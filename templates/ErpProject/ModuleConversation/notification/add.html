@@ -1,0 +1,111 @@
+{% extends "ErpProject/ModuleConversation/shared/layout.html" %} {% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_conversation_index' %}">Module Notification</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_conversation_list_notification' %}">Liste</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Nouveau Notification</h2>
+        <strong class="hidden-xs" style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+            
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+            
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                
+
+                <div class="row only-on-small-screen">
+                    <h2 class="text-light no-margin-left">{{ title }}</h2>
+                </div>
+
+
+                <div class="row only-on-large-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary_color_{{module.name|lower}}">
+                        Valider
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_conversation_list_notification' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <div class="row only-on-small-screen">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="button large-button rounded primary">Valider</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_conversation_list_notification' %}')" class="button large-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+            <form id="form" method="POST" action="{% url 'module_conversation_post_add_notification' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <div class="row">
+                    
+                <div class="col-md-6">
+                        <label>User_id</label>
+                        <div class="input-control text full-size">
+                            <select name="user_id" id="user_id" onchange=""
+                                data-validate-func="min" 
+                                data-validate-arg="1"
+                                data-validate-hint="Selectionnez User_id svp.">
+                                <option value="0">Selectionnez User_id</option>
+                                {% for item in model %}
+                                    <option value="{{ item.id }}"> {{ item.id }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    
+                <div class="col-md-6">
+                            <label>Est_lu</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="est_lu" id="est_lu" type="text" data-validate-func="required" data-validate-hint="Entrez est_lu !">
+                            </div>
+                </div>
+            
+                <div class="col-md-6">
+                        <label>Message_id</label>
+                        <div class="input-control text full-size">
+                            <select name="message_id" id="message_id" onchange=""
+                                data-validate-func="min" 
+                                data-validate-arg="1"
+                                data-validate-hint="Selectionnez Message_id svp.">
+                                <option value="0">Selectionnez Message_id</option>
+                                {% for item in model %}
+                                    <option value="{{ item.id }}"> {{ item.id }} </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    
+                <div class="col-md-6">
+                            <label>Text</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="text" id="text" type="text" data-validate-func="required" data-validate-hint="Entrez text !">
+                            </div>
+                </div>
+            
+                <div class="col-md-6">
+                            <label>Url_piece_concernee</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="url_piece_concernee" id="url_piece_concernee" type="text" data-validate-func="required" data-validate-hint="Entrez url_piece_concernee !">
+                            </div>
+                </div>
+            
+        </div>
+        </form>
+    </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+    
+{% endblock %}

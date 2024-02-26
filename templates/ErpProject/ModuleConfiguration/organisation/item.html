@@ -1,0 +1,126 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %} {% load static %}
+<ul class="breadcrumbs2 small">
+    <li><a><span class="mif-home"></span></a></li>
+    <li><a class="chargement-au-click" href="{% url 'module_configuration_dashboard' %}">Module Configuration</a></li>
+    <li><a class="chargement-au-click" href="{% url 'module_configuration_configuration' %}">Paramètres généraux</a></li>
+    <li>{{ title }}</li>
+</ul>
+<div class="row">
+    <button onclick="javascript:window.location.assign('{% url 'module_configuration_update_organisation' model.id %}')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button>
+</div>
+<hr class="hr-ligne">
+<!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+<br>
+<div class="row">
+    <div class="row cells3">
+        <div class="cell">
+            <p class="header shadow" style="height: 100px; width: 100px; float: left;">
+                {% if model.image != None and model.image != "" %}
+                <img src="{% static model.image %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/"> {% else %}
+                <img src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 100px; width: 100px; /*display: inline-block; margin-right: 10px;*/"> {% endif %}
+            </p>
+        </div>
+        <div class="cells2">
+            <p class="header">{{ model.nom }}</p>
+            <p class="minor-header fg-gray">
+                Slogan :<br>
+                <span class="sub-alt-header fg-dark"> {{ model.slogan }} </span>
+            </p>
+        </div>
+    </div>
+    <div class="row cells3">
+        <div class="cell">
+            <p class="minor-header fg-gray">
+                Type d'organisation :<br>
+                <span class="sub-alt-header fg-dark">{{ model.type_organisation.designation }}</span>
+            </p>
+        </div>
+        <div class="cells2">
+            <p class="minor-header fg-gray">
+                Nom de l'application :<br>
+                <span class="sub-alt-header fg-dark"> {{ model.nom_application }} </span>
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="tabcontrol2" data-role="tabcontrol">
+            <ul class="tabs">
+                <li class="active"><a href="#frame_coordonnees">Coordonnées</a></li>
+                <li class=""><a href="#frame_image_cover">Image d'accueil</a></li>
+                <li class=""><a href="#frame_autres_informations">Autres informations</a></li>
+            </ul>
+            <div class="frames">
+                <div class="frame" id="frame_coordonnees" style="display: block;">
+                    <div class="row cells3">
+                        <div class="cell">
+                            <div class="row">
+                                <p class="minor-header fg-gray">
+                                    Adresse complète :
+                                    <br> {% if model.adresse_complete != None and model.adresse_complete != "" %}
+                                    <span class="sub-alt-header fg-dark">{{ model.adresse_complete }}</span> {% else %}
+                                    <span class="sub-alt-header fg-dark">-</span> {% endif %}
+                                    <br>
+                                    <br> Adresse email :
+                                    <br> {% if model.email != None and model.email != "" %}
+                                    <a href="mailto:{{ model.email }}" target="blank" class="sub-alt-header lien chargement-au-click">{{ model.email }}</a> {% else %}
+                                    <span class="sub-alt-header fg-dark">-</span> {% endif %}
+                                    <br>
+                                    <br> Numéro de téléphone :
+                                    <br> {% if model.phone != None and model.phone != "" %}
+                                    <span class="sub-alt-header fg-dark">{{ model.phone }}</span> {% else %}
+                                    <span class="sub-alt-header fg-dark">-</span> {% endif %}
+                                    <br>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="frame" id="frame_image_cover" style="display: none;">
+                    <div class="row">
+                        <div class="cell">
+                            <p class="header shadow" style="height: 210px; width: 610px; align-center: center;">
+                                {% if model.image_cover != None and model.image_cover != "" %}
+                                <img src="{% static model.image_cover %}" style="height: 200px; width: 600px; max-width: 700%!important;"> {% else %}
+                                <img src="{% static 'ErpProject/image/upload/articles/default.png' %}" style="height: 200px; width: 600px; max-width: 700%!important;"> {% endif %}
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="frame" id="frame_autres_informations" style="display: none;">
+                    <div class="row cells2">
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Fax :<br>
+                                <span class="sub-alt-header fg-dark"> {{ model.fax }} </span>
+                            </p>
+                        </div>
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Site web :<br>
+                                <span class="sub-alt-header fg-dark"> {{ model.site_web }} </span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row cells2">
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Numero fiscal :<br>
+                                <span class="sub-alt-header fg-dark"> {{ model.numero_fiscal }} </span>
+                            </p>
+                        </div>
+                        <div class="cell">
+                            <p class="minor-header fg-gray">
+                                Devise :<br>
+                                <span class="sub-alt-header fg-dark"> {{ model.devise.designation }} </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

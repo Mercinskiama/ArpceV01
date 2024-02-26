@@ -1,0 +1,165 @@
+
+{% extends "ErpProject/ModuleArchivage/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_index' %}">Module Archivage</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_archivage_list_dossier' %}">Liste des Dossiers</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    {% if not isPopup %}<button onclick="javascript:window.location.assign('{% url 'module_archivage_get_upload_dossier' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Importer les données à partir excel</button>{% endif %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_archivage_list_dossier' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <form id="form" method="POST" action="{% url 'module_archivage_post_add_dossier' %}"  enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    {% if isPopup %}<input id="isPopup" name="isPopup" value="1" type="text" style="display: none">{% endif %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Désignation</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="designation" id="designation" type="text" data-validate-func="required" data-validate-hint="Saisissez le champ Désignation SVP !">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Séquence</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input name="sequence" id="sequence" type="text" >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Dossier parent</label>
+                            <div class="input-control text full-size">                                
+                                <select name="parent_id" id="parent_id" class="selectpicker form-control" data-live-search="true" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    <option class="create_option" value='-100' data-url="/archivage/dossier/add?isPopup=1">Créer nouveau...</option>
+                                    {% for item in dossiers %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Description</label>
+                            <div class="input-control text full-size">
+                                <textarea name="description" id="description" ></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="input-control checkbox small-check full-size">
+                                <input name="owner_read" id="owner_read" type="checkbox">
+                                <span class="check"></span><span class="caption">Lire Documents personnels seulement</span>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="input-control checkbox small-check full-size">
+                                <input name="est_racine" id="est_racine" type="checkbox">
+                                <span class="check"></span><span class="caption">Est dossier racine</span>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="input-control checkbox small-check full-size">
+                                <input name="est_archivage" id="est_archivage" type="checkbox">
+                                <span class="check"></span><span class="caption">Est dossier archivage</span>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Accès en écriture</label>
+                            <div class="text full-size">
+                                <select multiple="multiple" class="multi-select multi_select2" name="write_groups" id="write_groups">
+                                    {% for item in groupepermissions %}<option value="{{ item.id }}">{{item}}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Accès en lecture</label>
+                            <div class="text full-size">
+                                <select multiple="multiple" class="multi-select multi_select2" name="read_groups" id="read_groups">
+                                    {% for item in groupepermissions %}<option value="{{ item.id }}">{{item}}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>     
+                    <br><br>
+                    <div class="row">
+                        <ul class="nav nav-tabs navtab-bg"> 
+                            <li class="active"><a href="#frame_autres" data-toggle="tab" aria-expanded="false"><span>Autres informations</span></a></li>
+                        </ul>
+                        <div class="tab-content"> 
+                            <div class="tab-pane active" id="frame_autres">
+                                <div class="row margin20 no-margin-left no-margin-right">                                
+                                <div class="col-md-6">
+                                    <div class="section-otm" data-compteur="1">
+                                        <table class="table bordered no-margin" style="width:100%;">
+                                            <thead>	
+                                                <tr>
+                                                    <th width="90%">Catégorie d'étiquette</th>
+                                                    <th width="10%"></th>
+                                                </tr>
+                                            </thead>                
+                                            <tbody class="tbl_posts_body">
+                                                <tr>
+                                                    <td>
+                                                        <div class="input-control text full-size">                                
+                                                            <select class="selectpicker form-control" data-live-search="true" title="sélectionner une option" name="categorie_tag_dossier_ids" id="categorie_tag_dossier_ids-1">
+                                                                <option value="">Sélectionnez une nouvelle option Catégorie d'étiquette</option>
+                                                                <option class="create_option" value='-100' data-url="/archivage/categorie_tag/add?isPopup=1">Créer nouveau...</option>
+                                                            </select>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="pagination no-border">
+                                                            <span class="item delete-record" title="Supprimer la ligne"><span class="mif-cross fg-red"></span></span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table> 
+                                        <br><button type="button" class="button rounded add-record">Ajouter</button>
+                                        <table class="sample_table" style="display:none;">       
+                                            <tr>
+                                                <td>
+                                                    <div class="input-control text full-size">                                
+                                                        <select class="form-control" data-live-search="true" title="Sélectionner une option" name="categorie_tag_dossier_ids" id="">
+                                                            <option value="">Sélectionnez une nouvelle option Catégorie d'étiquette</option>
+                                                            <option class="create_option" value='-100' data-url="/archivage/categorie_tag/add?isPopup=1">Créer nouveau...</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="pagination no-border">
+                                                        <span class="item delete-record" title="Supprimer la ligne"><span class="mif-cross fg-red"></span></span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>                                
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+{% endblock %}

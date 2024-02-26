@@ -1,0 +1,228 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+<style>
+    .ms-container{
+        width: 719px !important;
+    }
+</style>
+<div class="row">
+    <div class="col-sm-12">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_roles' %}">Module Configuration</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_roles' %}">Liste des roles</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_details_role' model.id %}">{{ model.designation }}</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+    <div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>Retirer des droits pour le rôle "{{model}}"</h2>
+                <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+                <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+                <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+                    <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <button style="width: 100%;"  onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary_color_{{module.name|lower}}">Valider</button>
+                                <!-- onclick="collecter_autorisations()" -->
+                            </div>
+                            <div class="col-md-2">
+                                <button style="width: 100%;" onclick="javascript:window.location.assign('{% url 'module_configuration_list_roles' %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                            </div>
+                        </div>
+
+                        <hr class="hr-ligne">
+                        <!-- Appel de la fonction message -->
+                            {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                        <br>
+                        
+
+
+                        <div class="row" style="margin-top: 10px">
+                            <div class="col-md-12">
+                                <form id="form" method="POST" action="{% url 'module_configuration_post_remove_rights' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                                    data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                                    {% csrf_token %}
+                                    <input id="submit" type="submit" style="display: none">
+                                    <input type="hidden" name="ref" value="{{ model.id }}">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>Désignation</label>
+                                            <div class="input-control text full-size" data-role="input">
+                                                <input class="form-control" readonly type="text" value="{{ model.designation }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="inputs" class="row" style="display: none"></div>
+                                    <div class="row" style="margin-top: 10px">
+                                        <div class="col-md-12">
+                                            <h4>Droits à retirer</h4>
+                                            <!-- NEW PERMISSION -->
+                                            <div class="col-md-12">
+                                                <select multiple="multiple" class="multi-select multi_select2" id="my_multi_select1" name="my_multi_select2[]">
+                                                    {% for item in modules_installes %}
+                                                            {% for sous_module in sous_modules_list %}
+                                                                {% if sous_module.module_id == item.id %}
+                                                                <optgroup label="{{ item }}/{{ sous_module.nom_sous_module }}">
+                                                                    {% for action in actions_non_autorisees %}
+                                                                        {% if action.sous_module_id == sous_module.id %}
+                                                                            <option value="{{action.id}}">
+                                                                                {{ action.designation }}
+                                                                            </option>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                </optgroup>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <!-- <div class="treeview full-size" data-role="treeview">
+                                                <ul>
+                                                    {% for item in modules_installes %}
+                                                    <li class="node" data-mode="checkbox">
+                                                        <span class="leaf">{{ item }}</span>
+                                                        <span class="node-toggle"></span>
+                                                        <ul>
+                                                            {% for sous_module in sous_modules_list %} {% if sous_module.module_id == item.id %}
+                                                            <li data-mode="checkbox" class="node">
+                                                                <span class="leaf">{% if sous_module.groupe == "Rapports" %} {{ "Rapports sur " }} {% endif %} {{ sous_module.nom_sous_module }}</span>
+                                                                <span class="node-toggle"></span>
+                                                                <ul>
+                                                                    {% for action in actions_non_autorisees %} {% if action.sous_module_id == sous_module.id %}
+                                                                    <li data-mode="checkbox" data-value="{{ action.id }}" data-id="actions_{{ action.id }}">
+                                                                        <span class="leaf">{{ action.designation }}</span>
+                                                                    </li>
+                                                                    {% endif %} {% endfor %}
+                                                                </ul>
+                                                            </li>
+                                                            {% endif %} {% endfor %}
+                                                        </ul>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <script>
+            var lesModules = new Array();
+            var lesSousModules = new Array();
+            var lesActionsUtilisateurs = new Array();
+    
+            {% for item in modules_installes %}
+                lesModules.push({id:"{{ item.id }}"});
+            {% endfor %}
+    
+            {% for item in sous_modules_list %}
+                lesSousModules.push({id:"{{ item.id }}", module_id:"{{ item.module_id }}"});
+            {% endfor %}
+    
+            {% for item in actions_non_autorisees %}
+                lesActionsUtilisateurs.push({id:"{{ item.id }}", sous_module_id:"{{ item.sous_module_id }}"});
+            {% endfor %}
+        </script>
+        <script>
+            function collecter_autorisations() 
+            {
+                $("#inputs").children().remove();
+                var lesModulesAutorises = new Array();
+                var lesSousModulesAutorises = new Array();
+                var lesActionsAutorisees = new Array();
+    
+                for(var i = 0; i < lesActionsUtilisateurs.length; i++)
+                {
+                    var action = lesActionsUtilisateurs[i];
+                    var element = document.getElementById("actions_" + action.id);
+                    //console.log(element.checked);
+                    
+                    if (element.checked == true)
+                    {
+                        lesActionsAutorisees.push(action);
+    
+                        var sous_module = lesSousModules[0];
+                        for(var j = 0; j < lesSousModules.length; j++)
+                        {
+                            var item = lesSousModules[j];
+                            if(item.id == action.sous_module_id)
+                            {
+                                sous_module = item;
+                                break;
+                            }
+                        }
+                        
+                        var existe_deja = false;
+                        for(var j = 0; j < lesSousModulesAutorises.length; j++)
+                        {
+                            var sous_module_autorise = lesSousModulesAutorises[j]
+                            if(sous_module_autorise.id == sous_module.id)
+                            {
+                                existe_deja = true;
+                                break;
+                            }
+                        }
+                        if(existe_deja == false) lesSousModulesAutorises.push(sous_module);
+                        
+                        var module = lesModules[0];
+                        for(var j = 0; j < lesModules.length; j++)
+                        {
+                            var item = lesModules[j];
+                            if(item.id == sous_module.module_id)
+                            {
+                                module = item;
+                                break;
+                            }
+                        }
+                        
+                        existe_deja = false;
+                        for(var j = 0; j < lesModulesAutorises.length; j++)
+                        {
+                            var module_autorise = lesModulesAutorises[j]
+                            if(module_autorise.id == module.id)
+                            {
+                                existe_deja = true;
+                                break;
+                            }
+                        }
+                        if(existe_deja == false) lesModulesAutorises.push(module);
+                    }
+                }
+    
+                for(var i = 0; i < lesActionsAutorisees.length; i++)
+                {
+                    var action = lesActionsAutorisees[i];                
+                    var input_action_id  = '<input type="hidden" name="action_id" value="' + action.id + '" >';
+                    $("#inputs").append(input_action_id);
+                }
+                for(var i = 0; i < lesSousModulesAutorises.length; i++)
+                {
+                    var sous_module = lesSousModulesAutorises[i];                
+                    var input_sous_module_id  = '<input type="hidden" name="sous_module_id" value="' + sous_module.id + '" >';
+                    $("#inputs").append(input_sous_module_id);
+                }
+                for(var i = 0; i < lesModulesAutorises.length; i++)
+                {
+                    var module = lesModulesAutorises[i];                
+                    var input_module_id  = '<input type="hidden" name="module_id" value="' + module.id + '" >';
+                    $("#inputs").append(input_module_id);
+                }
+                
+                document.getElementById('submit').click();
+            }
+        </script>
+        {% include 'ErpProject/ErpBackOffice/widget/include_multi_select.html' %}
+        {% endblock %}

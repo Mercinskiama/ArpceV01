@@ -1,0 +1,36 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="Rapport">
+        <meta name="author" content="Faberman">
+    </head>
+    {% load account_filters %}{% load humanize %}{% load static %}
+    {% load printabletags %}
+
+    <body>       
+        <div id="invoice">
+            <h1 class="align-center">{{ title }}</h1>
+            <h3 style="text-align:center">Le {% now " d/m/Y" %}</h3>
+
+            <div class="row">
+                <p>  
+                    {% for field in fields %}                 
+                    {{ field.verbose_name }} :<br>
+                    <span class="sub-header"> {{ model|value_from_model:field.name }}</span>
+                    <br>                    
+                    {% endfor %}
+                </p>
+            </div>
+
+            <br>
+            <br>
+
+        
+      
+        </div>
+       
+    </body>
+</html>

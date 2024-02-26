@@ -1,0 +1,68 @@
+{% extends "ErpProject/ErpBackOffice/shared/layout.html" %} {% block content %} {% load static %}
+{% if not isPopup %}
+<!-- Suite Menu Nav -->
+<!-- Menu lateral -->
+<div class="sidebar" role="navigation">
+    <div class="contenair-profil only-on-large-screen" style="background-color: transparent;">
+        <!-- <img src="/static/ErpProject/image/icone_profile.png" class="profil"> -->
+        {% if utilisateur.image != None and utilisateur.image != '' %}
+        <img src="{% static utilisateur.image %}"  class="profil">
+        {% else %}
+            <img src="/static/ErpProject/image/icone_profile.png" class="profil">
+        {% endif %}
+        <label class="nom-admin">{{ utilisateur.nom_complet }}</label>
+        <p class="fonction">{% if utilisateur.poste == None %} {{"Administrateur"}} {% else %}{{ utilisateur.poste.designation }}{% endif %}</p>
+        <div class="divider" style="background-color: transparent;"></div>
+    </div>
+    <div class="sidebar-nav navbar-collapse" style="background-color: transparent;">
+        <ul class=" nav" id="side-menu" style="background-color: transparent;">
+            <!-- <li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Accueil <span class="fa fa arrow"></span></a>
+
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 1 %}{ 'active' }{% endif %} chargement-au-click">
+                        <a href="{% url 'module_conversation_index' %}" class="a-menu">Accueil</a>
+                    </li>
+                </ul>
+                </li>
+            -->
+            <!-- /.nav-second-niveau -->
+            <!--<li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Mes messages <span class="fa fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 1 %}{ 'active' }{% endif %} chargement-au-click">
+                        <a href="{% url 'module_conversation_list_message' %}" class="a-menu">Messages reçus</a>
+                    </li>
+                </ul>
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 1 %}{ 'active' }{% endif %} chargement-au-click">
+                        <a href="{% url 'module_conversation_list_msg_sent' %}" class="a-menu">Messages envoyés</a>
+                    </li>
+                </ul>
+            </li>-->
+            <li class="li-menu">
+                <a href="#" class="a-menu"><i class="fa fa-dashboard fa-fw"></i> Mes notifications <span class="fa fa arrow"></span></a>
+                <!-- nav-second-niveau -->
+                <ul class="nav nav-second-level">
+                    <li class="{% if menu == 1 %}{ 'active' }{% endif %} chargement-au-click">
+                        <a href="{% url 'module_conversation_list_notification' %}" class="a-menu">Notifications réçues</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <!-- /.sidebar-collapse -->
+</div>
+    <!-- /.Menu lateral -->
+</nav>
+<!-- /.Menu Navbar -->
+
+    <!-- Corps de la page (A definir dans chaque fonction du module) -->
+    <div id="page-wrapper" style="background-color:white;">
+    {% else %}
+    <div id="page-wrapper"  style="background-color:#f9f9f9;margin:0!important">
+        {% endif %}
+        {% block page %}{% endblock %}
+    </div>
+<!-- Fin Corps de la page -->
+{% endblock %}

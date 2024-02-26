@@ -1,0 +1,113 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %}
+{% block page %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_dashboard' %}">Accueil</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_Configuration_list_sousmodule' %}">Liste des menus</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        <strong class="hidden-xs" style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:window.location.assign('{% url 'module_Configuration_update_sousmodule' sousmodule.id %}')" class="button rounded primary_color_{{module.name|lower}}">Modifier</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_Configuration_list_sousmodule' %}')" class="button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row padding20 no-padding-top no-padding-bottom" style="border-right: 1px solid #f7f5f5;">
+                            <p>Module :
+                            <br>
+                            <span class="sub-alt-header">{{ sousmodule.module.nom_module }}</span>
+                            <br>
+                            <br>
+            
+                            Nom du menu (ou sous-module) :
+                            <br>
+                            <span class="sub-alt-header">{{ sousmodule.nom_sous_module }}</span>
+                            <br>
+                            <br>
+                    
+                            Description :
+                            <br>
+                            <span class="sub-alt-header">{{ sousmodule.description }}</span>
+                            <br>
+                            <br>
+                    
+                            Groupe :
+                            <br>
+                            <span class="sub-alt-header">{{ sousmodule.groupe }}</span>
+                            <br>
+                            <br>
+                    
+                            Icône Menu :
+                            <br>
+                            <span class="sub-alt-header">{{ sousmodule.icon_menu }}</span>
+                            <br>
+                            <br>
+                    
+                            Url vers :
+                            <br>
+                            <span class="sub-alt-header">{{ sousmodule.url_vers }}</span>
+                            <br>
+                            <br>
+                    
+                            Numéro d'ordre :
+                            <br>
+                            <span class="sub-alt-header">{{ sousmodule.numero_ordre }}</span>
+                            <br>
+                            <br>
+                    
+                            Est un model  :
+                            <br>
+                            <span class="sub-alt-header">{{ sousmodule.est_model }}</span>
+                            <br>
+                            <br>
+                    
+                            Est un dashboard :
+                            <br>
+                            <span class="sub-alt-header">{{ sousmodule.est_dashboard }}</span>
+                            <br>
+                            <br>
+                    
+                            Est activé :
+                            <br>
+                            <span class="sub-alt-header">{{ sousmodule.est_actif }}</span>
+                            <br>
+                            <br>
+                    
+                            Model principal :
+                            <br>
+                            <span class="sub-alt-header">{{ sousmodule.model_principal }}</span>
+                            <br>
+                            <br>
+                    
+                            Groupe menu :
+                            <br>
+                            <span class="sub-alt-header">{{ sousmodule.groupe_menu.designation }}</span>
+                            <br>
+                            <br>            
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

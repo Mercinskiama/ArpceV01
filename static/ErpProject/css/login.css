@@ -1,0 +1,116 @@
+.auth-container {
+  height: 100vh;
+}
+
+.cover {
+  background: url(/static/ErpProject/backgrounds/login.png);
+  background-size: cover;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+}
+
+.cover .content {
+  padding: 150px;
+}
+
+.cover .content h1 {
+  font-size: 58px;
+  font-weight: 700;
+  font-family: "Circular Std Bold";
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.cover .content h3 {
+  font-size: 28px;
+  font-family: "Circular Std Book";
+  color: #ffffff;
+  font-weight: 200;
+}
+
+.form {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.form .form-content {
+  box-shadow: 0 0 2.1875rem rgba(140, 152, 164, 0.25) !important;
+  padding: 100px 65px;
+  width: 52%;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.form .form-content h1 {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  font-family: "Circular Std Bold";
+}
+
+.form .form-content img {
+  height: 50px;
+  margin: 30px;
+}
+
+.form .form-content .form-input {
+  height: 40px;
+  padding: 0.55rem 1rem;
+  background-color: #fff;
+  border: 1px solid #d4d7dd;
+  border-radius: 10px;
+  margin: 15px 0px;
+  display: flex;
+  width: 100%;
+}
+
+.form .form-content .form-input .icon {
+  min-width: 32px;
+  text-align: center;
+  margin-right: 10px;
+  color: #bdbdbd;
+}
+
+.form .form-content .form-input input {
+  border: 0;
+  user-select: none;
+  width: 100%;
+  font-family: "Circular Std Book";
+  transition: all 0.2s ease-in-out;
+  background-clip: padding-box;
+  height: 100%;
+  outline: 0;
+  color: #151b26;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.form .form-content .button {
+  width: 100%;
+  white-space: nowrap;
+  text-align: center;
+  border-radius: 100px;
+  outline: 0;
+  outline-offset: 0;
+  user-select: none;
+  vertical-align: middle;
+  line-height: 1;
+  background: #3399ff;
+  padding: 20px;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 20px;
+  margin-top: 30px;
+  font-family: "Circular Std Bold";
+  border: 0.1rem solid transparent;
+  box-shadow: 0 6px 30px rgba(51, 153, 255, 0.2);
+}

@@ -1,0 +1,74 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+<div class="row">
+    <div class="col-sm-12">
+        <ul class="breadcrumb">
+            <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_utilisateurs' %}">Module Achat</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_utilisateurs' %}">Liste des utilisateurs</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_details_utilisateur' model.id %}">{{ model.nom_complet }}</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Attribuer rôle à un Utilisateur</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <div class="col-md-2">
+{% include 'ErpProject/ErpBackOffice/widget/submitButton.html' with  id="btnSubmit" class="button small-button rounded primary_color_{{module.name|lower}}" val="Valider"%}
+                    </div>
+                    <div class="col-md-2">
+                        <button style="width:100%;" onclick="javascript:window.location.assign('{% url 'module_configuration_details_utilisateur' model.id %}')" class="button small-button rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                    </div>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+
+
+                <div class="row " style="margin-top: 10px">
+                    <div class="col-md-12">
+                        <form id="form" method="POST" action="{% url 'module_configuration_post_attribuer_role' %}" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000" novalidate="novalidate"
+                            data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                            {% csrf_token %}
+                            <input id="submit" type="submit" style="display: none">
+                            <input name="ref" type="hidden" value="{{ model.id }}">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Utilisateur</label>
+                                    <div class="input-control text full-size" data-role="input">
+                                        <input disabled type="text" value="{{ model.nom_complet }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label>Rôle à attribuer</label>
+                                <div class="input-control text full-size">
+                                    <select type="text" name="role_id" id="role_id" data-validate-func="min" data-validate-arg="1" data-validate-hint="Sélectionnez le rôle svp.">
+                                        <option value="0">Sélectionnez un rôle</option>
+                                        {% for item in roles %}
+                                            <option value="{{ item.id }}"> {{ item.designation }} </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

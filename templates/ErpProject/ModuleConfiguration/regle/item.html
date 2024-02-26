@@ -1,0 +1,209 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+<div class="row">
+    <div class="col-sm-12">
+        <ul class="breadcrumb">
+            <li><a><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_regle' %}">Module Configuration</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_configuration_list_regle' %}">Liste des règles</a></li>
+        <li>{{ title }}</li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{model}}</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        
+        
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row ">
+                    <button onclick="javascript:window.location.assign()" class="theme-btn theme-btn-sm rounded chargement-au-click primary_color_{{module.name|lower}}">
+                        Modifier
+                    </button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_list_regle' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click" style="margin-left: 5px">Annuler</button>
+                </div>
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+
+                <div class="row">
+                    <div class="col-md-6">
+                        Designation :
+                        <br>
+                        <span class="sub-alt-header">{{ model.designation }}</span>
+                        <br>
+                        <br>
+
+                        Groupe :
+                        <br>
+                        <span class="sub-alt-header">{{ model.groupe_permission.designation }}</span>
+                        <br>
+                        <br>
+                        Filtre :
+                        <br>
+                        <span class="sub-alt-header">{{ model.filtre }}</span>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-8">
+                        <label>Conditions de la règle</label>
+                        <table class="table bordered no-margin" style="width:100%;">
+                            <thead>	
+                                <tr>
+                                    <th width="30%">Condition</th>
+                                    <th width="25%">Propriété</th>
+                                    <th width="15%">Op.</th>
+                                    <th width="30%">Valeur</th>
+                                </tr>
+                            </thead>
+            
+                            <tbody id="tbl_posts_body">
+                                {% for item_test in model.lignes.all %}
+                                <tr>
+                                    <td>
+                                        <div class="input-control text full-size">
+                                            <p class="fg-gray">
+                                                <span class="sub-alt-header fg-dark">{{ item_test.value_type_condition }}</span>
+                                            </p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-control text full-size">
+                                            <p class="fg-gray">
+                                                <span class="sub-alt-header fg-dark">{{ item_test.code }}</span>
+                                            </p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-control text full-size">
+                                            <p class="fg-gray">
+                                                <span class="sub-alt-header fg-dark">{{ item_test.value_type_operation }}</span>
+                                            </p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-control text full-size">
+                                            <p class="fg-gray">
+                                                <span class="sub-alt-header fg-dark">{{ item_test.valeur }}</span>
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}					
+                            </tbody>
+                        </table> 
+                    </div>                    
+                <div>
+                <br>
+                <br>                  
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4>Permissions concernées</h4>
+                        <div class="treeview full-size" data-role="treeview">
+                            <ul>
+                                {% for item in modules_du_regle %}
+                                <li class="node">
+                                    <span class="leaf">{{ item }}</span>
+                                    <span class="node-toggle"></span>
+                                    <ul>
+                                        {% for sous_module in sous_modules_list %} {% if sous_module.module_id == item.id %}
+                                        <li class="node">
+                                            <span class="leaf">{{ sous_module.nom_sous_module }}</span>
+                                            <span class="node-toggle"></span>
+                                            <ul>
+                                                {% for action in actions_utilisateur %} {% if action.sous_module_id == sous_module.id %}
+                                                <li>
+                                                    <span class="leaf">{{ action.designation }}</span>
+                                                </li>
+                                                {% endif %} {% endfor %}
+                                            </ul>
+                                        </li>
+                                        {% endif %} {% endfor %}
+                                    </ul>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function supprimer() {
+        var id = '{{model.id}}'
+        //-------deux variables pour la suppression---------------------------------
+        var modele = "Model_GroupePermission"
+        var the_url = "module_configuration_list_roles"
+        // url de suppression ------------------------------------------------------
+        url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+        url = url.replace('100', id);
+        url = url.replace('nom_modele', modele);
+        url = url.replace('url_retour', the_url);
+        document.location.href = url;
+       
+
+
+    }
+    $('#supprimer').on('click', function () {
+
+
+        Swal.fire({
+            title: 'Etes vous sure?',
+            text: "De vouloir supprimer cette item!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, Supprime le!'
+        }).then((result) => {
+            if (result.value) {
+                supprimer();
+                Swal.fire(
+                    'Supprimé!',
+
+                    'Votre Item est supprimé',
+                    'Avec Succes',
+                )
+            }
+        })
+    })
+
+</script>
+<script>
+    //Script du droit supprimer
+    var lesactions = new Array();
+    var booleen = false;
+    {% for action in actions %}
+    lesactions.push({ droit: "{{ action.droit }}" });
+    {% endfor %}
+
+    $(document).ready(function () {
+
+        // Initialisation des sous-menus
+        $("#supprimer").hide();
+
+        for (var i = 1; i < lesactions.length; i++) {
+            act = lesactions[i];
+            if (act.droit === "CREER_RAPPORT") {
+                booleen = true;
+            }
+        }
+
+        if (booleen) {
+            $("#supprimer").show();
+        }
+    });
+</script>
+
+
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

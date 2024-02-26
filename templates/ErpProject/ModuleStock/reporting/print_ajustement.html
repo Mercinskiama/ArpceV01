@@ -1,0 +1,67 @@
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <meta name="description" content="{{ title }}">
+        <meta name="author" content="MelodyERP">
+    </head>
+    {% load static %}{% load account_filters %}{% load humanize %}
+
+    <body>       
+        <div id="report">
+            <h2 class="align-center header">{{ title }}</h2>
+            <span class="date-text">Le {% now " d/m/Y" %}</span>
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Référence :<br>
+                        <span class="sub-alt-header">{{ model.reference }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Date :<br>
+                        <span class="sub-alt-header">{{model.date|date:"d/m/Y H:i"}}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Société :<br>
+                        {% if model.societe is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.societe }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Emplacement :<br>
+                        {% if model.emplacement is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.emplacement }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Status Ajustement :<br>
+                        {% if model.status is None %}
+                        <span class="sub-alt-header"> - </span>
+                        {% else %}
+                        <span class="sub-alt-header">{{ model.status }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Inventaire de :<br>
+                        <span class="sub-alt-header">{{ model.inventaire_de }}</span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p>Document :<br>
+                        <span class="sub-alt-header">{{ model.document }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

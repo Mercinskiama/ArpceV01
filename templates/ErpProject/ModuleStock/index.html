@@ -1,0 +1,310 @@
+
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %}{% load static %}{% load account_filters %}
+
+<style type="text/css">
+    @import url({% static 'ErpProject/css/home_module.css' %});
+    .hh2{
+        color: #fff;
+        font-size: 19px;
+        font-family: Roboto bold;
+        text-decoration: none;
+        background-color: #0092CC;
+        text-align: left;
+    }
+    .btn:focus, .btn:active:focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn.active.focus {
+        outline: thin dotted; 
+        outline: 1px solid #0092CC;
+        outline-offset: 0px;
+    }
+</style>
+
+<div style="padding-top: 40px; ">
+    <!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+    <div class="row" style="align-items: center; justify-content: space-around;">
+        <div class="col-md-3" style="justify-content: space-between;margin-top: 10px;">
+            <div class="col-md-12"> <span style="font-size: 1.6em; font-weight: bold;">Notifications</span> </div>
+            <div class="col-md-12" style="justify-content: space-between;">
+                <div class="secondary_color_{{module.name|lower}}" style="width: 100%; height: 180px; display: flex; flex-direction: column; justify-content: space-between;">  
+                    <div style="width: 100%; height: 140px; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; position: relative;">
+                        <div style="width: 45%; display: flex; align-items: center; justify-content: center; position: relative; margin: 0 10px;">
+                            <img src="{% static 'ErpProject/image/icones/alarm--v1.png' %}" />
+                        </div>
+                        <div style="width: 45%;" class="text-center">
+                            <span style="color: white; text-align: left; font-size: 1.3em; font-weight: 400;" >Non lues </span>
+                        </div>
+                        <span class="label label-danger" style="color: white; font-size: 35px; font-weight: 700; position: absolute; top: 11px; right: 15%; padding: 0 10px;">{{msg_no_open}}</span>
+                    </div>
+            
+                    <a class="primary_color_{{module.name|lower}}" style="width: 100%; height: 40px; padding: 8px 10px; text-decoration: none;" href=""><span style="color: white; text-align: left; font-size: 0.9em; font-weight: 600;">Lire tout</span></a>
+                </div>
+                <br>
+                <br>
+                <div style="margin: 5px 0px;">
+                    <span style="font-weight: 700; font-size: 18px; padding: 5px 0px;">Les dernières notifications</span>
+                </div>
+                <div style="overflow-y: scroll; scroll-behavior: smooth; display: grid;">
+                    {% if temp_notif_list|length > 0 %}
+                        {% for item in temp_notif_list %}
+                            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="headingOne" style="background-color:#0092CC;color: #fff;">
+                                    <h4 class="panel-title">
+                                    <a class="hh2" style="text-decoration: none;" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-{{forloop.counter0}}" aria-expanded="true" aria-controls="collapseOne">
+                                    <span class="fa fa-bell"></span> Notification
+                                    </a>
+                                    </h4>
+                                    <p style="margin-left: 1.5em;color:#A5A5A7;">{{item.notification.created_at}}</p>
+                                </div>
+                                <div id="collapse-{{forloop.counter0}}" class="panel-collapse collapse out" role="tabpanel" aria-labelledby="headingOne">
+                                    <div class="panel-body" style="min-height: auto !important;">
+                                        {{item.notification.text}}
+                                    <br>
+                                        <button class="btn rounded primary_color_{{module.name|lower}}"
+                                        onclick="javascript:window.location.assign('{% url item.lien_action item.source_identifiant %}')">Vérifier
+                                        </button>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                           <p style="text-align:center;">Aucune Notification en cours</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-9" style="justify-content: space-between;margin-top: 10px;">
+            <div class="row">
+                <div class="col-md-12" style="justify-content: space-between;margin-top: 10px;"> <span style="font-size: 1.6em; font-weight: bold;">Gestion Quotidienne</span></div>
+                <div class="col-md-4" style="justify-content: space-between;margin-top: 10px;">
+                    
+                    <div style="width: 100%; height: 180px; display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                        <div class="primary_color_{{module.name|lower}}" style="width: 48%; height: 180px;">
+                            <div style="width: 100%; height: 140px; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+                                <a id="add-element" onclick="javascript:document.getElementById('btn-choose-element-modal').click()" href="#" class="leaf">
+                                    <div style="width: 100%; display: flex; align-items: center; justify-content: center;">
+                                        <img src="{% static 'ErpProject/image/icones/doc_achat.png' %}"/>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="primary_color_{{module.name|lower}}" style="width: 100%; height: 40px; padding: 8px 10px;">
+                                <span style="color: white; text-align: left; font-size: 0.9em; font-weight: 600;">Opération Stock</span>
+                            </div>
+                        </div>
+                        <div class="primary_color_{{module.name|lower}}" style="width: 48%; height: 180px;">
+                            <div style="width: 100%; height: 140px; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+                                <a id="remove-user" href="{% url 'module_stock_list_mvt_stock' %}" class="leaf">
+                                    <div style="width: 100%; display: flex; align-items: center; justify-content: center;">
+                                        <img src="{% static 'ErpProject/image/icones/searchStck.png' %}"/>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="primary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('{% url 'module_stock_list_mvt_stock' %}')"  style="width: 100%; height: 40px; padding: 8px 10px;">
+                                <span style="color: white; text-align: left; font-size: 0.9em; font-weight: 600;">Mouvement</span>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+
+                <div class="col-md-4" style="justify-content: space-between;margin-top: 10px;">
+                    <div class="secondary_color_{{module.name|lower}}" style="width: 100%; height: 180px;">
+                        <div style="width: 100%; height: 140px; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+                            
+                            <div id="search-user" style="width: 45%; display: flex; align-items: center; justify-content: center;">
+                                <a href="{% url 'module_stock_list_stockage' %}" class="leaf">
+                                    <img src="{% static 'ErpProject/image/icones/stock1.png' %}"/>
+                                </a>
+                            </div>
+                            
+                            <div style="width: 45%;">
+                                <span style="color: white; text-align: left; font-size: 1.3em; font-weight: 400;">DEPOT</span>
+                            </div>
+                        </div>
+                        <div class="secondary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('{% url 'module_stock_list_stockage' %}')" style="width: 100%; height: 40px; padding: 8px 10px;">
+                            <span style="color: white; text-align: left; font-size: 0.9em; font-weight: 600;">Gestions Stock</span>
+                        </div>
+                    </div>
+                </div> 
+
+                <div class="col-md-4" style="justify-content: space-between;margin-top: 10px;">
+                    <div style="width: 100%; height: 180px; background-color: rgb(0, 117, 94);">
+                        <div style="width: 100%; height: 140px; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+                            <div id="reporting" style="width: 45%; display: flex; align-items: center; justify-content: center;">
+                                <a href="#" class="leaf">
+                                    <img src="{% static 'ErpProject/image/icones/rapport.png' %}"/>
+                                </a>
+                            </div>
+                            <div style="width: 45%;">
+                                <span style="color: white; text-align: left; font-size: 1.3em; font-weight: 400;">Rapports et Tableau de bord</span>
+                            </div>
+                        </div>
+                        <div style="width: 100%; height: 40px; background-color: rgb(0, 107, 84); padding: 8px 10px;">
+                            <a href="#" class="leaf" onclick="javascript:window.location.assign('{% url 'module_stock_tableau_de_bord' %}')"> 
+                                <span style="color: white; text-align: left; font-size: 0.9em; font-weight: 600;">Reporting </span>
+                            </a>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+            <div class="row">
+                <div class="col-md-12" style="justify-content: space-between;margin-top: 10px;"> <span style="font-size: 1.6em; font-weight: bold;">Gestion Periodique</span></div>
+                <div class="col-md-4" style="justify-content: space-between;margin-top: 10px;" onclick="javascript:window.location.assign('{% url 'module_stock_list_bon_reception' %}')">                  
+                    <div style="width: 100%; height: 180px; display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                        <div class="secondary_color_{{module.name|lower}}" style="width: 48%; height: 180px;">
+                            <div style="width: 100%; height: 140px; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+                                <a id="add-element" href="#" class="leaf">
+                                    <div style="width: 100%; display: flex; align-items: center; justify-content: center;">
+                                        <img src="{% static 'ErpProject/image/icones/expire_doc.png' %}"/>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="secondary_color_{{module.name|lower}}" style="width: 100%; height: 40px; padding: 8px 10px;">
+                                <span style="color: white; text-align: left; font-size: 0.9em; font-weight: 600;">Expiration Document</span>
+                            </div>
+                        </div>
+                        <div class="secondary_color_{{module.name|lower}}" style="width: 48%; height: 180px;">
+                            <div style="width: 100%; height: 140px; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+                                <a id="remove-user" href="{% url 'module_stock_list_ajustement' %}" class="leaf">
+                                    <div style="width: 100%; display: flex; align-items: center; justify-content: center;">
+                                        <img src="{% static 'ErpProject/image/icones/stock2.png' %}"/>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="secondary_color_{{module.name|lower}}" onclick="javascript:window.location.assign('{% url 'module_stock_list_ajustement' %}')" style="width: 100%; height: 40px; padding: 8px 10px;">
+                                <span style="color: white; text-align: left; font-size: 0.9em; font-weight: 600;">Stock /  Inventorisation</span>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+                <div class="col-md-4" style="justify-content: space-between;margin-top: 10px;" onclick="javascript:window.location.assign('{% url 'module_stock_list_emplacement' %}')">
+                    <div class="primary_color_{{module.name|lower}}" style="width: 100%; height: 180px;">
+                        <div style="width: 100%; height: 140px; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+                            <div style="width: 45%; display: flex; align-items: center; justify-content: center;">
+                                <img src="{% static 'ErpProject/image/icones/home.png' %}" style="width:70%;"/>
+                            </div>
+                            <div style="width: 45%;">
+                                <span style="color: white; text-align: left; font-size: 1.3em; font-weight: 400;">Emplacement Stock</span>
+                            </div>
+                        </div>
+                        <div class="primary_color_{{module.name|lower}}" style="width: 100%; height: 40px; padding: 8px 10px;">
+                            <span style="color: white; text-align: left; font-size: 0.9em; font-weight: 600;">Entrepôt</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="justify-content: space-between;margin-top: 10px;" onclick="">
+                    <div style="width: 100%; height: 180px; background-color: rgb(130, 103, 168);">
+                        <div style="width: 100%; height: 140px; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+                            <div style="width: 45%; display: flex; align-items: center; justify-content: center;">
+                                <img src="{% static 'ErpProject/image/icones/clipboard.png' %}"/>
+                            </div>
+                            <div style="width: 45%;">
+                                <span style="color: white; text-align: left; font-size: 1.3em; font-weight: 400;">Comptabilisation des ecritures</span>
+                            </div>
+                        </div>
+                        <div style="width: 100%; height: 40px; background-color: rgb(123, 93, 161); padding: 8px 10px;">
+                            <span style="color: white; text-align: left; font-size: 0.9em; font-weight: 600;">Valorisation du Stock</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" style="justify-content: space-between;margin-top: 10px;"> <span style="font-size: 1.6em; font-weight: bold;">Paramètrages</span></div>
+                <div class="col-md-4" style="justify-content: space-between;margin-top: 10px;" onclick="javascript:window.location.assign('{% url 'module_stock_list_unite_mesure' %}')">
+                    <div class="primary_color_{{module.name|lower}}" style="width: 100%; height: 180px;">
+                        <div style="width: 100%; height: 140px; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+                            
+                            <div id="search-user" style="width: 45%; display: flex; align-items: center; justify-content: center;">
+                                <a href="#" class="leaf">
+                                    <img src="{% static 'ErpProject/image/icones/analyse_blanc.png' %}"/>
+                                </a>
+                            </div>
+                            
+                            <div style="width: 45%;">
+                                <span style="color: white; text-align: left; font-size: 1.3em; font-weight: 400;">Modèle de traitement</span>
+                            </div>
+                        </div>
+                        <div class="primary_color_{{module.name|lower}}" style="width: 100%; height: 40px; padding: 8px 10px;">
+                            <span style="color: white; text-align: left; font-size: 0.9em; font-weight: 600;">Gestion Unités Mesures</span>
+                        </div>
+                    </div>
+                </div> 
+
+                <div class="col-md-4" style="justify-content: space-between;margin-top: 10px;" onclick="">
+                    <div class="secondary_color_{{module.name|lower}}" style="width: 100%; height: 180px;">
+                        <div style="width: 100%; height: 140px; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+                            <div id="reporting" style="width: 45%; display: flex; align-items: center; justify-content: center;">
+                                <a href="#" class="leaf">
+                                    <img src="{% static 'ErpProject/image/icones/process.png' %}"/>
+                                </a>
+                            </div>
+                            <div style="width: 45%;">
+                                <span style="color: white; text-align: left; font-size: 1.3em; font-weight: 400;">Procédures</span>
+                            </div>
+                        </div>
+                        <div class="secondary_color_{{module.name|lower}}" style="width: 100%; height: 40px; padding: 8px 10px;">
+                            <span style="color: white; text-align: left; font-size: 0.9em; font-weight: 600;">Workflow Module</span>
+                        </div>
+                    </div>
+                </div> 
+                <div class="col-md-4" style="justify-content: space-between;margin-top: 10px;" onclick="">
+                    <div class="primary_color_{{module.name|lower}}" style="width: 100%; height: 180px;">
+                        <div style="width: 100%; height: 140px; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+                            <div style="width: 45%; display: flex; align-items: center; justify-content: center;">
+                                <img src="{% static 'ErpProject/image/icones/update-file.png' %}"/>
+                            </div>
+                            <div style="width: 45%;">
+                                <span style="color: white; text-align: left; font-size: 1.3em; font-weight: 400;">Calcule du CICE</span>
+                            </div>
+                        </div>
+                        <div class="primary_color_{{module.name|lower}}" style="width: 100%; height: 40px; padding: 8px 10px;; opacity:0.8!important;">
+                            <span style="color: white; text-align: left; font-size: 0.9em; font-weight: 600;">CICE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Trigger the modal with a button -->
+<button style="display:none" id="btn-choose-element-modal" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#chooseElementModal">Open Modal</button>
+<!-- Modal -->
+<div id="chooseElementModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Choisissez le type d'opération</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p style="border: 1px solid #34aadc; border-radius: 2px; color: #34aadc; text-align: center; padding: 7px; font-size: 16px; font-weight: 800;">
+                            <a id="reporting" style="text-decoration: none;" href="{% url 'module_stock_add_bon_reception' %}" class="leaf"> Entrée en Stock</a>
+                        </p>
+                        <p style="border: 1px solid #34aadc; border-radius: 2px; color: #34aadc; text-align: center; padding: 7px; font-size: 16px; font-weight: 800;">
+                            <a id="reporting" style="text-decoration: none;" href="{% url 'module_stock_add_bon_sortie' %}" class="leaf"> Sortie en Stock</a>
+                        </p>
+                        <p style="border: 1px solid #34aadc; border-radius: 2px; color: #34aadc; text-align: center; padding: 7px; font-size: 16px; font-weight: 800;">
+                            <a id="reporting" style="text-decoration: none;" href="{% url 'module_stock_add_rebut' %}" class="leaf"> Rebut</a>
+                        </p>
+                        <p style="border: 1px solid #34aadc; border-radius: 2px; color: #34aadc; text-align: center; padding: 7px; font-size: 16px; font-weight: 800;">
+                            <a id="reporting" style="text-decoration: none;" href="{% url 'module_stock_add_ajustement' %}" class="leaf"> Inventaire</a>
+                        </p>
+                    </div> 
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- /.Button dropdown -->
+                <button type="button" class="theme-btn theme-btn-sm rounded chargement-au-click" data-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+    

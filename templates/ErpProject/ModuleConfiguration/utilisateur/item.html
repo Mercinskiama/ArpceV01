@@ -1,0 +1,181 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} 
+
+{% block page %}
+<div class="row">
+    <div class="col-md-12">
+        <ul class="breadcrumb">
+            <li><a class="chargement-au-click"><span class="mif-home"></span></a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_utilisateurs' %}">Module Configuration</a></li>
+            <li><a class="chargement-au-click" href="{% url 'module_configuration_list_utilisateurs' %}">Liste des utilisateurs</a></li>
+            <li>{{ title }}</li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>Modifier un utilisateur</h2>
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <div class="col-md-2">
+                        <button style="width: 100%" onclick="javascript:window.location.assign('{% url 'module_configuration_update_utilisateur' model.id %}')" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click">Modifier</button>
+                    </div>
+                    <div class="col-md-2">
+                        <button style="width: 100%" class="button small-button rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_configuration_add_utilisateur' %}')" style="margin-left: 5px">Créer</button>
+                      </div>
+                        <button id="supprimer" class="button small-button rounded primary_color_{{module.name|lower}} chargement-au-click" style="margin-left: 5px">Supprimer l'utilisateur</button>
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+                <br>
+                
+
+                <div class="row" style="margin-top: 10px">
+                    <p class="header">{{ model.nom_complet }}</p>
+                    <p class="minor-header fg-gray">
+                        Adresse complète :
+                        <br>
+                        <span class="sub-alt-header fg-dark">{% if model.adresse_complete != None and model.adresse_complete != "" %}{{ model.adresse_complete }}{% else %}{{ " - "}}{% endif %}</span>
+                        <br>
+                        <br> Adresse email :
+                        <br>
+                        <a href="mailto:{{ model.email }}" target="blank" class="sub-alt-header lien chargement-au-click">{{ model.email }}</a>
+                        <br>
+                        <br> Numéro de téléphone :
+                        <br>
+                        <span class="sub-alt-header fg-dark">{{ model.phone }}</span>
+                        <br>
+                    </p>
+                </div>
+                <hr style="background-color: #f7f5f5;">
+                <div class="row" style="margin-top: 10px">
+                    <p class="fg-gray">
+                        Rôle attribué à l'utilisateur :
+                        <br> 
+                        {% if roles.length == 0 %}
+                            <span class="sub-header fg-dark">Aucun rôle</span> <br>
+                        {% else %}
+                            {% for role in roles %}
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <span class="sub-header fg-dark">{{ role.designation }}</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <button onclick="javascript:window.location.assign('{% url 'module_configuration_retirer_role' model.id role.id %}')" class="button small-button rounded danger chargement-au-click">Rétirer ce rôle à l'utilisateur</button> 
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                        <button onclick="javascript:window.location.assign('{% url 'module_configuration_attribuer_role' model.id %}')" class="button small-button rounded primary chargement-au-click">Attribuer un rôle à l'utilisateur</button> 
+                    </p>
+                    <!--p class="sub-header">Rôles attribués à l'utilisateur</p>
+                        <button onclick="javascript:window.location.assign('{% url 'module_configuration_attribuer_role' model.id %}')" class="button small-button rounded primary chargement-au-click">Attribuer un rôle à l'utilisateur</button>
+                        <div class="treeview full-size" data-role="treeview" style="margin-top: 10px">
+                            <ul>
+                                {% for module in modules %}
+                                    <li class="node" >
+                                        <span class="leaf sub-alt-header">{{ module }}</span>
+                                        <span class="node-toggle"></span>
+                                        <ul class="module">
+                                            {% for item in roles_modules %}
+                                                {% if item.module_id == module.id and role.id == item.role_id %}
+                                                    <li>
+                                                        <span class="leaf">{{ role.nom_role }}</span> <a style="margin-left: 10px" title="Rétirer le rôle" class="chargement-au-click" href="{% url 'module_configuration_retirer_role' model.id role.id %}"><span class="mif-unlink sub-header fg-red"></span></a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    </li>                            
+                                {% endfor %}
+                            </ul>
+                        </div-->
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $(".module").each(function() {
+            if ($(this).children().length == 0) {
+                $(this).append('<li><span class="leaf">Aucun rôle attribué</span></li>')
+            }
+        });
+    });
+</script>
+
+<script>
+    function supprimer() {
+        var id = '{{model.id}}'
+        //-------deux variables pour la suppression---------------------------------
+        var modele = "Model_Personne"
+        var the_url = "module_configuration_list_utilisateurs"
+        // url de suppression ------------------------------------------------------
+        url = "{% url 'backoffice_supprimer_objet' '100' 'nom_modele' 'url_retour' %}";
+        url = url.replace('100', id);
+        url = url.replace('nom_modele', modele);
+        url = url.replace('url_retour', the_url);
+        document.location.href = url;
+
+
+    }
+    $('#supprimer').on('click', function () {
+
+
+        Swal.fire({
+            title: 'Etes vous sûr?',
+            text: "De vouloir supprimer cet utilisateur!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, Supprime le!'
+        }).then((result) => {
+            if (result.value) {
+                supprimer();
+                Swal.fire(
+                    'Supprimé!',
+                    'Utilisateur supprimé',
+                    'Avec Succes',
+                )
+            }
+        })
+    })
+
+</script>
+<script>
+    //Script du droit supprimer
+    var lesactions = new Array();
+    var booleen = false;
+    {% for action in actions %}
+    lesactions.push({ droit: "{{ action.droit }}" });
+    {% endfor %}
+
+    $(document).ready(function () {
+
+        // Initialisation des sous-menus
+        $("#supprimer").hide();
+
+        for (var i = 1; i < lesactions.length; i++) {
+            act = lesactions[i];
+            if (act.droit === "CREER_RAPPORT") {
+                booleen = true;
+            }
+        }
+
+        if (booleen) {
+            $("#supprimer").show();
+        }
+    });
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

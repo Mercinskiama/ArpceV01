@@ -1,0 +1,50 @@
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %} {% block page %}
+<ul class="breadcrumbs2 small">
+    <li><a><span class="mif-home"></span></a></li>
+    <li><a class="chargement-au-click" href="{% url 'module_configuration_dashboard' %}">Module Configuration</a></li>
+    <li>{{ title }}</li>
+</ul>
+<div class="row">
+    <button onclick="javascript:document.getElementById('submit').click()" class="button small-button rounded primary_color_{{module.name|lower}}">Appliquer</button>
+    <button class="button small-button rounded chargement-au-click" onclick="javascript:window.location.assign('{% url 'module_configuration_dashboard' %}')" style="margin-left: 5px">Annuler</button>
+</div>
+<hr style="background-color: #f7f5f5;">
+<div class="row" style="margin-top: 10px">
+    <p class="header">{{ title }}</p>
+</div>
+<div class="row">
+    <button onclick="javascript:window.location.assign('{% url 'module_configuration_details_organisation' organisation.id %}')" class="button small-button rounded primary">Modifier les données de l'entreprise</button>
+</div>
+<hr class="hr-ligne">
+<!-- Appel de la fonction message -->
+    {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}
+<br>
+
+<div class="row cells3" style="margin-top: 10px">
+    <div class="cell">
+        <form id="form" method="POST" action="{% url 'module_configuration_post_modifier_configuration' %}">
+            {% csrf_token %}
+            <input id="submit" type="submit" style="display: none">
+            <hr style="background-color: #f7f5f5;">
+            <!--div class="row">
+                    <label class="text-bold">Fond de l'application</label>
+                </div>
+                <div class="row">
+                    <label>Couleur primaire</label><br>
+                    <div class="">
+                        <input name="primary_color" type="color" value="#ff0000" >
+                    </div>
+                </div>
+				<br><br>
+                <div class="row">
+                    <label>Couleur secondaire</label><br>
+                    <div class="" >
+                        <input name="secondary_color" type="color" value="#ff0000">
+                    </div>
+                </div>
+				<hr style="background-color: #f7f5f5;"-->
+        </form>
+    </div>
+</div>
+{% include 'ErpProject/ErpBackOffice/widget/include_view.html' %}
+{% endblock %}

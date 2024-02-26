@@ -1,0 +1,192 @@
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+{% if not isPopup %}
+<style>
+    .badge_red{
+        background-color: #FFBB00;
+        align-items: center;
+        border-radius: 5%;
+        color: rgba(255, 255, 255, 0.87);
+        display: flex;
+        font-size: 0.8em;
+        height: 20px;
+        justify-content: center;
+        left: 7%;
+        pointer-events: none;
+        width: 90px;
+    }
+    .badge_green {  
+        background-color: #0ac213;
+        align-items: center;
+        border-radius: 5%;
+        color: rgba(255, 255, 255, 0.87);
+        display: flex;
+        font-size: 0.8em;
+        height: 20px;
+        justify-content: center;
+        left: 7%;
+        pointer-events: none;
+        width: 90px;
+    }
+</style>
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="leaf chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% endif %}
+
+<div class="row"  style="padding-top: 10px;">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">  
+                {% if not isPopup %}         
+                <div class="row">
+                    {% if user_actions.can_create is True %} 
+                    <div class="col-md-3 col-xs-12">
+                        <button onclick="javascript:window.location.assign('{% url 'module_stock_add_bon_sortie' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 100%;">
+                            Créer 
+                        </button>
+                    </div>
+                    {% endif %}
+                    <div class="col-md-3 col-xs-12">
+                        <div id="btn-view" data-role="group" data-group-type="one-state">
+                            <button id="btn-tree" class="button btn-typeview btn-secondary {% if view == "list" %}{{ "active" }}{% endif %}"><span class="mif-list"></span></button>
+                            <button id="btn-kanban" class="button btn-typeview btn-secondary {% if view == "kanban" %}{{ "active" }}{% endif %}"><span class="mif-apps"></span></button>
+                        </div>
+                    </div>
+                </div><br> 
+                            
+                <hr class="hr-ligne">
+                {% endif %}
+                <!-- Appel de la fonction message -->           
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                <div id="datalist" class="row" style="">
+                    <!-- Vue de type list -->
+                    <div id="list-view" class="row" style="margin-top: 10px;overflow: auto; position: relative; display: inline-block;">        
+                        <table id="data_table" class="display nowrap border bordered striped" cellspacing="0" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th style="width: 20px; background-color:#2e416a; white"></th>
+                                    <th>Code Transfert</th>
+                                    <th>Emplacement Destination</th>
+                                    <th>Emplacement Origine</th>
+                                    <th>Opération Stock</th>
+                                    <th>Employé</th>
+                                    <th>Date de création</th>
+                                    <th>Statut Livraison</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody">
+                                {% for item in model %}
+                                <tr>
+                                    <td>
+                                        <label class="small-check">
+                                            <input type="checkbox"><span class="check"></span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <a class="lien chargement-au-click" href="{% url 'module_stock_select_bon_sortie' item.id %}{% if isPopup %}?isPopup=1{% endif %}">{{ item.code }}</a>
+                                    </td>
+                                    <td>{{item.emplacement_destination}}</td>
+                                    <td>{{item.emplacement_origine}}</td>
+                                    <td>{{item.operation_stock}}</td>
+                                    <td>{{item.employe}}</td>
+                                    <td>{{item.creation_date|date:'d/m/Y'}}</td>
+                                    <td>
+                                        {% if item.status.id == 1 %}
+                                            <span class="badge_red rounded-pill text-bg-primary">En cours</span> 
+                                        {% else %}
+                                            <span class="badge_green rounded-pill text-bg-primary">Cloturé</span> 
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Vue de type card -->
+                    <div id="kanban-view" class="row" style="margin-top: 10px; display: none;">
+                        <div id="card-list" class="row" style="">
+                            {% for item in model %}
+                            <div class="col-md-4">
+                                <div class="card-item" style="margin-top: 10px; margin-bottom: 15px">
+                                    <div class="card-item-content">
+                                        <div class="thumb">
+                                        </div>
+                                        <div class="texts">
+                                            <a class="link chargement-au-click" href="{% url 'module_stock_select_bon_sortie' item.id %}{% if isPopup %}?isPopup=1{% endif %}">{{ item.code }}</a><br>
+                                            <div class="mt-2"></div>
+                                            <span class="inner-text">Créé par : {{ item.auteur.nom_complet }}</span><br>
+                                            <span class="inner-text">Créé le : {{ item.creation_date|date:'d/m/Y' }}</span><br>
+                                            <a href="{% url 'module_stock_select_bon_sortie' item.id %}{% if isPopup %}?isPopup=1{% endif %}" class="mt-3 btn btn-block btn-wide rounded chargement-au-click">voir detail</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<script>
+    url_item = "{% url 'module_stock_select_bon_sortie' '100' %}";
+    url_list = "{% url 'module_stock_list_bon_sortie' %}";
+
+    function formatTableRow(url, item) {
+        td = 
+        `<td>
+            <label class="small-check">
+                <input type="checkbox"><span class="check"></span>
+            </label>
+        </td>
+        <td>
+            <a class="lien chargement-au-click" href="${url}">${ item.code }</a>
+        </td>
+        <td>${formatChar(item.emplacement_destination)}</td>
+        <td>${formatChar(item.emplacement_origine)}</td>
+        <td>${formatChar(item.operation_stock)}</td>
+        <td>${formatChar(item.employe)}</td>        
+        <td>${formatDateTime(item.creation_date)}</td>
+        <td>${formatRel(item.auteur_id)}</td>
+        
+        `;
+        return td;
+    }
+
+    function formatKanbanRow(url, item) {
+        card = 
+        `
+        <div class="col-md-4">
+            <div class="card-item" style="margin-top: 10px; margin-bottom: 15px">
+                <div class="card-item-content">
+                    <div class="thumb">
+                    </div>
+                    <div class="texts">
+                        <a class="link chargement-au-click" href="${url}">${ formatChar(item.code)}</a><br>
+                        <div class="mt-2"></div>
+                        <span class="inner-text">Créé par : ${formatChar(item.auteur)}</span><br>
+                        <span class="inner-text">Créé le : ${formatDateTime(item.creation_date)}</span><br>
+                        <a href="${url}" class="mt-3 btn btn-block btn-wide rounded chargement-au-click">voir detail</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+        return card;
+    }
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/list_view.html' %}
+{% endblock %}

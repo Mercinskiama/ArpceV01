@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">
+  <g id="Facture-01" transform="translate(-276 -5)">
+    <path id="路径" d="M0,32V5A5,5,0,0,1,5,0H24l8,8V35a5,5,0,0,1-5,5H4" transform="translate(278 7)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <path id="路径-2" data-name="路径" d="M0,0V6a4,4,0,0,0,4,4h6" transform="translate(300 7)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <path id="直线" d="M0,.5H16" transform="translate(286 32.5)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <path id="直线-2" data-name="直线" d="M0,.5H10" transform="translate(292 24.5)" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="4"/>
+    <circle id="椭圆形" cx="2" cy="2" r="2" transform="translate(284 23)" fill="#fff"/>
+  </g>
+</svg>

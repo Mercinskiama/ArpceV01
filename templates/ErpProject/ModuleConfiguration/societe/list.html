@@ -1,0 +1,227 @@
+
+{% extends "ErpProject/ModuleConfiguration/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+{% if not isPopup %}
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="leaf chargement-au-click" href="{% url 'module_configuration_index' %}">Module Configuration</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% endif %}
+
+<div class="row"  style="padding-top: 10px;">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+        <div class="panel panel-default" style="border: none;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">  
+                {% if not isPopup %}         
+                <div class="row">
+                    {% if user_actions.can_create is True %} 
+                    <div class="col-md-3 col-xs-12">
+                        <button onclick="javascript:window.location.assign('{% url 'module_configuration_add_societe' %}')" class="theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}" style="width: 100%;">
+                            Créer 
+                        </button>
+                    </div>
+                    {% endif %}
+                    <div class="col-md-3 col-xs-12">
+                        <div id="btn-view" data-role="group" data-group-type="one-state">
+                            <button id="btn-tree" class="button btn-typeview btn-secondary {% if view == "list" %}{{ "active" }}{% endif %}"><span class="mif-list"></span></button>
+                            <button id="btn-kanban" class="button btn-typeview btn-secondary {% if view == "kanban" %}{{ "active" }}{% endif %}"><span class="mif-apps"></span></button>
+                        </div>
+                    </div>
+                </div><br> 
+                            
+                <hr class="hr-ligne">
+                {% endif %}
+                <!-- Appel de la fonction message -->           
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+
+                <div id="datalist" class="row" style="">
+                    <!-- Vue de type list -->
+                    <div id="list-view" class="row" style="margin-top: 10px;overflow: auto; position: relative; display: inline-block;">        
+                        <table id="data_table" class="display nowrap border bordered striped" cellspacing="0" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th style="width: 20px; background-color:#2e416a; white"></th>
+                                    <th>Code</th>
+                                    <th>Nom de la société</th>
+                                    <th>Type</th>
+                                    <th>Société mère</th>
+                                    <th>Devise de référence</th>
+                                    <th>Type de période</th>
+                                    <th>Email</th>
+                                    <th>Genre</th>
+                                    <th>Pays</th>
+                                    <th>Nom Pays</th>
+                                    <th>Province</th>
+                                    <th>Nom Province</th>
+                                    <th>Ville</th>
+                                    <th>Nom Ville</th>
+                                    <th>Commune</th>
+                                    <th>Adresse ligne 1</th>
+                                    <th>Adresse ligne 2</th>
+                                    <th>Téléphone 1</th>
+                                    <th>Téléphone 2</th>
+                                    <th>Nombre période Comptabilité</th>
+                                    <th>Nombre période Comptabilité Client</th>
+                                    <th>Nombre période Comptabilité Fournisseur</th>
+                                    <th>Nombre période Comptabilité Trésorerie </th>
+                                    <th>Nombre période Comptabilité Immobilisation</th>
+                                    <th>Nombre période Budget</th>
+                                    <th>Nombre période Paie</th>
+                                    <th>Début exercice en cours</th>
+                                    <th>Fin Exercice en cours</th>
+                                    <th>Date de création</th>
+                                    <th>Créé par</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody">
+                                {% for item in model %}
+                                <tr>
+                                    <td>
+                                        <label class="small-check">
+                                            <input type="checkbox"><span class="check"></span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <a class="lien chargement-au-click" href="{% url 'module_configuration_select_societe' item.id %}{% if isPopup %}?isPopup=1{% endif %}">{{ item.code }}</a>
+                                    </td>
+                                    <td>{{item.name|truncatechars:22}}</td>
+                                    <td>{{item.type|truncatechars:22}}</td>
+                                    <td>{{item.societe}}</td>
+                                    <td>{{item.devise}}</td>
+                                    <td>{{item.type_periode}}</td>
+                                    <td>{{item.adress_email}}</td>
+                                    <td>{{item.siteweb|truncatechars:22}}</td>
+                                    <td>{{item.pays}}</td>
+                                    <td>{{item.pays_adress|truncatechars:22}}</td>
+                                    <td>{{item.province}}</td>
+                                    <td>{{item.province_adress|truncatechars:22}}</td>
+                                    <td>{{item.ville}}</td>
+                                    <td>{{item.ville_adress|truncatechars:22}}</td>
+                                    <td>{{item.commune}}</td>
+                                    <td>{{item.adresse_line1|truncatechars:22}}</td>
+                                    <td>{{item.adresse_line2|truncatechars:22}}</td>
+                                    <td>{{item.telephone_1|truncatechars:22}}</td>
+                                    <td>{{item.telephone_2|truncatechars:22}}</td>
+                                    <td>{{item.nbr_periode_gl}}</td>
+                                    <td>{{item.nbr_periode_ar}}</td>
+                                    <td>{{item.nbr_periode_ap}}</td>
+                                    <td>{{item.nbr_periode_cm}}</td>
+                                    <td>{{item.nbr_periode_fa}}</td>
+                                    <td>{{item.nbr_periode_bgt}}</td>
+                                    <td>{{item.nbr_periode_py}}</td>
+                                    <td>{{item.period_begin_date|date:"d/m/Y H:i"}}</td>
+                                    <td>{{item.period_end_date|date:"d/m/Y H:i"}}</td>
+                                    <td>{{item.creation_date|date:'d/m/Y'}}</td>
+                                    <td>{{item.auteur.nom_complet}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Vue de type card -->
+                    <div id="kanban-view" class="row" style="margin-top: 10px; display: none;">
+                        <div id="card-list" class="row" style="">
+                            {% for item in model %}
+                            <div class="col-md-4">
+                                <div class="card-item" style="margin-top: 10px; margin-bottom: 15px">
+                                    <div class="card-item-content">
+                                        <div class="thumb">
+                                        </div>
+                                        <div class="texts">
+                                            <a class="link chargement-au-click" href="{% url 'module_configuration_select_societe' item.id %}{% if isPopup %}?isPopup=1{% endif %}">{{ item.code }}</a><br>
+                                            <div class="mt-2"></div>
+                                            <span class="inner-text">Créé par : {{ item.auteur.nom_complet }}</span><br>
+                                            <span class="inner-text">Créé le : {{ item.creation_date|date:'d/m/Y' }}</span><br>
+                                            <a href="{% url 'module_configuration_select_societe' item.id %}{% if isPopup %}?isPopup=1{% endif %}" class="mt-3 btn btn-block btn-wide rounded chargement-au-click">voir detail</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<script>
+    url_item = "{% url 'module_configuration_select_societe' '100' %}";
+    url_list = "{% url 'module_configuration_list_societe' %}";
+
+    function formatTableRow(url, item) {
+        td = 
+        `<td>
+            <label class="small-check">
+                <input type="checkbox"><span class="check"></span>
+            </label>
+        </td>
+        <td>
+            <a class="lien chargement-au-click" href="${url}">${ item.code }</a>
+        </td>
+        <td>${formatChar(item.name)}</td>
+        <td>${formatChar(item.type)}</td>
+        <td>${formatChar(item.societe)}</td>
+        <td>${formatChar(item.devise)}</td>
+        <td>${formatChar(item.type_periode)}</td>
+        <td>${formatChar(item.adress_email)}</td>
+        <td>${formatChar(item.siteweb)}</td>
+        <td>${formatChar(item.pays)}</td>
+        <td>${formatChar(item.pays_adress)}</td>
+        <td>${formatChar(item.province)}</td>
+        <td>${formatChar(item.province_adress)}</td>
+        <td>${formatChar(item.ville)}</td>
+        <td>${formatChar(item.ville_adress)}</td>
+        <td>${formatChar(item.commune)}</td>
+        <td>${formatChar(item.adresse_line1)}</td>
+        <td>${formatChar(item.adresse_line2)}</td>
+        <td>${formatChar(item.telephone_1)}</td>
+        <td>${formatChar(item.telephone_2)}</td>
+        <td>${formatInt(item.nbr_periode_gl)}</td>
+        <td>${formatInt(item.nbr_periode_ar)}</td>
+        <td>${formatInt(item.nbr_periode_ap)}</td>
+        <td>${formatInt(item.nbr_periode_cm)}</td>
+        <td>${formatInt(item.nbr_periode_fa)}</td>
+        <td>${formatInt(item.nbr_periode_bgt)}</td>
+        <td>${formatInt(item.nbr_periode_py)}</td>
+        <td>${formatDateTime(item.period_begin_date)}</td>
+        <td>${formatDateTime(item.period_end_date)}</td>        
+        <td>${formatDateTime(item.creation_date)}</td>
+        <td>${formatChar(item.auteur)}</td>
+        
+        `;
+        return td;
+    }
+
+    function formatKanbanRow(url, item) {
+        card = 
+        `
+        <div class="col-md-4">
+            <div class="card-item" style="margin-top: 10px; margin-bottom: 15px">
+                <div class="card-item-content">
+                    <div class="thumb">
+                    </div>
+                    <div class="texts">
+                        <a class="link chargement-au-click" href="${url}">${ formatChar(item.code)}</a><br>
+                        <div class="mt-2"></div>
+                        <span class="inner-text">Créé par : ${formatChar(item.auteur)}</span><br>
+                        <span class="inner-text">Créé le : ${formatDateTime(item.creation_date)}</span><br>
+                        <a href="${url}" class="mt-3 btn btn-block btn-wide rounded chargement-au-click">voir detail</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+        return card;
+    }
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/list_view.html' %}
+{% endblock %}

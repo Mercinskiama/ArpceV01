@@ -1,0 +1,249 @@
+
+{% extends "ErpProject/ModuleStock/shared/layout.html" %}
+{% block page %} {% load humanize %} {% load static %} {% load account_filters %}
+{% if not isPopup %}
+<style>
+    .griseinput{
+        background-color: #d9d9d9;
+    }
+</style>
+<div class="row">
+    <ul class="breadcrumb">
+        <li><a href="{% url 'backoffice_index' %}"><span class="mif-home"></span></a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_index' %}">Module Stock</a></li>
+        <li><a class="chargement-au-click" href="{% url 'module_stock_list_bon_reception' %}">Liste des Bons de Receptions</a></li>
+        <li>{{ title }}</li>
+    </ul>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2>{{ title }}</h2>
+        
+        <strong style="float: right;color: grey;opacity: 0.4;margin-top: -30px;">{% now "jS F Y H:i" %}</strong>
+        <div class="separ" style="background-color: grey;opacity: 0.2"></div>
+
+        <div class="panel panel-default" style="border: none; margin-top: 1rem;">
+            <div class="panel panel-body" style="background-color:#f5f5f5;border: none;border-radius: none;">
+                <div class="row">
+                    <button onclick="javascript:document.getElementById('submit').click()" class="validate-btn theme-btn theme-btn-sm rounded primary_color_{{module.name|lower}}">Valider</button>
+                    {% if not isPopup %}
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_get_upload_bon_reception' %}')" class="theme-btn theme-btn-sm rounded chargement-au-click">Importer les données à partir excel</button>
+                    <button onclick="javascript:window.location.assign('{% url 'module_stock_list_bon_reception' %}')" class="theme-btn theme-btn-sm rounded" style="width: 20%;margin-left: 5px">Annuler</button>
+                    {% endif %}
+                </div>
+
+                <hr class="hr-ligne">
+                <!-- Appel de la fonction message -->
+                {% include 'ErpProject/ErpBackOffice/widget/message.html' with messages=messages only %}<br>
+                
+                <form id="form" method="POST" action="{% url 'module_stock_post_add_bon_reception' %}"  enctype="multipart/form-data" data-role="validator" data-show-required-state="false" data-hint-mode="line" data-hint-background="bg-red" data-hint-color="fg-white" data-hide-error="5000"
+                    novalidate="novalidate" data-on-error-input="notifyOnErrorInput" data-show-error-hint="false">
+                    {% csrf_token %}
+                    <input id="submit" type="submit" style="display: none">
+                    {% if isPopup %}<input id="isPopup" name="isPopup" value="1" type="text" style="display: none">{% endif %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Code reception</label>
+                            <div class="input-control text full-size" data-role="input">
+                                <input class="griseinput" name="code" id="code" type="text" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Date</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size datetimepicker">
+                                <input type="text" name="date_prevue" id="date_prevue" placeholder="jj/mm/aaaa hh:mm">
+                                <div class="button"><span class="glyphicon glyphicon-screenshot far fa-calendar" style="margin-right:3px;"></span><span class="glyphicon glyphicon-screenshot far fa-clock"></span></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Société</label>
+                            <div class="input-control text full-size">                                
+                                <select name="societe_id" id="societe_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% comment %} <option class="create_option" value='-100' data-url="/configuration/societe/add?isPopup=1">Créer nouveau...</option> {% endcomment %}
+                                    {% comment %} <option class="search_option" value='-200' data-url="/configuration/societe/list?isPopup=1">Voir plus ...</option> {% endcomment %}
+                                    {% for item in societes %}
+                                        <option {% if item.id == 1 %} {{ "selected" }} {% endif %} value="{{ item.id }}">{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Emplacement Origine</label>
+                            <div class="input-control text full-size">                                
+                                <select name="emplacement_origine_id" id="emplacement_origine_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% comment %} <option class="create_option" value='-100' data-url="/stock/emplacement/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/emplacement/list?isPopup=1">Voir plus ...</option> {% endcomment %}
+                                    {% for item in emplacements_origine %}
+                                        <option value="{{ item.id }}" selected>{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Emplacement Destination</label>
+                            <div class="input-control text full-size">                                
+                                <select name="emplacement_destination_id" id="emplacement_destination_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% comment %} <option class="create_option" value='-100' data-url="/stock/emplacement/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/emplacement/list?isPopup=1">Voir plus ...</option> {% endcomment %}
+                                    {% for item in emplacements_destination %}
+                                        <option value="{{ item.id }}" selected>{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label>Opération Stock</label>
+                            <div class="input-control text full-size">                                
+                                <select name="operation_stock_id" id="operation_stock_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% comment %} <option class="create_option" value='-100' data-url="/stock/operation_stock/add?isPopup=1">Créer nouveau...</option>
+                                    <option class="search_option" value='-200' data-url="/stock/operation_stock/list?isPopup=1">Voir plus ...</option> {% endcomment %}
+                                    {% for item in operation_stocks %}
+                                        <option {% if item.id == 1 %} {{ "selected" }} {% endif %} value="{{ item.id }}">{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label>Bon de Livraison</label>
+                            <div class="input-control file full-size" data-role="input">
+                                <input name="bon_livraison" id="bon_livraison" type="file"><button class="button"><span class="mif-folder"></span></button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Employé</label>
+                            <div class="input-control text full-size">                                
+                                <select name="employe_id" id="employe_id" class="selectpicker form-control" title="Sélectionner une option">
+                                    <option value="">Sélectionnez une option</option>
+                                    {% comment %} <option class="create_option" value='-100' data-url="/configuration/personne/add?isPopup=1">Créer nouveau...</option> {% endcomment %}
+                                    <option class="search_option" value='-200' data-url="/configuration/personne/list?isPopup=1">Voir plus ...</option>
+                                    {% for item in personnes %}<option value="{{ item.id }}">{{ item }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Observation de Livraison</label><span style='font-weight: bold; font-size: 14px; margin-left: 5px; color: red;'>*</span>
+                            <div class="input-control text full-size" data-role="input">
+                                <textarea name="description" id="description" data-validate-func="required" data-validate-hint="Saisissez le champ Numéro SVP !"></textarea>
+                                {% comment %} <input name="description" id="description" type="text" > {% endcomment %}
+                            </div>
+                        </div>
+                    </div>     
+                    <br><br>
+                    <div class="row">
+                        <ul class="nav nav-tabs navtab-bg"> 
+                            <li class="active"><a href="#frame_autres" data-toggle="tab" aria-expanded="false"><span>Autres informations</span></a></li>
+                        </ul>
+                        <div class="tab-content"> 
+                            <div class="tab-pane active" id="frame_autres">
+                                <div class="row margin20 no-margin-left no-margin-right">                                
+                                    <table id="tbl_posts" class="table bordered">
+                                        <thead style="background-color: grey; color: white;">
+                                            <th style="color: white;"># Articles</th>
+                                            <th style="color: white;">Quantité Réçue</th>
+                                            <th width="40%" style="color: white;">Description</th>
+                                            <th style="color: white;"></th>
+                                        </thead>
+                                        <tbody id="tbl_posts_body">
+                                            <tr id="rec-1">
+                                                <td>
+                                                    <select id="article_1" name="articles" class="selectpicker2 form-control article" data-container="body" data-live-search="true" title="Choisir un article" data-hide-disabled="true" required>
+                                                        {% for item in articles %}
+                                                            <option value="{{item.id}}"> {{item}} </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input id="quantite_1" name="quantites" step="0.00001" type="number" class="form-control" required>
+                                                </td>
+                                                <td>
+                                                    <input id="description_1" name="decriptions" class="form-control decription" required>
+                                                </td>
+                                                <td>
+                                                    <a class="btn btn-xs delete-record" onclick="supprimerLigne(1)" data-id="0">
+                                                        <i class="fa fa-trash" style="color:#E73E32"></i>
+                                                    </a>
+                                                </td> 
+                                            </tr>
+                                        </tbody>
+                                </table>
+                                <br>
+                                <div class="row margin10 no-margin-left no-margin-right">
+                                    <button type="button" class="button rounded" id="btnAjouterLigne">Ajouter une ligne</button>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-lg-12 -->
+    <div style="display:none;">
+        <table id="sample_table">
+            <tr>
+                <td><span class="sn"></span>.</td>
+                <td>
+                    <select id="" name="article_id" class="selectpicker2 form-control article" data-container="body" data-live-search="true" title="Choisir un article" data-hide-disabled="true" required>
+                        {% for item in articles %}
+                            <option value="{{item.id}}"> {{item.name}} </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <input name="quantite" step="0.00001" type="number" class="form-control" required>
+                </td>
+                <td>
+                    <input id="unite_1" name="unite_id" class="form-control unite" required>
+                </td>
+                <td>
+                    <a class="btn btn-xs delete-record" data-id="0">
+                        <i class="fa fa-trash" style="color:#E73E32"></i>
+                    </a>
+                </td>
+            </tr>
+       </table>
+    </div>
+</div>
+<script>
+    url_item = "{% url 'module_stock_select_bon_reception' '100' %}";    
+</script>
+<script>
+    var nombreLignes = 1;
+    var compteur = 1;
+    $("#btnAjouterLigne").on("click", function () {
+        nombreLignes++;
+        compteur++;
+
+        //Debut nouvelle ligne
+        var nouvelleLigne = '<tr id="rec-' + compteur + '">';
+        nouvelleLigne += '<td> <select id="article_'+ compteur+'" name="articles" class="selectpicker2 form-control article" data-container="body" data-live-search="true" title="Choisir un article" data-hide-disabled="true" required>';
+        nouvelleLigne += '{% for item in articles %}<option value="{{item.id}}"> {{item}} </option>{% endfor %}</select></td>';
+        nouvelleLigne += '<td><input id="quantite_'+compteur+'" name="quantites" step="0.00001" type="number" class="form-control" required></td>';
+        nouvelleLigne += '<td><input id="description_'+compteur+'" name="decriptions" class="form-control decription" required></td>' ;
+        nouvelleLigne += '<td><a class="btn btn-xs delete-record" onclick="supprimerLigne('+ compteur +')" data-id="'+ compteur +'"><i class="fa fa-trash" style="color:#E73E32"></i></a></td>';
+        nouvelleLigne += '</tr>';
+        
+        $("#tbl_posts_body").append(nouvelleLigne);
+    });
+
+    
+    // The above code is a JavaScript function that is used to delete a row from an HTML table. It
+    // takes an argument "indice" which represents the index of the row to be deleted. The function
+    // decreases the value of a variable "nombreLignes" by 1 and then removes the row with the id
+    // "rec-" + indice from the HTML table using jQuery's remove() method. -->
+    function supprimerLigne(indice) {
+        nombreLignes--;
+        $("#rec-" + indice).remove();
+    }
+</script>
+{% include 'ErpProject/ErpBackOffice/widget/create_view.html' %}
+{% endblock %}
